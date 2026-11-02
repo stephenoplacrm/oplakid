@@ -450,7 +450,7 @@ function cleanPatch(patch) {
   return out;
 }
 
-/* Người lạ chỉ thấy con vật và khu của bạn khác. Biệt danh và mã phòng chỉ hiện
+/* Người lạ chỉ thấy con vật và lớp của bạn khác. Biệt danh và mã phòng chỉ hiện
  * cho người cùng tài khoản phụ huynh hoặc cùng phòng đua. */
 const RACE_KEYS = ['race', 'host', 'round', 'phase', 'kind', 'prog', 'wpm', 'ms', 'acc', 'text'];
 function visiblePresence(p, viewer) {

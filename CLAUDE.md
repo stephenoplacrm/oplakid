@@ -5,7 +5,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 
 ## Cấu trúc
 - `server.js`: Express, tài khoản phụ huynh (scrypt, cookie phiên), API `/api/*`, WebSocket `/ws` (ai đang online).
-- `races.js`: quản lý cuộc đua trên máy chủ (1v1, 3v3, 5v5, đua với máy, phòng riêng, ghép theo khu Bò/Đi/Chạy).
+- `races.js`: quản lý cuộc đua trên máy chủ (1v1, 3v3, 5v5, đua với máy, phòng riêng, ghép theo Lớp 1/2/3).
 - `public/index.html`, `public/app.css`, `public/app.js`: toàn bộ giao diện, JavaScript thuần, không có bước build.
 - `public/privacy.html`: chính sách quyền riêng tư (bản nháp).
 - Dữ liệu: một file SQLite tại `DATABASE_PATH` (đĩa cố định `/data` trên Render).

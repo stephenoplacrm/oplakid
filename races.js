@@ -1,7 +1,7 @@
 'use strict';
 /*
  * Quản lý cuộc đua trên máy chủ.
- * - Đua công khai theo khu (Bò đua với Bò, Đi với Đi, Chạy với Chạy): 1 đấu 1, 3 đấu 3, 5 đấu 5.
+ * - Đua công khai theo lớp (Lớp 1 đua với Lớp 1, Lớp 2 với Lớp 2, Lớp 3 với Lớp 3): 1 đấu 1, 3 đấu 3, 5 đấu 5.
  * - Đua với máy, phòng riêng có mã để mời bạn.
  * - Máy chủ giữ đồng hồ: tự đếm ngược, tự tính thời gian về đích, tự điền máy vào chỗ trống.
  */
@@ -24,7 +24,7 @@ const BOT_NAMES = ['Máy Mít', 'Máy Na', 'Máy Cam', 'Máy Bơ', 'Máy Dừa',
 const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸']);
 const CODE_CH = 'abcdefghjkmnpqrstuvwxyz23456789';
 
-/* Kho chữ cho từng khu */
+/* Kho chữ cho từng lớp */
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
 const HOME_ROW = 'asdfghjkl';
 const WORDS = ('cat dog pig fox ant cow hen bee owl bat duck fish frog bird lion bear goat horse mouse tiger zebra ' +
@@ -170,7 +170,7 @@ class RaceManager {
         if (race.players.some(p => p.pid === peerId)) { this.touch(race); return; }
         if (race.status !== 'waiting') return err('Cuộc đua này đã bắt đầu rồi. Em chọn cuộc đua khác nhé.');
         if (race.players.length >= race.cap) return err('Cuộc đua này đã đủ người.');
-        if (race.isPublic && race.stage !== stage) return err('Cuộc đua này dành cho các bạn ở khu khác.');
+        if (race.isPublic && race.stage !== stage) return err('Cuộc đua này dành cho các bạn ở lớp khác.');
         this.addHuman(race, peerId, msg);
         return;
       }
