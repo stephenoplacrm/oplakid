@@ -226,9 +226,9 @@ const UNITS=[
 ];
 const FLAT=UNITS.flatMap(u=>u.steps.map(st=>({u:u.id,s:st.id})));
 const STAGES=[
-  {id:'bo',name:'Bò',icon:'🐢',desc:'Làm quen từng hàng phím',units:['home','top','bottom','mix']},
-  {id:'di',name:'Đi',icon:'🚶',desc:'Gõ từ, cụm từ và câu tiếng Anh',units:['words','phr']},
-  {id:'chay',name:'Chạy',icon:'🏃',desc:'Chữ hoa, dấu câu, số và đoạn văn',units:['caps','punct','num','para']}
+  {id:'bo',name:'Lớp 1',icon:'🐢',desc:'Làm quen từng hàng phím',units:['home','top','bottom','mix']},
+  {id:'di',name:'Lớp 2',icon:'🚶',desc:'Gõ từ, cụm từ và câu tiếng Anh',units:['words','phr']},
+  {id:'chay',name:'Lớp 3',icon:'🏃',desc:'Chữ hoa, dấu câu, số và đoạn văn',units:['caps','punct','num','para']}
 ];
 const stageOf=uid=>STAGES.find(S=>S.units.includes(uid));
 function stageDone(S){const all=FLAT.filter(x=>S.units.includes(x.u));return [all.filter(x=>state.best[x.u+':'+x.s]).length,all.length];}
@@ -421,8 +421,8 @@ function renderHome(){
     b.addEventListener('click',()=>{stageSel=S.id;renderHome();updateLobbyPresence();});sb.appendChild(b);});
   const SS=STAGES.find(x=>x.id===stageSel),[sd,sn]=stageDone(SS);
   const SSlk=!stageUnlocked(SS),prevS=STAGES[STAGES.indexOf(SS)-1];
-  if(SSlk){const [pd,pn]=stageDone(prevS);$('#progress').textContent='Chặng '+SS.name+' đang khoá. Em cần xong hết '+pn+' bài của chặng '+prevS.name+' (còn '+(pn-pd)+' bài) thì chặng này mới mở.';}
-  else $('#progress').textContent='Chặng '+SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.id==='chay'?' Chặng này dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
+  if(SSlk){const [pd,pn]=stageDone(prevS);$('#progress').textContent=SS.name+' đang khoá. Em cần xong hết '+pn+' bài của '+prevS.name+' (còn '+(pn-pd)+' bài) thì lớp này mới mở.';}
+  else $('#progress').textContent=SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.id==='chay'?' Lớp này dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
   const ul=$('#units');ul.innerHTML='';
   SS.units.map(id=>UNITS.find(U=>U.id===id)).forEach((U,ui)=>{
     const li=document.createElement('li');li.className='lesson';
@@ -453,7 +453,7 @@ function renderHome(){
   Object.entries(TRACKS).forEach(([id,t])=>{const b=document.createElement('button');b.type='button';b.className='chip';
     const g=state.ghosts[id];
     b.innerHTML=esc(t.name)+(g&&g.wpm?'<span class="st" style="color:var(--muted);letter-spacing:0">'+g.wpm+' WPM</span>':'');
-    if(t.adv&&!stageUnlocked(STAGES[2])){b.disabled=true;b.classList.add('lockedc');b.innerHTML='🔒 '+b.innerHTML;b.title='Mở khi em tới chặng Chạy';}
+    if(t.adv&&!stageUnlocked(STAGES[2])){b.disabled=true;b.classList.add('lockedc');b.innerHTML='🔒 '+b.innerHTML;b.title='Mở khi em lên Lớp 3';}
     b.addEventListener('click',()=>startRace(id));tr.appendChild(b);});
 }
 
@@ -528,7 +528,7 @@ function finishLesson(){
   const titles={3:'Giỏi quá!',2:'Tốt lắm!',1:'Em làm xong rồi!'};
   const subs={3:'Ngón tay nào cũng làm đúng việc của mình.',2:'Còn vài chữ nhầm, chơi lại một lần nữa là thuộc.',1:'Gõ chậm lại một chút, nhìn ngón tay sáng trên màn hình để gõ cho đúng.'};
   let sub=subs[stars];if(newWpm&&prev)sub+=' Kỷ lục tốc độ mới ở bài này: '+wpm+' WPM (lần trước '+prev+').';
-  const stg=stageOf(game.unit);if(firstTime&&stg){const [d,n]=stageDone(stg);if(d===n)sub+=' Em đã hoàn thành chặng '+stg.name+'!';}
+  const stg=stageOf(game.unit);if(firstTime&&stg){const [d,n]=stageDone(stg);if(d===n)sub+=' Em đã hoàn thành '+stg.name+'!';}
   const u=game.unit,s=game.step,i=FLAT.findIndex(x=>x.u===u&&x.s===s),nx0=i>=0&&i<FLAT.length-1?FLAT[i+1]:null,nx=nx0&&stageUnlocked(stageOf(nx0.u))?nx0:null;
   showResults({stars,title:titles[stars],sub,acc,miss:game.missLocal,
     stats:[[wpm,'WPM'],[Math.round(acc*100)+'%','gõ đúng'],[game.chars,'chữ cái'],[fmtTime(secs),'thời gian']],
@@ -770,7 +770,7 @@ function renderParent(){
   const wk=Date.now()-7*864e5,ws=state.sessions.filter(s=>s.t>=wk);
   $('#p-week').textContent=ws.length+' buổi';
   $('#p-week-note').textContent='Tổng '+Math.round(ws.reduce((a,s)=>a+s.secs/60,0))+' phút luyện tập.';
-  const groups=STAGES.map(S=>[S.units,S.icon+' Chặng '+S.name+' ('+stageDone(S).join('/')+' bài)']).concat([[['race'],'Đua với bóng ma'],[['game'],'Trò chơi']]);
+  const groups=STAGES.map(S=>[S.units,S.icon+' '+S.name+' ('+stageDone(S).join('/')+' bài)']).concat([[['race'],'Đua với bóng ma'],[['game'],'Trò chơi']]);
   $('#p-acc').innerHTML=groups.map(([m,n])=>{const ss=state.sessions.filter(s=>m.includes(s.unit));
     const v=ss.length?Math.round(ss.reduce((a,s)=>a+s.acc,0)/ss.length*100)+'%':'chưa chơi';
     return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0"><span>'+esc(n)+'</span><b>'+v+'</b></div>';}).join('');
@@ -923,7 +923,7 @@ function emptyRow(){const li=document.createElement('li');li.className='oplayer 
 function renderOnline(){
   const r=online;if(!r)return;
   const S=STAGE_BY_ID(r.stage),since=(performance.now()-(r.at||0));
-  $('#o-mode-l').textContent=r.label;$('#o-stage-l').textContent=S.icon+' Khu '+S.name;
+  $('#o-mode-l').textContent=r.label;$('#o-stage-l').textContent=S.icon+' '+S.name;
   $('#o-title').textContent=r.mode==='bot'?'Đua với máy':(r.isPublic?'Đua '+r.label:'Phòng riêng '+r.label);
   $('#o-share').hidden=!r.code;if(r.code){$('#o-code2').textContent=r.code.toUpperCase();}
   const humans=r.players.filter(p=>!p.bot).length,missing=r.cap-r.players.length;
@@ -963,10 +963,10 @@ function fillRace(){if(online&&online.status==='waiting')rsend({t:'race.fill'});
 
 function renderPublicRaces(){
   const box=$('#pub-races');if(!box)return;
-  const S=curStage();$('#rz-title').textContent='Đua với các bạn khu '+S.name+' '+S.icon;
+  const S=curStage();$('#rz-title').textContent='Đua với các bạn '+S.name+' '+S.icon;
   const since=performance.now()-(publicRaces.at||0);
   const list=publicRaces.filter(r=>r.stage===S.id);box.innerHTML='';
-  if(!list.length){const li=document.createElement('li');li.className='pubrace none';li.textContent='Chưa có cuộc đua nào đang chờ ở khu '+S.name+'. Bấm 1 đấu 1, 3 đấu 3 hoặc 5 đấu 5 để mở cuộc đua mới, các bạn khác sẽ thấy và vào cùng.';box.appendChild(li);return;}
+  if(!list.length){const li=document.createElement('li');li.className='pubrace none';li.textContent='Chưa có cuộc đua nào đang chờ ở '+S.name+'. Bấm 1 đấu 1, 3 đấu 3 hoặc 5 đấu 5 để mở cuộc đua mới, các bạn khác sẽ thấy và vào cùng.';box.appendChild(li);return;}
   list.forEach(r=>{
     const li=document.createElement('li');li.className='pubrace';
     const mode=document.createElement('b');mode.textContent=r.label;
@@ -1036,7 +1036,7 @@ function stopRealtime(){if(room){room.close();room=null;}online=null;updateOnlin
 let npAv='🐯';
 function profileSummary(pid){
   const st=loadState(pid);const S=curStageOf(st);const all=FLAT.filter(x=>S.units.includes(x.u));
-  return S.icon+' Chặng '+S.name+': '+all.filter(x=>st.best[x.u+':'+x.s]).length+'/'+all.length;
+  return S.icon+' '+S.name+': '+all.filter(x=>st.best[x.u+':'+x.s]).length+'/'+all.length;
 }
 function renderLogin(){
   const box=$('#profiles');box.innerHTML='';
@@ -1129,14 +1129,14 @@ function renderOnlineStrip(ppl){
   const box=$('#onstrip');if(!room||!ppl.length){box.hidden=true;return;}
   box.hidden=false;$('#os-n').textContent=ppl.length;
   const c={bo:0,di:0,chay:0};ppl.forEach(p=>{c[p.presence.stage||'bo']++;});
-  $('#os-zones').textContent='🐢 Bò '+c.bo+'   🚶 Đi '+c.di+'   🏃 Chạy '+c.chay;
+  $('#os-zones').textContent='🐢 Lớp 1 '+c.bo+'   🚶 Lớp 2 '+c.di+'   🏃 Lớp 3 '+c.chay;
   const avs=$('#os-avs');avs.innerHTML='';
   ppl.slice(0,16).forEach(p=>{const s=document.createElement('span');s.className='osav'+(p.isMe&&p.sameTab?' me':'');s.textContent=String(p.presence.av||'🙂').slice(0,8);avs.appendChild(s);});
   if(ppl.length>16){const s=document.createElement('span');s.className='osmore';s.textContent='+'+(ppl.length-16);avs.appendChild(s);}
 }
 
 /* ================= 3D stadium ================= */
-const ZONES=[{id:'bo',name:'Bò',icon:'🐢',color:0x36a653,speed:.12,a0:Math.PI*0.5},{id:'di',name:'Đi',icon:'🚶',color:0x2b7fd0,speed:.35,a0:Math.PI*0.5+Math.PI*2/3},{id:'chay',name:'Chạy',icon:'🏃',color:0xee9124,speed:.9,a0:Math.PI*0.5+Math.PI*4/3}];
+const ZONES=[{id:'bo',name:'Lớp 1',icon:'🐢',color:0x36a653,speed:.12,a0:Math.PI*0.5},{id:'di',name:'Lớp 2',icon:'🚶',color:0x2b7fd0,speed:.35,a0:Math.PI*0.5+Math.PI*2/3},{id:'chay',name:'Lớp 3',icon:'🏃',color:0xee9124,speed:.9,a0:Math.PI*0.5+Math.PI*4/3}];
 let W3=null,threeP=null;
 function loadThree(){
   if(window.THREE)return Promise.resolve(window.THREE);
@@ -1165,7 +1165,7 @@ function drawBoard(){
   if(!W3)return;const c=actCounts(),n=c.race+c.learn+c.yard,key=n+'|'+c.race+'|'+c.learn+'|'+c.yard;if(W3.boardKey===key)return;W3.boardKey=key;
   const cv=W3.boardCanvas,g=cv.getContext('2d'),w=cv.width,h=cv.height;
   const grd=g.createLinearGradient(0,0,0,h);grd.addColorStop(0,'#2b2a6b');grd.addColorStop(1,'#4a3f9a');g.fillStyle=grd;g.fillRect(0,0,w,h);
-  g.textAlign='center';g.textBaseline='middle';g.fillStyle='#ffe066';g.font='800 84px '+FONT;g.fillText('TRƯỜNG ĐI OPLAKID',w/2,84);
+  g.textAlign='center';g.textBaseline='middle';g.fillStyle='#ffe066';g.font='800 66px '+FONT;g.fillText('TRƯỜNG TIỂU HỌC OPLAKID',w/2,84);
   g.fillStyle='#ffffff';g.font='700 56px '+FONT;g.fillText('🟢 '+n+' bạn đang online',w/2,170);
   g.font='700 46px '+FONT;g.fillText('🏃 '+c.race+' đua   ⌨️ '+c.learn+' học   🌳 '+c.yard+' chơi',w/2,244);
   W3.boardTex.needsUpdate=true;
@@ -1317,7 +1317,7 @@ function renderWorldList(){
   ZONES.forEach(z=>{
     const ps=people.filter(p=>(p.presence.stage||'bo')===z.id);
     const d=document.createElement('div');d.className='wzone';d.style.setProperty('--zc',hex(z.color));
-    const h=document.createElement('h2');h.textContent=z.icon+' Khu '+z.name+' ('+ps.length+')';d.appendChild(h);
+    const h=document.createElement('h2');h.textContent=z.icon+' '+z.name+' ('+ps.length+')';d.appendChild(h);
     const ul=document.createElement('div');ul.className='wkids';
     ps.slice(0,60).forEach(p=>{const s=document.createElement('span');s.className='wkid'+(p.isMe&&p.sameTab?' me':'');s.textContent=ACT_ICON[actOf(p)]+' '+String(p.presence.av||'🙂').slice(0,8)+' '+String(p.presence.nick||'Một bạn').slice(0,12)+(p.isMe&&p.sameTab?' (em)':'');ul.appendChild(s);});
     if(ps.length>60){const s=document.createElement('span');s.className='wnone';s.textContent='và '+(ps.length-60)+' bạn nữa';ul.appendChild(s);}
@@ -1329,7 +1329,7 @@ function renderWorldList(){
 function openWorld(){
   if(!curPid||screen==='login')return;
   stopAll();show('world');renderWorldList();
-  $('#w-note').textContent=room?'Bạn nào đang đua thì chạy ngoài sân, bạn nào đang học thì ngồi trong lớp gõ chữ. Kéo để xoay, chạm vào bạn để chào nhé! Em chỉ thấy biệt danh của các bạn cùng nhà.':'Đang kết nối máy chủ…';
+  $('#w-note').textContent=room?'Bạn nào đang đua thì chạy ngoài sân, bạn nào đang học thì ngồi trong lớp gõ chữ. Kéo để xoay, chạm vào bạn để chào nhé! Em chỉ thấy biệt danh của các bạn cùng lớp.':'Đang kết nối máy chủ…';
   loadThree().then(T=>{if(!W3)initWorld(T);sizeWorld();syncKids();if(!W3.raf)worldLoop();})
     .catch(()=>{$('#world3d').innerHTML='<p class="note" style="padding:20px">Không tải được hình 3D. Danh sách các bạn vẫn ở bên dưới.</p>';});
 }
