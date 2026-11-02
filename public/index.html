@@ -130,7 +130,7 @@
       <div class="authwrap">
         <div class="authintro">
           <h1>Luyện gõ 10 ngón cho bé</h1>
-          <p class="lede">Bé học từng hàng phím, rồi gõ từ và câu tiếng Anh, chơi trò chơi và đua với bạn. Bố mẹ tạo một tài khoản, mỗi bé có hồ sơ và tiến độ riêng.</p>
+          <p class="lede">Bé học từng hàng phím, rồi gõ từ và câu tiếng Anh, chơi trò chơi và đua với bạn. Ba mẹ tạo một tài khoản, mỗi bé có hồ sơ và tiến độ riêng.</p>
         </div>
         <div class="box authbox">
           <div class="tabs" role="tablist" id="auth-tabs">
@@ -142,13 +142,15 @@
             <label class="field">Mật khẩu<input class="textin" name="password" type="password" autocomplete="current-password" required></label>
             <button class="btn primary" type="submit">Đăng nhập</button>
             <button class="subbtn" id="to-forgot" type="button">Quên mật khẩu?</button>
+            <a class="btn gbtn" data-google="login" href="/auth/google/start" hidden>Đăng nhập bằng Google</a>
           </form>
           <form id="f-register" class="aform" hidden novalidate>
-            <label class="field">Email của bố mẹ<input class="textin" name="email" type="email" autocomplete="email" required></label>
+            <label class="field">Email của ba mẹ<input class="textin" name="email" type="email" autocomplete="email" required></label>
             <label class="field">Mật khẩu (ít nhất 8 ký tự)<input class="textin" name="password" type="password" autocomplete="new-password" minlength="8" required></label>
             <label class="field">Nhập lại mật khẩu<input class="textin" name="password2" type="password" autocomplete="new-password" minlength="8" required></label>
-            <label class="consent"><input type="checkbox" name="consent"> <span>Tôi là cha mẹ hoặc người giám hộ của bé, từ đủ 18 tuổi, đồng ý với <a href="/privacy" target="_blank" rel="noopener">Chính sách quyền riêng tư</a> và cho phép lưu biệt danh và tiến độ học của bé.</span></label>
+            <label class="consent"><input type="checkbox" name="consent"> <span>Tôi là ba mẹ hoặc người giám hộ của bé, từ đủ 18 tuổi, đồng ý với <a href="/privacy" target="_blank" rel="noopener">Chính sách quyền riêng tư</a> và cho phép lưu biệt danh và tiến độ học của bé.</span></label>
             <button class="btn primary" type="submit">Tạo tài khoản</button>
+            <a class="btn gbtn" data-google="register" href="/auth/google/start?mode=register" hidden>Đăng ký bằng Google (Gmail)</a>
           </form>
           <form id="f-forgot" class="aform" hidden novalidate>
             <p class="note">Nhập email đã đăng ký, chúng tôi sẽ gửi link để đặt mật khẩu mới.</p>
@@ -202,7 +204,7 @@
       <p class="lede" id="o-status" aria-live="polite"></p>
       <div class="sharebox" id="o-share" hidden>
         <p style="margin:0 0 4px">Mã phòng: <b class="code" id="o-code2"></b></p>
-        <p class="note" style="margin:0 0 8px">Gửi link cho bố mẹ của bạn. Link đã kèm sẵn mã phòng. Bạn cần có tài khoản Bé Gõ Phím.</p>
+        <p class="note" style="margin:0 0 8px">Gửi link cho ba mẹ của bạn. Link đã kèm sẵn mã phòng. Bạn cần có tài khoản Bé Gõ Phím.</p>
         <button class="chip" id="o-copy" type="button">Sao chép link mời bạn</button>
       </div>
       <div class="teams" id="o-teams"></div>
@@ -228,7 +230,7 @@
 
     <section id="s-parent" hidden>
       <h1>Góc phụ huynh</h1>
-      <p class="lede">Tiến độ của các bé được lưu vào tài khoản của bố mẹ, nên học trên máy nào cũng giữ nguyên.</p>
+      <p class="lede">Tiến độ của các bé được lưu vào tài khoản của ba mẹ, nên học trên máy nào cũng giữ nguyên.</p>
       <div class="pgrid">
         <div class="box"><h2>Hôm nay</h2><div class="big" id="p-today"></div><p class="note" id="p-limit-note"></p></div>
         <div class="box"><h2>7 ngày qua</h2><div class="big" id="p-week"></div><p class="note" id="p-week-note"></p></div>
@@ -238,7 +240,7 @@
           <div class="btns" style="justify-content:flex-start;margin-top:10px"><button class="btn danger" id="ghost-reset-all" type="button">Đặt lại tất cả bóng ma</button></div></div>
         <div class="box wide"><h2>Phím bé hay gõ nhầm</h2><p class="note" id="p-miss-note"></p><div class="kb mini" id="kb-heat"></div></div>
         <div class="box wide"><h2>Các buổi gần nhất</h2><div class="tablewrap"><table><thead><tr><th>Thời gian</th><th>Bài</th><th>Đúng</th><th>WPM</th><th>Thời lượng</th></tr></thead><tbody id="p-hist"></tbody></table></div></div>
-        <div class="box wide"><h2>Tài khoản bố mẹ</h2>
+        <div class="box wide"><h2>Tài khoản ba mẹ</h2>
           <p style="margin:0 0 8px">Email: <b id="acct-email"></b></p>
           <form id="f-chpw" class="set" novalidate>
             <label class="field">Mật khẩu hiện tại<input class="textin" name="old" type="password" autocomplete="current-password"></label>
@@ -282,7 +284,7 @@
     <p>Hôm nay em đã luyện <b id="rest-min"></b> phút rồi. Ngày mai mình chơi tiếp.</p>
     <div class="btns">
       <button class="btn primary" id="rest-ok" type="button">Để mai chơi tiếp</button>
-      <button class="btn" id="rest-more" type="button">Bố mẹ cho thêm một bài</button>
+      <button class="btn" id="rest-more" type="button">Ba mẹ cho thêm một bài</button>
     </div>
   </div>
 </div>

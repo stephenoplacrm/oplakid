@@ -83,6 +83,7 @@ Trong `.env`, đặt `APP_ORIGIN=https://begophim.vn` (đúng tên miền thật
 | `PORT` | Cổng app lắng nghe, mặc định 3000. |
 | `DATABASE_PATH` | Đường dẫn file SQLite. |
 | `SMTP_URL`, `MAIL_FROM` | Gửi email quên mật khẩu, ví dụ qua Gmail Workspace, Amazon SES hoặc Mailgun. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Bật nút “Đăng nhập/Đăng ký bằng Google”. Tạo OAuth Client (Web) trong Google Cloud Console, thêm Authorized redirect URI: `<APP_ORIGIN>/auth/google/callback`. Bỏ trống thì nút tự ẩn. |
 | `TRUST_PROXY` | Số lớp proxy đứng trước app. |
 | `COOKIE_SECURE` | Tự bật khi `APP_ORIGIN` là https. |
 

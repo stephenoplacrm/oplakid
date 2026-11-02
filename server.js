@@ -227,7 +227,7 @@ app.post('/api/auth/register', wrap(async (req, res) => {
   if (rateLimited('reg:' + ip(req), 10, 3_600_000)) return res.status(429).json({ error: 'Bạn thử quá nhiều lần. Đợi một lát rồi thử lại.' });
   if (!validEmail(email)) return res.status(400).json({ error: 'Email chưa đúng định dạng.' });
   if (!validPassword(password)) return res.status(400).json({ error: 'Mật khẩu cần từ 8 đến 128 ký tự.' });
-  if (consent !== true) return res.status(400).json({ error: 'Bạn cần xác nhận là cha mẹ hoặc người giám hộ và đồng ý với chính sách quyền riêng tư.' });
+  if (consent !== true) return res.status(400).json({ error: 'Bạn cần xác nhận là ba mẹ hoặc người giám hộ và đồng ý với chính sách quyền riêng tư.' });
   if (q.userByEmail.get(email)) return res.status(409).json({ error: 'Email này đã có tài khoản. Bạn hãy đăng nhập, hoặc dùng “Quên mật khẩu”.' });
   const id = crypto.randomUUID();
   const now = Date.now();
@@ -247,6 +247,59 @@ app.post('/api/auth/login', wrap(async (req, res) => {
   if (!ok) return res.status(401).json({ error: 'Email hoặc mật khẩu chưa đúng.' });
   startSession(res, row.id);
   res.json({ user: { id: row.id, email: row.email } });
+}));
+
+/* ---------------- Đăng nhập bằng Google (chuyển hướng phía máy chủ, không cần script ngoài) ---------------- */
+const GOOGLE_ID = process.env.GOOGLE_CLIENT_ID || '';
+const GOOGLE_SECRET = process.env.GOOGLE_CLIENT_SECRET || '';
+const GOOGLE_ON = !!(GOOGLE_ID && GOOGLE_SECRET);
+const GOOGLE_CB = APP_ORIGIN + '/auth/google/callback';
+const OAUTH_COOKIE = 'bgp_oauth';
+const authFail = (res, code) => { res.setHeader('Set-Cookie', `${OAUTH_COOKIE}=; Path=/auth; HttpOnly; SameSite=Lax; Max-Age=0${COOKIE_SECURE ? '; Secure' : ''}`); res.redirect('/?auth_err=' + code); };
+
+app.get('/api/auth/providers', (req, res) => res.json({ google: GOOGLE_ON }));
+
+app.get('/auth/google/start', (req, res) => {
+  if (!GOOGLE_ON) return authFail(res, 'off');
+  if (rateLimited('gstart:' + ip(req), 30, 900_000)) return authFail(res, 'many');
+  const register = req.query.mode === 'register';
+  if (register && req.query.consent !== '1') return authFail(res, 'consent');
+  const state = newToken();
+  res.setHeader('Set-Cookie', `${OAUTH_COOKIE}=${state}.${register ? 'r' : 'l'}; Path=/auth; HttpOnly; SameSite=Lax; Max-Age=600${COOKIE_SECURE ? '; Secure' : ''}`);
+  const qs = new URLSearchParams({ client_id: GOOGLE_ID, redirect_uri: GOOGLE_CB, response_type: 'code', scope: 'openid email', state, prompt: 'select_account' });
+  res.redirect('https://accounts.google.com/o/oauth2/v2/auth?' + qs);
+});
+
+app.get('/auth/google/callback', wrap(async (req, res) => {
+  if (!GOOGLE_ON) return authFail(res, 'off');
+  const [state, mode] = String(parseCookies(req.headers.cookie)[OAUTH_COOKIE] || '').split('.');
+  if (!state || req.query.state !== state || typeof req.query.code !== 'string') return authFail(res, 'google');
+  let email;
+  try {
+    const tr = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ code: req.query.code, client_id: GOOGLE_ID, client_secret: GOOGLE_SECRET, redirect_uri: GOOGLE_CB, grant_type: 'authorization_code' }),
+      signal: AbortSignal.timeout(10_000)
+    });
+    const tok = await tr.json();
+    if (!tr.ok || !tok.access_token) throw new Error('token');
+    const ur = await fetch('https://openidconnect.googleapis.com/v1/userinfo', { headers: { Authorization: 'Bearer ' + tok.access_token }, signal: AbortSignal.timeout(10_000) });
+    const info = await ur.json();
+    if (!ur.ok || info.email_verified !== true) throw new Error('email');
+    email = normEmail(info.email);
+    if (!validEmail(email)) throw new Error('email');
+  } catch (e) { console.error('Đăng nhập Google thất bại:', e.message); return authFail(res, 'google'); }
+  let row = q.userByEmail.get(email);
+  if (!row) {
+    if (mode !== 'r') return authFail(res, 'nouser'); // chưa có tài khoản: phải đăng ký (có tick đồng ý) trước
+    const id = crypto.randomUUID(), now = Date.now();
+    q.insertUser.run(id, email, await hashPassword(crypto.randomBytes(24).toString('hex')), now, now); // mật khẩu ngẫu nhiên, đăng nhập bằng Google hoặc “Quên mật khẩu”
+    row = { id };
+  }
+  startSession(res, row.id);
+  res.append('Set-Cookie', `${OAUTH_COOKIE}=; Path=/auth; HttpOnly; SameSite=Lax; Max-Age=0${COOKIE_SECURE ? '; Secure' : ''}`);
+  res.redirect('/');
 }));
 
 app.post('/api/auth/logout', (req, res) => {

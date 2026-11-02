@@ -373,3 +373,7 @@ a{color:var(--ink)}
 .oplayer .ostat{grid-column:3;text-align:left;font-size:14px}
 .codein{width:150px}
 .codein::placeholder{letter-spacing:normal;text-transform:none}
+
+.gbtn{display:block;text-align:center;text-decoration:none;margin-top:6px}
+.gbtn[hidden]{display:none}
+.gbtn.off{opacity:.55}
