@@ -112,6 +112,14 @@ const TOPICS={
   toys:{name:'Đồ chơi',words:[['ball','⚽','trái banh'],['doll','🪆','búp bê'],['kite','🪁','con diều'],['drum','🥁','cái trống'],['dice','🎲','xúc xắc'],['yoyo','🪀','con yoyo'],['game','🎮','trò chơi điện tử'],['robot','🤖','người máy'],['teddy','🧸','gấu bông'],['blocks','🧱','khối xếp hình'],['puzzle','🧩','tranh ghép'],['balloon','🎈','bóng bay']]},
   transport:{name:'Xe cộ',words:[['bus','🚌','xe buýt'],['car','🚗','xe hơi'],['van','🚐','xe tải nhỏ'],['bike','🚲','xe đạp'],['taxi','🚕','xe taxi'],['ship','🚢','tàu thuỷ'],['boat','⛵','thuyền buồm'],['train','🚂','tàu lửa'],['plane','✈️','máy bay'],['truck','🚚','xe tải'],['rocket','🚀','tên lửa'],['scooter','🛵','xe máy']]}
 };
+Object.assign(TOPICS,{
+  job:{bonus:true,name:'Nghề nghiệp',words:[['doctor','👨‍⚕️','bác sĩ'],['nurse','👩‍⚕️','y tá'],['cook','🧑‍🍳','đầu bếp'],['pilot','🧑‍✈️','phi công'],['farmer','🧑‍🌾','nông dân'],['singer','🧑‍🎤','ca sĩ'],['artist','🧑‍🎨','họa sĩ'],['police','👮','công an'],['fireman','🧑‍🚒','lính cứu hỏa'],['mechanic','🧑‍🔧','thợ máy'],['astronaut','🧑‍🚀','phi hành gia'],['king','🤴','nhà vua']]},
+  sport:{bonus:true,name:'Thể thao',words:[['run','🏃','chạy'],['ski','⛷️','trượt tuyết'],['golf','⛳','đánh gôn'],['swim','🏊','bơi'],['surf','🏄','lướt sóng'],['judo','🥋','võ judo'],['skate','🛹','ván trượt'],['rugby','🏉','bóng bầu dục'],['tennis','🎾','quần vợt'],['soccer','⚽','đá banh'],['boxing','🥊','đấm bốc'],['archery','🏹','bắn cung'],['bowling','🎳','ném bowling'],['basket','🏀','bóng rổ']]},
+  weather:{bonus:true,name:'Thời tiết',words:[['fog','🌫️','sương mù'],['hot','🥵','nóng'],['cold','🥶','lạnh'],['drop','💧','giọt nước'],['storm','⛈️','cơn bão'],['sunny','🌞','trời nắng'],['windy','💨','nhiều gió'],['thunder','🌩️','sấm chớp'],['rainbow','🌈','cầu vồng'],['tornado','🌪️','lốc xoáy'],['snowman','⛄','người tuyết'],['umbrella','☂️','cái dù']]},
+  veg:{bonus:true,name:'Rau củ',words:[['carrot','🥕','cà rốt'],['potato','🥔','khoai tây'],['tomato','🍅','cà chua'],['onion','🧅','hành tây'],['garlic','🧄','tỏi'],['pepper','🌶️','ớt'],['cucumber','🥒','dưa leo'],['broccoli','🥦','bông cải xanh'],['mushroom','🍄','nấm'],['eggplant','🍆','cà tím'],['lettuce','🥬','xà lách']]},
+  place:{bonus:true,name:'Nơi chốn',words:[['home','🏠','ngôi nhà'],['zoo','🦒','sở thú'],['farm','🚜','nông trại'],['park','🏞️','công viên'],['shop','🏪','cửa hàng'],['bank','🏦','ngân hàng'],['tent','⛺','cái lều'],['beach','🏖️','bãi biển'],['hotel','🏨','khách sạn'],['castle','🏰','lâu đài'],['bridge','🌉','cây cầu'],['market','🛒','chợ'],['hospital','🏥','bệnh viện']]},
+  bug:{bonus:true,name:'Côn trùng và biển',words:[['bug','🐛','con sâu'],['crab','🦀','con cua'],['snail','🐌','ốc sên'],['shell','🐚','vỏ ốc'],['whale','🐋','cá voi'],['shark','🦈','cá mập'],['spider','🕷️','con nhện'],['turtle','🐢','con rùa'],['dolphin','🐬','cá heo'],['octopus','🐙','con bạch tuộc'],['ladybug','🐞','bọ rùa'],['butterfly','🦋','con bướm']]}
+});
 const PICS=(()=>{const seen=new Set(),out=[];Object.values(TOPICS).forEach(t=>t.words.forEach(w=>{if(!seen.has(w[0])){seen.add(w[0]);out.push(w);}}));return out;})();
 const HOME_W='as ad add all ask dad sad lad had has gas hall fall glad flag dash flash salad shall half ash'.split(' ');
 const TOP_W1='the she he we it is to go so up us red sea see tea pie egg dog pig fish hat owl top toy rat jet kite leg ear eye toe rope hug'.split(' ');
@@ -148,6 +156,31 @@ const PARAS={
   math:['I have 3 apples. Mom gives me 2 more.','2 + 3 = 5. 5 - 1 = 4.','A square has 4 sides. A triangle has 3.'],
   body:['I see with my eyes. I hear with my ears.','Wash your hands! They must be clean.','I have 10 fingers and 10 toes.']
 };
+const LEFT_W='sad fast cat bed red tree seat wet great water west star card dad add area eggs cart grass vest draw care stage crab'.split(' ');
+const RIGHT_W='milk pink hill look pool mom noon pop lily mill ink oil you him kill union only hum'.split(' ');
+const ALT_W='the with they when did dog bus big fox six cut pen make name goal visit city body lake town turn work girl them tie'.split(' ');
+const DBL_W='ball bell doll hill book moon tree green good bee see cook too door food pool fall all egg apple'.split(' ');
+const SMALL_W='a I go up we me he is it on in at to do my'.split(' ');
+const PHR5='the cat sat on the mat|a big red ball bounces|my dog runs in the park|we eat rice and fish|the sun is very hot|two little birds sing|she has a pink hat|he rides a blue bike|the frog jumps in water|my mom makes a cake|look at the big moon|we play with a ball|the bear likes to eat honey|a bee sits on a flower|the green bus is here'.split('|');
+const SENT_HOME='my room has a bed and a lamp|we sit on the sofa to read|the door is open|i wash my hands in the bath|my mom cooks in the kitchen|the clock is on the wall|dad puts the key in the door|the cat sleeps on the chair|there is a box under my bed|i drink milk from my cup'.split('|');
+const SENT_FOOD='i like rice and fish|we eat bread and cheese|the cake is sweet|my mom makes hot soup|i drink a cup of milk|he eats a red apple|she likes yellow bananas|we share a big pizza|the honey is sweet|i eat an egg for lunch'.split('|');
+const SENT_TOY='i play with my robot|the kite flies high|she hugs her teddy bear|we build a tower with blocks|he rolls the dice|the ball is red and big|my doll has a pink dress|we play a game on the table|the drum goes boom boom|i ride my little bike'.split('|');
+const SENT_SPORT='we run in the park|i swim like a fish|he kicks the ball far|she plays tennis with dad|we skate on the road|the team wins the game|i can jump very high|dad and i ride bikes|they play soccer on the grass|she swims in the pool'.split('|');
+const SENT_WEATHER='it is hot and sunny|the rain falls on the roof|the wind blows my hat away|snow is cold and white|i see a rainbow in the sky|the storm is loud|the clouds are grey today|it is a cold day|we play in the snow|the fog is thick this morning'.split('|');
+const QUOTES=['"Hello," said Mai.','"Look!" said Nam.','Tom said, "I can swim."','"Where is my bag?" asked Lan.','Mom said, "Dinner is ready."','"I like cats," said Ben.','The sign says "Stop!"',"Anna said, \"Let's play.\""];
+const HYPH='ice-cream|T-shirt|x-ray|well-known|school-bus|ten-year-old|up-to-date|merry-go-round|check-in|brother-in-law'.split('|');
+const PAREN=['(a cat)','(two dogs)','I have a pet (a cat).','We eat lunch (rice and fish).','My bag (the blue one) is here.','Today (Monday) is fun.','Look at (this) tree!','Mai (my sister) is six.'];
+const COLON=['Time: 3:30','Name: Mai','Colors: red, blue, green','Note: bring a pen.','Class: 3A','Today: Monday','Snack: apple, milk','Page: 12','Score: 10:8'];
+const MONEY=['$5','$10','$12.50','$3.75','50%','25% off','100%','$2 and $8','I have $4.','It costs $9.','Get 10% off!','Save 20%.'];
+const EMAIL=['mai@example.com','nam@example.com','an.nguyen@example.com','tom_123@example.com','lily@example.com','hello@example.com','ben@example.com','my.class@example.com'];
+const PARAS2={
+  food:['I like fruit. An apple a day is good for me.','We cook rice for lunch. My mom adds fish and soup.','Pizza is hot! Be careful, or you may burn your tongue.'],
+  sport:['I play soccer with my friends. We run and kick the ball.','Swimming is fun. I jump into the pool and splash water.','My dad rides a bike every Sunday. He wears a red helmet.'],
+  travel:['We go to the beach in July. The sea is blue and warm.','I pack my bag for the trip. I take a hat, a book and a toy.','The train is fast. We see green hills from the window.'],
+  garden:['Grandma has a small garden. She grows tomatoes and beans.','Bees visit the flowers. They carry pollen from one to another.','I water the plants every morning. They grow tall and strong.'],
+  story:['Once upon a time, a little fox lived in a big forest.','The fox found a red ball. He played with it all day long.','At night, the moon came out. The fox went home and slept well.'],
+  space:['The Sun is a big star. It gives us light and heat.','An astronaut flies in a rocket. She floats in space.','There are eight planets. The Earth is the third one.']
+};
 const ALLPARAS=Object.values(PARAS).flat();
 const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
 
@@ -167,6 +200,11 @@ function bigramGen(){const ks=Object.keys(BIGRAMS);return Array.from({length:10}
 function mathGen(){return Array.from({length:6},()=>{if(Math.random()<.5){const a=1+Math.floor(Math.random()*5),b=1+Math.floor(Math.random()*5);return it(a+' + '+b+' = '+(a+b));}const a=3+Math.floor(Math.random()*7),b=1+Math.floor(Math.random()*(a-1));return it(a+' - '+b+' = '+(a-b));});}
 function timeGen(){return Array.from({length:6},()=>it((1+Math.floor(Math.random()*12))+':'+rand(['00','15','30','45'])));}
 function twoDigit(){return Array.from({length:10},()=>it(String(10+Math.floor(Math.random()*90))));}
+function threeDigit(){return Array.from({length:8},()=>it(String(100+Math.floor(Math.random()*900))));}
+function mulGen(){return Array.from({length:6},()=>{const a=2+Math.floor(Math.random()*8),b=2+Math.floor(Math.random()*8);return it(a+' x '+b+' = '+(a*b));});}
+function divGen(){return Array.from({length:6},()=>{const a=2+Math.floor(Math.random()*8),b=2+Math.floor(Math.random()*8);return it((a*b)+' / '+b+' = '+a);});}
+function dateGen(){const p=n=>String(n).padStart(2,'0');return Array.from({length:6},()=>it(p(1+Math.floor(Math.random()*28))+'/'+p(1+Math.floor(Math.random()*12))+'/'+(2015+Math.floor(Math.random()*12))));}
+function calcGen(){return shuffle(mathGen().slice(0,2).concat(mulGen().slice(0,2),divGen().slice(0,2)));}
 function topicParts(id){
   const ws=TOPICS[id].words.slice().sort((a,b)=>a[0].length-b[0].length);const mid=Math.ceil(ws.length/2);
   return [ws.slice(0,mid),ws.slice(mid)];
@@ -197,13 +235,29 @@ const UNITS=[
     {id:'bg',name:'Cặp chữ hay gặp',gen:bigramGen},{id:'w3',name:'Từ 3 chữ',gen:()=>pick(byLen(DICT,3,3),10)},
     {id:'w45',name:'Từ 4–5 chữ',gen:()=>pick(byLen(DICT,4,5),8)},{id:'w6',name:'Từ dài',gen:()=>pick(byLen(DICT,6,12),6)},
     {id:'rv',name:'Ôn cả bàn phím',gen:()=>pick(DICT,10)}]},
+  {id:'fing',bonus:true,title:'Luyện từng ngón',desc:'Mỗi bài luyện một ngón tay, từ ngón út đến ngón trỏ.',steps:[
+    {id:'l5',name:'Út trái',gen:()=>letters('qazasdf','qaz',10)},{id:'l4',name:'Áp út trái',gen:()=>letters('wsxdf','wsx',10)},
+    {id:'l3',name:'Giữa trái',gen:()=>letters('edcfj','edc',10)},{id:'l2',name:'Trỏ trái',gen:()=>letters('rfvtgb','rfvtgb',10)},
+    {id:'r2',name:'Trỏ phải',gen:()=>letters('yhnujm','yhnujm',10)},{id:'r3',name:'Giữa phải',gen:()=>letters('ikfj','ik',10)},
+    {id:'r4',name:'Áp út phải',gen:()=>letters('olfj','ol',10)},{id:'r5',name:'Út phải',gen:()=>letters('pojkl','p',10)}]},
+  {id:'rhy',bonus:true,title:'Gõ đều và nhanh',desc:'Luyện nhịp tay: tay trái, tay phải, hai tay luân phiên và phím cách.',steps:[
+    {id:'lh',name:'Từ tay trái',gen:()=>pick(LEFT_W,10)},{id:'rh',name:'Từ tay phải',gen:()=>pick(RIGHT_W,10)},
+    {id:'alt',name:'Hai tay luân phiên',gen:()=>pick(ALT_W,10)},{id:'dbl',name:'Chữ đôi',gen:()=>pick(DBL_W,10)},
+    {id:'spc',name:'Nhịp phím cách',gen:()=>Array.from({length:8},()=>it(rand(SMALL_W)+' '+rand(SMALL_W)+' '+rand(SMALL_W)))},
+    {id:'fast',name:'Gõ nhanh từ ngắn',gen:()=>pick(byLen(DICT,3,4),12)}]},
   {id:'words',title:'Từ tiếng Anh có hình',desc:'Nghe từ, nhìn hình, rồi gõ. Mỗi chủ đề có 2 bài: từ ngắn trước, từ dài sau.',steps:
-    Object.keys(TOPICS).flatMap(id=>{const [a,b]=topicParts(id);return [{id:id+'1',name:TOPICS[id].name+' 1',gen:()=>pics(a,8)},{id:id+'2',name:TOPICS[id].name+' 2',gen:()=>pics(b,8)}];})
-      .concat([{id:'mixs',name:'Trộn từ ngắn',gen:()=>pics(PICS.filter(w=>w[0].length<=4),10)},{id:'mixl',name:'Trộn từ dài',gen:()=>pics(PICS.filter(w=>w[0].length>=5),8)}])},
+    (()=>{const mk=id=>{const [a,b]=topicParts(id),bn=!!TOPICS[id].bonus;return [{id:id+'1',name:TOPICS[id].name+' 1',bonus:bn,gen:()=>pics(a,8)},{id:id+'2',name:TOPICS[id].name+' 2',bonus:bn,gen:()=>pics(b,8)}];};
+      const ids=Object.keys(TOPICS);
+      return ids.filter(id=>!TOPICS[id].bonus).flatMap(mk)
+        .concat([{id:'mixs',name:'Trộn từ ngắn',gen:()=>pics(PICS.filter(w=>w[0].length<=4),10)},{id:'mixl',name:'Trộn từ dài',gen:()=>pics(PICS.filter(w=>w[0].length>=5),8)}])
+        .concat(ids.filter(id=>TOPICS[id].bonus).flatMap(mk));})()},
   {id:'phr',title:'Cụm từ và câu',desc:'Gõ cả cụm, nhớ dùng ngón cái để bấm phím cách.',steps:[
     {id:'p2',name:'Cụm 2 từ',gen:()=>pick(PHR2,8)},{id:'p3',name:'Cụm 3 từ',gen:()=>pick(PHR3,6)},{id:'p4',name:'Cụm 4 từ',gen:()=>pick(PHR4,6)},
     {id:'s1',name:'Câu ngắn',gen:()=>pick(SENT_S,6)},{id:'s2',name:'Câu vừa',gen:()=>pick(SENT_M,5)},{id:'s3',name:'Câu dài',gen:()=>pick(SENT_L,3)},
-    {id:'math',name:'Câu về Toán',gen:()=>pick(SENT_MATH,5)},{id:'sci',name:'Câu về Khoa học',gen:()=>pick(SENT_SCI,5)}]},
+    {id:'math',name:'Câu về Toán',gen:()=>pick(SENT_MATH,5)},{id:'sci',name:'Câu về Khoa học',gen:()=>pick(SENT_SCI,5)},
+    {id:'p5',name:'Cụm 5 từ',bonus:true,gen:()=>pick(PHR5,6)},{id:'sh',name:'Câu về nhà',bonus:true,gen:()=>pick(SENT_HOME,5)},
+    {id:'sf',name:'Câu về đồ ăn',bonus:true,gen:()=>pick(SENT_FOOD,5)},{id:'st',name:'Câu về đồ chơi',bonus:true,gen:()=>pick(SENT_TOY,5)},
+    {id:'sp',name:'Câu về thể thao',bonus:true,gen:()=>pick(SENT_SPORT,5)},{id:'sw',name:'Câu về thời tiết',bonus:true,gen:()=>pick(SENT_WEATHER,5)}]},
   {id:'caps',adv:true,title:'Chữ hoa với phím Shift',desc:'Giữ Shift bằng ngón út tay bên kia, rồi gõ chữ.',steps:[
     {id:'sl',name:'Shift trái',gen:capsGen('HJKLUIOPNMY','asdf')},{id:'sr',name:'Shift phải',gen:capsGen('ASDFGQWERTZXCVB','jkl')},
     {id:'cw',name:'Từ viết hoa',gen:()=>pick(byLen(DICT,3,6).map(cap1),8)},{id:'nm',name:'Tên bạn bè',gen:()=>pick(NAMES,8)},
@@ -222,13 +276,24 @@ const UNITS=[
     {id:'rv',name:'Ôn số',gen:()=>shuffle(mathGen().slice(0,3).concat(pick(NUMW,3),timeGen().slice(0,2)))}]},
   {id:'para',adv:true,title:'Đoạn văn ngắn',desc:'Hai câu liền nhau, có chữ hoa và dấu câu.',steps:
     [['animals','Con vật'],['family','Gia đình'],['school','Trường học'],['weather','Thời tiết'],['science','Khoa học'],['math','Toán'],['body','Cơ thể']]
-      .map(([id,name])=>({id,name,gen:()=>pick(PARAS[id],3)}))}
+      .map(([id,name])=>({id,name,gen:()=>pick(PARAS[id],3)}))},
+  {id:'sym',adv:true,bonus:true,title:'Dấu và ký hiệu',desc:'Ngoặc kép, gạch nối, ngoặc đơn, hai chấm, tiền và email.',steps:[
+    {id:'qt',name:'Ngoặc kép',gen:()=>pick(QUOTES,5)},{id:'hy',name:'Gạch nối',gen:()=>pick(HYPH,7)},
+    {id:'pa',name:'Ngoặc đơn',gen:()=>pick(PAREN,5)},{id:'co',name:'Dấu hai chấm',gen:()=>pick(COLON,6)},
+    {id:'mo',name:'Tiền và phần trăm',gen:()=>pick(MONEY,8)},{id:'em',name:'Email',gen:()=>pick(EMAIL,5)},
+    {id:'sx',name:'Trộn ký hiệu',gen:()=>pick(QUOTES.concat(HYPH,PAREN,COLON,MONEY),8)}]},
+  {id:'num2',adv:true,bonus:true,title:'Số lớn và phép tính',desc:'Số ba chữ số, nhân, chia và ngày tháng.',steps:[
+    {id:'n3',name:'Số ba chữ số',gen:threeDigit},{id:'mul',name:'Phép nhân',gen:mulGen},{id:'div',name:'Phép chia',gen:divGen},
+    {id:'dt',name:'Ngày tháng',gen:dateGen},{id:'mx',name:'Bốn phép tính',gen:calcGen}]},
+  {id:'para2',adv:true,bonus:true,title:'Đoạn văn dài hơn',desc:'Mỗi bài là các đoạn văn về một chủ đề mới.',steps:
+    [['food','Đồ ăn'],['sport','Thể thao'],['travel','Du lịch'],['garden','Khu vườn'],['story','Truyện ngắn'],['space','Vũ trụ']]
+      .map(([id,name])=>({id,name,gen:()=>pick(PARAS2[id],3)}))}
 ];
-const FLAT=UNITS.flatMap(u=>u.steps.map(st=>({u:u.id,s:st.id})));
+const FLAT=UNITS.flatMap(u=>u.steps.map(st=>({u:u.id,s:st.id,b:!!(u.bonus||st.bonus)}))); // b: bài thêm, không bắt buộc để mở lớp sau
 const STAGES=[
-  {id:'bo',name:'Lớp 1',icon:'🐢',desc:'Làm quen từng hàng phím',units:['home','top','bottom','mix']},
+  {id:'bo',name:'Lớp 1',icon:'🐢',desc:'Làm quen từng hàng phím',units:['home','top','bottom','mix','fing','rhy']},
   {id:'di',name:'Lớp 2',icon:'🚶',desc:'Gõ từ, cụm từ và câu tiếng Anh',units:['words','phr']},
-  {id:'chay',name:'Lớp 3',icon:'🏃',desc:'Chữ hoa, dấu câu, số và đoạn văn',units:['caps','punct','num','para']}
+  {id:'chay',name:'Lớp 3',icon:'🏃',desc:'Chữ hoa, dấu câu, số và đoạn văn',units:['caps','punct','num','para','sym','num2','para2']}
 ];
 const stageOf=uid=>STAGES.find(S=>S.units.includes(uid));
 function stageDone(S){const all=FLAT.filter(x=>S.units.includes(x.u));return [all.filter(x=>state.best[x.u+':'+x.s]).length,all.length];}
@@ -253,8 +318,15 @@ const GAMES={
   frog:{icon:'🐸',name:'Ếch qua sông',desc:'Gõ chữ trên lá sen để ếch nhảy sang. Qua 10 lá là tới bờ bên kia.',
     levels:{let:{name:'Chữ cái'},w3:{name:'Từ ngắn'},w45:{name:'Từ dài hơn'}}},
   quiz:{icon:'🖼️',name:'Nhìn hình đoán từ',desc:'Nhìn hình, gõ từ tiếng Anh. Gõ sai thì máy gợi ý chữ cái đó. Bấm loa để nghe từ.',
+    levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},all:{name:'Trộn tất cả'}}},
+  mole:{icon:'🐹',name:'Chuột chũi',desc:'Chuột chũi thò đầu lên khỏi hang, mang theo một chữ. Gõ đúng chữ để đập chuột trước khi nó chui xuống. Có 60 giây.',
+    levels:{mid:{name:'Hàng giữa',keys:'asdfghjkl'},top:{name:'Hàng trên và giữa',keys:'qwertyuiopasdfghjkl'},all:{name:'Cả bàn phím',keys:ALL}}},
+  rocket:{icon:'🚀',name:'Tên lửa lên trăng',desc:'Gõ thật nhiều từ để tên lửa bay lên cao. Mỗi từ gõ xong là tên lửa lên một nấc. Có 45 giây.',
+    levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},phr:{name:'Cụm 2 từ'}}},
+  scramble:{icon:'🧩',name:'Xếp chữ',desc:'Nhìn hình, các chữ cái bị xáo trộn. Gõ các chữ theo đúng thứ tự để ghép thành từ. Gõ sai thì chữ đúng sẽ sáng lên.',
     levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},all:{name:'Trộn tất cả'}}}
 };
+const GTAG={bubble:v=>v+' bóng',frog:v=>v+' giây',quiz:v=>v+'/10',mole:v=>v+' chú chuột',rocket:v=>v+' từ',scramble:v=>v+'/8'};
 
 /* ================= Storage ================= */
 const DEFAULTS={avatar:'🐯',nick:'',sound:true,speak:true,limit:15,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{}};
@@ -421,7 +493,7 @@ function renderHome(){
     b.addEventListener('click',()=>{stageSel=S.id;renderHome();updateLobbyPresence();});sb.appendChild(b);});
   const SS=STAGES.find(x=>x.id===stageSel),[sd,sn]=stageDone(SS);
   const SSlk=!stageUnlocked(SS),prevS=STAGES[STAGES.indexOf(SS)-1];
-  if(SSlk){const [pd,pn]=stageDone(prevS);$('#progress').textContent=SS.name+' đang khoá. Em cần xong hết '+pn+' bài của '+prevS.name+' (còn '+(pn-pd)+' bài) thì lớp này mới mở.';}
+  if(SSlk){const [pd,pn]=stageDoneFor(state,prevS);$('#progress').textContent=SS.name+' đang khoá. Em cần xong hết '+pn+' bài của '+prevS.name+' (còn '+(pn-pd)+' bài) thì lớp này mới mở.';}
   else $('#progress').textContent=SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.id==='chay'?' Lớp này dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
   const ul=$('#units');ul.innerHTML='';
   SS.units.map(id=>UNITS.find(U=>U.id===id)).forEach((U,ui)=>{
@@ -441,7 +513,7 @@ function renderHome(){
     const acts=li.querySelector('.acts');
     Object.entries(G.levels).forEach(([lid,L])=>{const b=document.createElement('button');b.type='button';b.className='chip';
       const best=state.gbest[gid+':'+lid];
-      const tag=best==null?'':gid==='bubble'?best+' bóng':gid==='frog'?best+' giây':best+'/10';
+      const tag=best==null?'':(GTAG[gid]||(v=>v))(best);
       b.innerHTML=esc(L.name)+(tag?'<span class="st" style="color:var(--muted);letter-spacing:0">'+tag+'</span>':'');
       b.addEventListener('click',()=>startGame(gid,lid));acts.appendChild(b);});
     gl.appendChild(li);
@@ -619,7 +691,7 @@ function startGame(gid,lid){guardStart(()=>{
   stopAll();show('game');syncToggles();
   $('#g-title').textContent=GAMES[gid].name+': '+GAMES[gid].levels[lid].name;
   const st=$('#stage');st.className='stage';st.innerHTML='';hud('');
-  ag=gid==='bubble'?makeBubble(lid):gid==='frog'?makeFrog(lid):makeQuiz(lid);
+  ag=({bubble:makeBubble,frog:makeFrog,quiz:makeQuiz,mole:makeMole,rocket:makeRocket,scramble:makeScramble}[gid])(lid);
 });}
 function gameMiss(g,exp,ch){g.errs++;if(exp){g.missLocal[exp]=(g.missLocal[exp]||0)+1;state.miss[exp]=(state.miss[exp]||0)+1;}flash(ch,false);beep(200,.1,'triangle',.05);}
 function endGame(g,r){
@@ -738,6 +810,127 @@ function makeQuiz(level){
     const n=g.rounds.length;
     endGame(g,{stars:g.clean>=n*.9?3:g.clean>=n*.6?2:1,acc,secs,wpm:wpmOf(g.chars,secs),miss:g.missLocal,
       title:'Em đoán đúng '+g.clean+'/'+n+' từ mà không cần gợi ý',sub:g.clean===n?'Không sai chữ nào. Quá giỏi!':'Những từ cần gợi ý, lần sau em sẽ nhớ hơn.',
+      stats:[[g.clean+'/'+n,'không cần gợi ý'],[Math.round(acc*100)+'%','gõ đúng'],[fmtTime(secs),'thời gian']]});
+  }
+  round();
+  return g;
+}
+
+function makeMole(level){
+  const L=GAMES.mole.levels[level],stage=$('#stage');stage.classList.add('moles');
+  stage.innerHTML='<div class="mgrid"></div>';const grid=stage.firstChild;
+  const holes=Array.from({length:6},()=>{const el=document.createElement('div');el.className='hole';el.innerHTML='<span class="mole"><b></b></span>';grid.appendChild(el);return {el,b:el.querySelector('b'),m:el.firstChild,ch:null,born:0,until:0};});
+  const g={gid:'mole',level,score:0,missed:0,errs:0,chars:0,t0:performance.now(),dur:60000,next:0,missLocal:{},over:false,target:null};
+  function spawn(now,k){
+    const used=new Set(holes.filter(h=>h.ch).map(h=>h.ch)),free=holes.filter(h=>!h.ch),pool=L.keys.split('').filter(c=>!used.has(c));
+    if(!free.length||!pool.length)return;const h=rand(free),ch=rand(pool);
+    h.ch=ch;h.born=now;h.until=now+2700-1200*k;h.b.textContent=ch;h.m.style.setProperty('--fc','var(--c-'+FTYPE[FINGER[ch]]+')');h.el.classList.add('up');
+  }
+  function down(h,hit){h.ch=null;h.el.classList.remove('up');if(hit){h.el.classList.add('hit');setTimeout(()=>h.el.classList.remove('hit'),260);}}
+  g.onChar=ch=>{
+    if(g.over)return;const h=holes.find(x=>x.ch===ch);
+    if(h){down(h,true);g.score++;g.chars++;flash(ch,true);beep(780,.06);}else gameMiss(g,g.target&&g.target.ch,ch);
+  };
+  g.stop=()=>{g.over=true;cancelAnimationFrame(g.raf);};
+  function tick(now){
+    if(g.over)return;const el=now-g.t0,k=Math.min(1,el/g.dur);
+    if(now>=g.next){spawn(now,k);g.next=now+(1150-550*k);}
+    holes.forEach(h=>{if(h.ch&&now>=h.until){down(h,false);g.missed++;beep(160,.12,'triangle',.05);}});
+    const first=holes.filter(h=>h.ch).sort((a,b)=>a.born-b.born)[0]||null;
+    if(first!==g.target){if(g.target)g.target.el.classList.remove('target');g.target=first;if(first){first.el.classList.add('target');showNext(first.ch);}else showNext(null);}
+    hud(stat(g.score,'chú chuột')+stat(g.missed,'trượt')+stat(Math.max(0,Math.ceil((g.dur-el)/1000)),'giây'));
+    if(el>=g.dur){
+      const secs=el/1000,acc=g.chars/Math.max(1,g.chars+g.errs),key='mole:'+level,prev=state.gbest[key];
+      const rec=prev==null||g.score>prev;if(rec)state.gbest[key]=g.score;
+      holes.forEach(h=>down(h,false));showNext(null);
+      endGame(g,{stars:starsOf(acc),acc,secs,wpm:wpmOf(g.chars,secs),miss:g.missLocal,
+        title:'Em đập được '+g.score+' chú chuột!',
+        sub:'Hết giờ!'+(g.missed?' Có '+g.missed+' chú chuột chui xuống mất. Nhìn chú chuột có viền sáng, đó là chú ở lâu nhất.':'')+(rec&&prev!=null?' Kỷ lục mới (lần trước '+prev+').':''),
+        stats:[[g.score,'chú chuột'],[Math.round(acc*100)+'%','gõ đúng'],[wpmOf(g.chars,secs),'WPM']]});
+      return;
+    }
+    g.raf=requestAnimationFrame(tick);
+  }
+  g.raf=requestAnimationFrame(tick);
+  return g;
+}
+function makeRocket(level){
+  const stage=$('#stage');stage.classList.add('sky');
+  const pool=level==='w3'?byLen(DICT,3,3):level==='w45'?byLen(DICT,4,5):PHR2;
+  stage.innerHTML='<div class="rmoon">🌙</div><div class="rk">🚀</div><div class="rword"></div>';
+  const rk=stage.querySelector('.rk'),rw=stage.querySelector('.rword');
+  let queue=[];const nextText=()=>{if(!queue.length)queue=shuffle(pool);return queue.pop();};
+  const g={gid:'rocket',level,words:0,pos:0,cur:nextText(),errs:0,chars:0,start:0,dur:45000,missLocal:{},over:false};
+  function paint(){
+    rw.innerHTML='';[...g.cur].forEach((c,k)=>{const sp=document.createElement('span');sp.textContent=c===' '?' ':c;sp.className=k<g.pos?'done':k===g.pos?'cur':'';rw.appendChild(sp);});
+    showNext(g.cur[g.pos]);
+  }
+  function lift(){rk.style.bottom=(6+(g.words%14)*5.2)+'%';rk.classList.remove('boost');void rk.offsetWidth;rk.classList.add('boost');}
+  g.onChar=ch=>{
+    if(g.over)return;if(!g.start)g.start=performance.now();
+    const exp=g.cur[g.pos];
+    if(ch===exp){g.chars++;g.pos++;flash(ch,true);beep(720,.04);
+      if(g.pos>=g.cur.length){g.words++;g.pos=0;g.cur=nextText();beep(990,.08);lift();}
+      paint();
+    }else{gameMiss(g,exp,ch);rw.classList.remove('shake');void rw.offsetWidth;rw.classList.add('shake');}
+    hudUpd();
+  };
+  const left=()=>g.start?Math.max(0,Math.ceil((g.dur-(performance.now()-g.start))/1000)):Math.round(g.dur/1000);
+  function hudUpd(){hud(stat(g.words,'từ')+stat(left(),'giây'));}
+  g.tick=setInterval(()=>{if(g.over)return;hudUpd();if(g.start&&performance.now()-g.start>=g.dur)finish();},250);
+  g.stop=()=>{g.over=true;clearInterval(g.tick);};
+  function finish(){
+    if(g.over)return;g.over=true;clearInterval(g.tick);showNext(null);
+    const secs=g.dur/1000,acc=g.chars/Math.max(1,g.chars+g.errs),key='rocket:'+level,prev=state.gbest[key];
+    const rec=prev==null||g.words>prev;if(rec)state.gbest[key]=g.words;
+    beep(880,.1);setTimeout(()=>beep(1175,.1),110);setTimeout(()=>beep(1568,.18),220);
+    endGame(g,{stars:starsOf(acc),acc,secs,wpm:wpmOf(g.chars,secs),miss:g.missLocal,
+      title:'Tên lửa bay được '+g.words+' từ!',sub:'Hết giờ!'+(rec&&prev!=null?' Kỷ lục mới (lần trước '+prev+' từ).':''),
+      stats:[[g.words,'từ'],[wpmOf(g.chars,secs),'WPM'],[Math.round(acc*100)+'%','gõ đúng']]});
+  }
+  lift();rk.style.bottom='6%';paint();hudUpd();
+  return g;
+}
+function makeScramble(level){
+  const stage=$('#stage');stage.classList.add('quiz','scr');
+  const pool=level==='w3'?PICS.filter(w=>w[0].length===3):level==='w45'?PICS.filter(w=>w[0].length>=4&&w[0].length<=5):PICS;
+  const rounds=shuffle(pool).slice(0,8);
+  stage.innerHTML='<div class="qpic"></div><div class="qvi"></div><div class="slots"></div><div class="tiles"></div><button class="chip qsay" type="button">🔈 Nghe từ</button>';
+  const g={gid:'scramble',level,rounds,r:0,pos:0,errs:0,chars:0,start:0,clean:0,roundErr:false,missLocal:{},over:false,locked:false};
+  const slots=()=>[...stage.querySelectorAll('.slot')],tiles=()=>[...stage.querySelectorAll('.tile')];
+  stage.querySelector('.qsay').addEventListener('click',e=>{e.currentTarget.blur();const w=g.rounds[g.r];if(w){const s=state.speak;state.speak=true;say(w[0]);state.speak=s;}});
+  function round(){
+    const w=g.rounds[g.r];g.pos=0;g.roundErr=false;g.locked=false;
+    stage.querySelector('.qpic').textContent=w[1];stage.querySelector('.qvi').textContent=w[2];
+    const sl=stage.querySelector('.slots');sl.innerHTML='';[...w[0]].forEach((c,k)=>{const d=document.createElement('div');d.className='slot'+(k===0?' cur':'');sl.appendChild(d);});
+    let mix=[...w[0]];for(let t=0;t<8;t++){mix=shuffle(mix);if(mix.join('')!==w[0])break;}
+    const tl=stage.querySelector('.tiles');tl.innerHTML='';mix.forEach(c=>{const d=document.createElement('div');d.className='tile';d.textContent=c;d.dataset.c=c;tl.appendChild(d);});
+    showNext(null);hudUpd();
+  }
+  function hudUpd(){hud(stat((g.r+1)+'/'+g.rounds.length,'từ')+stat(g.clean,'⭐ không cần gợi ý'));}
+  g.onChar=ch=>{
+    if(g.over||g.locked)return;if(!g.start)g.start=performance.now();
+    const w=g.rounds[g.r][0],exp=w[g.pos],s=slots();
+    if(ch===exp){
+      g.chars++;flash(ch,true);beep(720,.05);
+      const t=tiles().find(x=>x.dataset.c===exp&&!x.classList.contains('used'));if(t){t.classList.add('used');t.classList.remove('hint');}
+      tiles().forEach(x=>x.classList.remove('hint'));
+      const d=s[g.pos];d.textContent=exp;d.className='slot ok';g.pos++;showNext(null);
+      if(g.pos>=w.length){g.locked=true;say(w);if(!g.roundErr)g.clean++;beep(880,.08);setTimeout(()=>beep(1175,.12),90);hudUpd();
+        setTimeout(()=>{if(g.over)return;g.r++;if(g.r>=g.rounds.length)finish();else round();},1100);}
+      else s[g.pos].classList.add('cur');
+    }else{
+      gameMiss(g,exp,ch);g.roundErr=true;
+      const t=tiles().find(x=>x.dataset.c===exp&&!x.classList.contains('used'));if(t)t.classList.add('hint');showNext(exp);
+    }
+  };
+  g.stop=()=>{g.over=true;};
+  function finish(){
+    const secs=(performance.now()-g.start)/1000,acc=g.chars/Math.max(1,g.chars+g.errs),key='scramble:'+level,prev=state.gbest[key];
+    const rec=prev==null||g.clean>prev;if(rec)state.gbest[key]=g.clean;
+    const n=g.rounds.length;
+    endGame(g,{stars:g.clean>=n*.9?3:g.clean>=n*.6?2:1,acc,secs,wpm:wpmOf(g.chars,secs),miss:g.missLocal,
+      title:'Em xếp đúng '+g.clean+'/'+n+' từ mà không cần gợi ý',sub:g.clean===n?'Không sai chữ nào. Quá giỏi!':'Những từ cần gợi ý, lần sau em sẽ nhớ hơn.',
       stats:[[g.clean+'/'+n,'không cần gợi ý'],[Math.round(acc*100)+'%','gõ đúng'],[fmtTime(secs),'thời gian']]});
   }
   round();
@@ -1090,7 +1283,7 @@ $('#del-profile').addEventListener('click',()=>{
 });
 
 /* ================= Stage locking ================= */
-function stageDoneFor(st,S){const all=FLAT.filter(x=>S.units.includes(x.u));return [all.filter(x=>st.best[x.u+':'+x.s]).length,all.length];}
+function stageDoneFor(st,S){const all=FLAT.filter(x=>S.units.includes(x.u)&&!x.b);return [all.filter(x=>st.best[x.u+':'+x.s]).length,all.length];}
 function stageUnlockedFor(st,S){const i=STAGES.indexOf(S);if(i<=0||st.unlockAll)return true;const [d,n]=stageDoneFor(st,STAGES[i-1]);return d>=n;}
 function curStageOf(st){
   const open=STAGES.filter(S=>stageUnlockedFor(st,S));

@@ -1,6 +1,6 @@
 # OplaKid
 
-Web app luyện gõ 10 ngón cho trẻ tiểu học: 100 bài chia 3 lớp (Lớp 1, Lớp 2, Lớp 3); 3 trò chơi; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
+Web app luyện gõ 10 ngón cho trẻ tiểu học: 150 bài chia 3 lớp (Lớp 1, Lớp 2, Lớp 3; 50 bài thêm không bắt buộc để mở lớp sau); 6 trò chơi; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
 
 ## Có gì trong bản này
 
