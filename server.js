@@ -450,15 +450,15 @@ function cleanPatch(patch) {
   return out;
 }
 
-/* Người lạ chỉ thấy con vật và lớp của bạn khác. Biệt danh và mã phòng chỉ hiện
- * cho người cùng tài khoản phụ huynh hoặc cùng phòng đua. */
+/* Mọi bạn đang online thấy con vật, biệt danh (đã qua cleanNick), cấp độ và đang làm gì của nhau.
+ * Mã phòng và dữ liệu cuộc đua chỉ hiện cho người cùng tài khoản phụ huynh hoặc cùng phòng đua. */
 const RACE_KEYS = ['race', 'host', 'round', 'phase', 'kind', 'prog', 'wpm', 'ms', 'acc', 'text'];
 function visiblePresence(p, viewer) {
   const pr = p.presence;
   if (p === viewer || p.userId === viewer.userId) return pr;
   const sameRace = pr.race && viewer.presence.race && pr.race === viewer.presence.race;
-  const out = { av: pr.av, stage: pr.stage, where: pr.where, act: pr.act };
-  if (sameRace) { out.nick = pr.nick; for (const k of RACE_KEYS) if (pr[k] !== undefined) out[k] = pr[k]; }
+  const out = { av: pr.av, nick: pr.nick, stage: pr.stage, where: pr.where, act: pr.act };
+  if (sameRace) { for (const k of RACE_KEYS) if (pr[k] !== undefined) out[k] = pr[k]; }
   return out;
 }
 

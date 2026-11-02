@@ -289,16 +289,16 @@ const UNITS=[
     [['food','Đồ ăn'],['sport','Thể thao'],['travel','Du lịch'],['garden','Khu vườn'],['story','Truyện ngắn'],['space','Vũ trụ']]
       .map(([id,name])=>({id,name,gen:()=>pick(PARAS2[id],3)}))}
 ];
-/* Mỗi bài thuộc một trong 5 lớp (g). Bài thêm (b) không bắt buộc để mở lớp sau. */
+/* Mỗi bài thuộc một trong 5 cấp độ (g). Bài thêm (b) không bắt buộc để mở cấp độ sau. */
 const UNIT_STAGE={home:'bo',top:'bo',bottom:'bo',mix:'di',fing:'di',rhy:'di',words:'chay',phr:'chay',caps:'l4',punct:'l4',num:'l5',para:'l5',sym:'l5',num2:'l5',para2:'l5'};
 const stageIdOf=(u,st)=>u==='words'?(st.bonus?'l4':/^(animals|house|colors|numbers)\d$/.test(st.id)?'di':'chay'):u==='phr'?(st.bonus?'l4':'chay'):UNIT_STAGE[u];
 const FLAT=UNITS.flatMap(u=>u.steps.map(st=>({u:u.id,s:st.id,b:!!(u.bonus||st.bonus),g:stageIdOf(u.id,st)})));
 const STAGES=[
-  {id:'bo',name:'Lớp 1',icon:'🐢',desc:'Làm quen từng hàng phím'},
-  {id:'di',name:'Lớp 2',icon:'🚶',desc:'Cả bàn phím, từng ngón tay và những từ đầu tiên'},
-  {id:'chay',name:'Lớp 3',icon:'🏃',desc:'Từ tiếng Anh có hình, cụm từ và câu'},
-  {id:'l4',name:'Lớp 4',icon:'🚴',adv:true,desc:'Từ mới, câu hay gặp, chữ hoa và dấu câu'},
-  {id:'l5',name:'Lớp 5',icon:'🚀',adv:true,desc:'Số, ký hiệu và đoạn văn dài'}
+  {id:'bo',name:'Cấp độ 1',icon:'🐢',desc:'Làm quen từng hàng phím'},
+  {id:'di',name:'Cấp độ 2',icon:'🚶',desc:'Cả bàn phím, từng ngón tay và những từ đầu tiên'},
+  {id:'chay',name:'Cấp độ 3',icon:'🏃',desc:'Từ tiếng Anh có hình, cụm từ và câu'},
+  {id:'l4',name:'Cấp độ 4',icon:'🚴',adv:true,desc:'Từ mới, câu hay gặp, chữ hoa và dấu câu'},
+  {id:'l5',name:'Cấp độ 5',icon:'🚀',adv:true,desc:'Số, ký hiệu và đoạn văn dài'}
 ];
 const stageById=id=>STAGES.find(S=>S.id===id);
 const stageOfLesson=(u,st)=>{const f=FLAT.find(x=>x.u===u&&x.s===st);return f?stageById(f.g):null;};
@@ -319,23 +319,29 @@ const TRACKS={
 };
 const AVATARS=['🐯','🐰','🐼','🦊','🐸'];
 const GAMES={
-  bubble:{icon:'🫧',name:'Bong bóng chữ',desc:'Bong bóng bay lên, gõ đúng chữ để làm vỡ trước khi bóng bay mất. Có 60 giây và 5 trái tim.',
+  bubble:{icon:'🫧',name:'Bong bóng chữ',desc:'Bong bóng bay lên, gõ đúng chữ để làm vỡ trước khi bóng bay mất. Có 5 trái tim. Em chọn thời gian chơi ở bên dưới.',
     levels:{mid:{name:'Hàng giữa',keys:'asdfghjkl'},top:{name:'Hàng trên và giữa',keys:'qwertyuiopasdfghjkl'},all:{name:'Cả bàn phím',keys:ALL}}},
   frog:{icon:'🐸',name:'Ếch qua sông',desc:'Gõ chữ trên lá sen để ếch nhảy sang. Qua 10 lá là tới bờ bên kia.',
     levels:{let:{name:'Chữ cái'},w3:{name:'Từ ngắn'},w45:{name:'Từ dài hơn'}}},
   quiz:{icon:'🖼️',name:'Nhìn hình đoán từ',desc:'Nhìn hình, gõ từ tiếng Anh. Gõ sai thì máy gợi ý chữ cái đó. Bấm loa để nghe từ.',
     levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},all:{name:'Trộn tất cả'}}},
-  mole:{icon:'🐹',name:'Chuột chũi',desc:'Chuột chũi thò đầu lên khỏi hang, mang theo một chữ. Gõ đúng chữ để đập chuột trước khi nó chui xuống. Có 60 giây.',
+  mole:{icon:'🐹',name:'Chuột chũi',desc:'Chuột chũi thò đầu lên khỏi hang, mang theo một chữ. Gõ đúng chữ để đập chuột trước khi nó chui xuống. Em chọn thời gian chơi ở bên dưới.',
     levels:{mid:{name:'Hàng giữa',keys:'asdfghjkl'},top:{name:'Hàng trên và giữa',keys:'qwertyuiopasdfghjkl'},all:{name:'Cả bàn phím',keys:ALL}}},
-  rocket:{icon:'🚀',name:'Tên lửa lên trăng',desc:'Gõ thật nhiều từ để tên lửa bay lên cao. Mỗi từ gõ xong là tên lửa lên một nấc. Có 45 giây.',
+  rocket:{icon:'🚀',name:'Tên lửa lên trăng',desc:'Gõ thật nhiều từ để tên lửa bay lên cao. Mỗi từ gõ xong là tên lửa lên một nấc. Em chọn thời gian chơi ở bên dưới.',
     levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},phr:{name:'Cụm 2 từ'}}},
   scramble:{icon:'🧩',name:'Xếp chữ',desc:'Nhìn hình, các chữ cái bị xáo trộn. Gõ các chữ theo đúng thứ tự để ghép thành từ. Gõ sai thì chữ đúng sẽ sáng lên.',
     levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},all:{name:'Trộn tất cả'}}}
 };
+const TIMED={bubble:60,mole:60,rocket:45};                 // thời gian mặc định (giây) của các game tính giờ
+const DURS=[30,45,60,90,120,180,300,0];                      // 0 = không giới hạn
+const durOf=gid=>{const v=(state.gdur||{})[gid];return v===0||DURS.includes(v)?v:TIMED[gid];};
+const gkey=(gid,lvl)=>gid+':'+lvl+(TIMED[gid]&&durOf(gid)!==TIMED[gid]?':'+durOf(gid):'');   // kỷ lục tách riêng theo thời gian chơi
+const durLabel=d=>!d?'Không giới hạn':d>=120&&d%60===0?d/60+' phút':d+' giây';
+function doneBtn(stage,fn){const b=document.createElement('button');b.type='button';b.className='chip gdone';b.textContent='Xong, xem kết quả';b.addEventListener('click',e=>{e.currentTarget.blur();fn();});stage.appendChild(b);}
 const GTAG={bubble:v=>v+' bóng',frog:v=>v+' giây',quiz:v=>v+'/10',mole:v=>v+' chú chuột',rocket:v=>v+' từ',scramble:v=>v+'/8'};
 
 /* ================= Storage ================= */
-const DEFAULTS={avatar:'🐯',nick:'',sound:true,music:true,speak:true,limit:15,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{}};
+const DEFAULTS={avatar:'🐯',nick:'',sound:true,music:true,speak:true,limit:15,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{},gdur:{}};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function readJSON(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
@@ -555,8 +561,8 @@ function renderHome(){
     b.addEventListener('click',()=>{stageSel=S.id;renderHome();updateLobbyPresence();});sb.appendChild(b);});
   const SS=STAGES.find(x=>x.id===stageSel),[sd,sn]=stageDone(SS);
   const SSlk=!stageUnlocked(SS),prevS=STAGES[STAGES.indexOf(SS)-1];
-  if(SSlk){const [pd,pn]=stageDoneFor(state,prevS);$('#progress').textContent=SS.name+' đang khoá. Em cần xong hết '+pn+' bài của '+prevS.name+' (còn '+(pn-pd)+' bài) thì lớp này mới mở.';}
-  else $('#progress').textContent=SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.adv?' Lớp này có bài dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
+  if(SSlk){const [pd,pn]=stageDoneFor(state,prevS);$('#progress').textContent=SS.name+' đang khoá. Em cần xong hết '+pn+' bài của '+prevS.name+' (còn '+(pn-pd)+' bài) thì cấp độ này mới mở.';}
+  else $('#progress').textContent=SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.adv?' Cấp độ này có bài dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
   const ul=$('#units');ul.innerHTML='';
   UNITS.filter(U=>U.steps.some(st=>stageIdOf(U.id,st)===SS.id)).forEach((U,ui)=>{
     const li=document.createElement('li');li.className='lesson';
@@ -572,9 +578,13 @@ function renderHome(){
   Object.entries(GAMES).forEach(([gid,G])=>{
     const li=document.createElement('li');li.className='lesson';
     li.innerHTML='<span class="num game-ico" aria-hidden="true">'+G.icon+'</span><h2>'+esc(G.name)+'</h2><p>'+esc(G.desc)+'</p><div class="acts"></div>';
+    if(TIMED[gid]){const lb=document.createElement('label');lb.className='gdur';lb.innerHTML='⏱ Thời gian chơi <select aria-label="Thời gian chơi '+esc(G.name)+'"></select>';
+      const se=lb.querySelector('select');DURS.forEach(d=>{const o=document.createElement('option');o.value=String(d);o.textContent=durLabel(d)+(d===TIMED[gid]?' (mặc định)':'');if(d===durOf(gid))o.selected=true;se.appendChild(o);});
+      se.addEventListener('change',()=>{state.gdur=Object.assign({},state.gdur,{[gid]:+se.value});save();renderHome();});
+      li.insertBefore(lb,li.querySelector('.acts'));}
     const acts=li.querySelector('.acts');
     Object.entries(G.levels).forEach(([lid,L])=>{const b=document.createElement('button');b.type='button';b.className='chip';
-      const best=state.gbest[gid+':'+lid];
+      const best=state.gbest[gkey(gid,lid)];
       const tag=best==null?'':(GTAG[gid]||(v=>v))(best);
       b.innerHTML=esc(L.name)+(tag?'<span class="st" style="color:var(--muted);letter-spacing:0">'+tag+'</span>':'');
       b.addEventListener('click',()=>startGame(gid,lid));acts.appendChild(b);});
@@ -587,7 +597,7 @@ function renderHome(){
   Object.entries(TRACKS).forEach(([id,t])=>{const b=document.createElement('button');b.type='button';b.className='chip';
     const g=state.ghosts[id];
     b.innerHTML=esc(t.name)+(g&&g.wpm?'<span class="st" style="color:var(--muted);letter-spacing:0">'+g.wpm+' WPM</span>':'');
-    if(t.adv&&!stageUnlocked(STAGES[3])){b.disabled=true;b.classList.add('lockedc');b.innerHTML='🔒 '+b.innerHTML;b.title='Mở khi em lên Lớp 4';}
+    if(t.adv&&!stageUnlocked(STAGES[3])){b.disabled=true;b.classList.add('lockedc');b.innerHTML='🔒 '+b.innerHTML;b.title='Mở khi em lên Cấp độ 4';}
     b.addEventListener('click',()=>startRace(id));tr.appendChild(b);});
 }
 
@@ -764,7 +774,7 @@ function endGame(g,r){
 }
 function makeBubble(level){
   const L=GAMES.bubble.levels[level],stage=$('#stage');stage.classList.add('bubbles');
-  const g={gid:'bubble',level,list:[],score:0,errs:0,chars:0,hearts:5,t0:performance.now(),last:performance.now(),nextSpawn:0,dur:60000,missLocal:{},target:null,over:false};
+  const g={gid:'bubble',level,list:[],score:0,errs:0,chars:0,hearts:5,t0:performance.now(),last:performance.now(),nextSpawn:0,dur:durOf('bubble')?durOf('bubble')*1000:Infinity,ramp:durOf('bubble')?durOf('bubble')*1000:120000,missLocal:{},target:null,over:false};
   function spawn(){
     const used=new Set(g.list.map(b=>b.ch)),pool=L.keys.split('').filter(c=>!used.has(c));if(!pool.length)return;
     const ch=rand(pool),el=document.createElement('div');el.className='bubble';el.textContent=ch;
@@ -778,16 +788,16 @@ function makeBubble(level){
   };
   g.stop=()=>{g.over=true;cancelAnimationFrame(g.raf);};
   function tick(now){
-    if(g.over)return;const dt=Math.min(.05,(now-g.last)/1000);g.last=now;const el=now-g.t0,k=Math.min(1,el/g.dur);
+    if(g.over)return;const dt=Math.min(.05,(now-g.last)/1000);g.last=now;const el=now-g.t0,k=Math.min(1,el/g.ramp);
     if(now>=g.nextSpawn){spawn();g.nextSpawn=now+(1800-900*k);}
     const sp=38+45*k,h=stage.clientHeight;
     for(const b of g.list.slice()){b.y+=sp*dt;b.el.style.setProperty('--y',(-b.y)+'px');
       if(b.y>h+10){g.list.splice(g.list.indexOf(b),1);b.el.remove();g.hearts--;beep(160,.15,'triangle',.05);}}
     const top=g.list.reduce((a,b)=>!a||b.y>a.y?b:a,null);
     if(top!==g.target){if(g.target)g.target.el.classList.remove('target');g.target=top;if(top){top.el.classList.add('target');showNext(top.ch);}else showNext(null);}
-    hud(stat(g.score,'bóng')+stat('❤️'.repeat(Math.max(0,g.hearts))||'0','')+stat(Math.ceil((g.dur-el)/1000),'giây'));
+    hud(stat(g.score,'bóng')+stat('❤️'.repeat(Math.max(0,g.hearts))||'0','')+stat(g.dur===Infinity?Math.floor(el/1000):Math.max(0,Math.ceil((g.dur-el)/1000)),'giây'));
     if(el>=g.dur||g.hearts<=0){
-      const secs=el/1000,acc=g.chars/Math.max(1,g.chars+g.errs),key='bubble:'+level,prev=state.gbest[key];
+      const secs=el/1000,acc=g.chars/Math.max(1,g.chars+g.errs),key=gkey('bubble',level),prev=state.gbest[key];
       const rec=prev==null||g.score>prev;if(rec)state.gbest[key]=g.score;
       g.list.forEach(b=>b.el.remove());showNext(null);
       endGame(g,{stars:starsOf(acc),acc,secs,wpm:wpmOf(g.chars,secs),miss:g.missLocal,
@@ -882,7 +892,7 @@ function makeMole(level){
   const L=GAMES.mole.levels[level],stage=$('#stage');stage.classList.add('moles');
   stage.innerHTML='<div class="mgrid"></div>';const grid=stage.firstChild;
   const holes=Array.from({length:6},()=>{const el=document.createElement('div');el.className='hole';el.innerHTML='<span class="mole"><b></b></span>';grid.appendChild(el);return {el,b:el.querySelector('b'),m:el.firstChild,ch:null,born:0,until:0};});
-  const g={gid:'mole',level,score:0,missed:0,errs:0,chars:0,t0:performance.now(),dur:60000,next:0,missLocal:{},over:false,target:null};
+  const g={gid:'mole',level,score:0,missed:0,errs:0,chars:0,t0:performance.now(),dur:durOf('mole')?durOf('mole')*1000:Infinity,ramp:durOf('mole')?durOf('mole')*1000:120000,next:0,missLocal:{},over:false,target:null};
   function spawn(now,k){
     const used=new Set(holes.filter(h=>h.ch).map(h=>h.ch)),free=holes.filter(h=>!h.ch),pool=L.keys.split('').filter(c=>!used.has(c));
     if(!free.length||!pool.length)return;const h=rand(free),ch=rand(pool);
@@ -895,24 +905,27 @@ function makeMole(level){
   };
   g.stop=()=>{g.over=true;cancelAnimationFrame(g.raf);};
   function tick(now){
-    if(g.over)return;const el=now-g.t0,k=Math.min(1,el/g.dur);
+    if(g.over)return;const el=now-g.t0,k=Math.min(1,el/g.ramp);
     if(now>=g.next){spawn(now,k);g.next=now+(1150-550*k);}
     holes.forEach(h=>{if(h.ch&&now>=h.until){down(h,false);g.missed++;beep(160,.12,'triangle',.05);}});
     const first=holes.filter(h=>h.ch).sort((a,b)=>a.born-b.born)[0]||null;
     if(first!==g.target){if(g.target)g.target.el.classList.remove('target');g.target=first;if(first){first.el.classList.add('target');showNext(first.ch);}else showNext(null);}
-    hud(stat(g.score,'chú chuột')+stat(g.missed,'trượt')+stat(Math.max(0,Math.ceil((g.dur-el)/1000)),'giây'));
-    if(el>=g.dur){
-      const secs=el/1000,acc=g.chars/Math.max(1,g.chars+g.errs),key='mole:'+level,prev=state.gbest[key];
+    hud(stat(g.score,'chú chuột')+stat(g.missed,'trượt')+stat(g.dur===Infinity?Math.floor(el/1000):Math.max(0,Math.ceil((g.dur-el)/1000)),'giây'));
+    if(el>=g.dur)finish(el);else g.raf=requestAnimationFrame(tick);
+  }
+  function finish(el){
+    if(g.over)return;cancelAnimationFrame(g.raf);
+    {
+      const secs=el/1000,acc=g.chars/Math.max(1,g.chars+g.errs),key=gkey('mole',level),prev=state.gbest[key];
       const rec=prev==null||g.score>prev;if(rec)state.gbest[key]=g.score;
       holes.forEach(h=>down(h,false));showNext(null);
       endGame(g,{stars:starsOf(acc),acc,secs,wpm:wpmOf(g.chars,secs),miss:g.missLocal,
         title:'Em đập được '+g.score+' chú chuột!',
-        sub:'Hết giờ!'+(g.missed?' Có '+g.missed+' chú chuột chui xuống mất. Nhìn chú chuột có viền sáng, đó là chú ở lâu nhất.':'')+(rec&&prev!=null?' Kỷ lục mới (lần trước '+prev+').':''),
+        sub:(g.dur===Infinity?'Em đã dừng chơi.':'Hết giờ!')+(g.missed?' Có '+g.missed+' chú chuột chui xuống mất. Nhìn chú chuột có viền sáng, đó là chú ở lâu nhất.':'')+(rec&&prev!=null?' Kỷ lục mới (lần trước '+prev+').':''),
         stats:[[g.score,'chú chuột'],[Math.round(acc*100)+'%','gõ đúng'],[wpmOf(g.chars,secs),'WPM']]});
-      return;
     }
-    g.raf=requestAnimationFrame(tick);
   }
+  if(g.dur===Infinity)doneBtn(stage,()=>finish(performance.now()-g.t0));
   g.raf=requestAnimationFrame(tick);
   return g;
 }
@@ -922,7 +935,7 @@ function makeRocket(level){
   stage.innerHTML='<div class="rmoon">🌙</div><div class="rk">🚀</div><div class="rword"></div>';
   const rk=stage.querySelector('.rk'),rw=stage.querySelector('.rword');
   let queue=[];const nextText=()=>{if(!queue.length)queue=shuffle(pool);return queue.pop();};
-  const g={gid:'rocket',level,words:0,pos:0,cur:nextText(),errs:0,chars:0,start:0,dur:45000,missLocal:{},over:false};
+  const g={gid:'rocket',level,words:0,pos:0,cur:nextText(),errs:0,chars:0,start:0,dur:durOf('rocket')?durOf('rocket')*1000:Infinity,missLocal:{},over:false};
   function paint(){
     rw.innerHTML='';[...g.cur].forEach((c,k)=>{const sp=document.createElement('span');sp.textContent=c===' '?' ':c;sp.className=k<g.pos?'done':k===g.pos?'cur':'';rw.appendChild(sp);});
     showNext(g.cur[g.pos]);
@@ -937,19 +950,20 @@ function makeRocket(level){
     }else{gameMiss(g,exp,ch);rw.classList.remove('shake');void rw.offsetWidth;rw.classList.add('shake');}
     hudUpd();
   };
-  const left=()=>g.start?Math.max(0,Math.ceil((g.dur-(performance.now()-g.start))/1000)):Math.round(g.dur/1000);
+  const left=()=>g.dur===Infinity?(g.start?Math.floor((performance.now()-g.start)/1000):0):g.start?Math.max(0,Math.ceil((g.dur-(performance.now()-g.start))/1000)):Math.round(g.dur/1000);
   function hudUpd(){hud(stat(g.words,'từ')+stat(left(),'giây'));}
   g.tick=setInterval(()=>{if(g.over)return;hudUpd();if(g.start&&performance.now()-g.start>=g.dur)finish();},250);
   g.stop=()=>{g.over=true;clearInterval(g.tick);};
   function finish(){
     if(g.over)return;g.over=true;clearInterval(g.tick);showNext(null);
-    const secs=g.dur/1000,acc=g.chars/Math.max(1,g.chars+g.errs),key='rocket:'+level,prev=state.gbest[key];
+    const secs=Math.max(1,Math.min(g.dur,g.start?performance.now()-g.start:0)/1000),acc=g.chars/Math.max(1,g.chars+g.errs),key=gkey('rocket',level),prev=state.gbest[key];
     const rec=prev==null||g.words>prev;if(rec)state.gbest[key]=g.words;
     beep(880,.1);setTimeout(()=>beep(1175,.1),110);setTimeout(()=>beep(1568,.18),220);
     endGame(g,{stars:starsOf(acc),acc,secs,wpm:wpmOf(g.chars,secs),miss:g.missLocal,
-      title:'Tên lửa bay được '+g.words+' từ!',sub:'Hết giờ!'+(rec&&prev!=null?' Kỷ lục mới (lần trước '+prev+' từ).':''),
+      title:'Tên lửa bay được '+g.words+' từ!',sub:(g.dur===Infinity?'Em đã dừng chơi.':'Hết giờ!')+(rec&&prev!=null?' Kỷ lục mới (lần trước '+prev+' từ).':''),
       stats:[[g.words,'từ'],[wpmOf(g.chars,secs),'WPM'],[Math.round(acc*100)+'%','gõ đúng']]});
   }
+  if(g.dur===Infinity)doneBtn(stage,finish);
   lift();rk.style.bottom='6%';paint();hudUpd();
   return g;
 }
@@ -1054,7 +1068,7 @@ $('#set-sound').addEventListener('change',e=>{state.sound=e.target.checked;save(
 $('#set-music').addEventListener('change',e=>{state.music=e.target.checked;save();syncToggles();musicSync();});
 $('#set-speak').addEventListener('change',e=>{state.speak=e.target.checked;save();syncToggles();});
 $('#set-unlock').addEventListener('change',e=>{state.unlockAll=e.target.checked;save();stageSel=null;});
-$('#reset').addEventListener('click',()=>{if(confirm('Xoá toàn bộ lịch sử, kỷ lục và bóng ma của bé này?')){const keep={avatar:state.avatar,nick:state.nick,sound:state.sound,music:state.music,speak:state.speak,limit:state.limit,kbFull:state.kbFull,unlockAll:state.unlockAll};state=Object.assign(clone(DEFAULTS),keep);save();renderParent();}});
+$('#reset').addEventListener('click',()=>{if(confirm('Xoá toàn bộ lịch sử, kỷ lục và bóng ma của bé này?')){const keep={avatar:state.avatar,nick:state.nick,sound:state.sound,music:state.music,speak:state.speak,limit:state.limit,kbFull:state.kbFull,unlockAll:state.unlockAll,gdur:state.gdur};state=Object.assign(clone(DEFAULTS),keep);save();renderParent();}});
 
 /* ================= Đua với các bạn (máy chủ điều khiển) ================= */
 let room=null,online=null,publicRaces=[],pendingJoin=null,progT=0,lobbyTimer=null;
@@ -1385,7 +1399,7 @@ function renderOnlineStrip(ppl){
   const box=$('#onstrip');if(!room||!ppl.length){box.hidden=true;return;}
   box.hidden=false;$('#os-n').textContent=ppl.length;
   const c={};STAGES.forEach(S=>{c[S.id]=0;});ppl.forEach(p=>{const k=p.presence.stage;c[k in c?k:'bo']++;});
-  $('#os-zones').textContent=STAGES.map(S=>S.icon+' '+S.name+' '+c[S.id]).join('   ');
+  $('#os-zones').textContent=STAGES.map(S=>S.icon+' '+S.name+': '+c[S.id]).join(' · ');
   const avs=$('#os-avs');avs.innerHTML='';
   ppl.slice(0,16).forEach(p=>{const s=document.createElement('span');s.className='osav'+(p.isMe&&p.sameTab?' me':'');s.textContent=String(p.presence.av||'🙂').slice(0,8);avs.appendChild(s);});
   if(ppl.length>16){const s=document.createElement('span');s.className='osmore';s.textContent='+'+(ppl.length-16);avs.appendChild(s);}

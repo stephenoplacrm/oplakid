@@ -1,6 +1,6 @@
 # OplaKid
 
-Web app luyện gõ 10 ngón cho trẻ tiểu học: 150 bài chia 5 lớp (Lớp 1 đến Lớp 5; 50 bài thêm không bắt buộc để mở lớp sau); 6 trò chơi; nhạc nền thiếu nhi khi gõ; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
+Web app luyện gõ 10 ngón cho trẻ tiểu học: 150 bài chia 5 cấp độ (Cấp độ 1 đến Cấp độ 5; 50 bài thêm không bắt buộc để mở cấp độ sau); 6 trò chơi; nhạc nền thiếu nhi khi gõ; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
 
 ## Có gì trong bản này
 
@@ -11,10 +11,9 @@ Web app luyện gõ 10 ngón cho trẻ tiểu học: 150 bài chia 5 lớp (Lớ
 - **Hồ sơ bé:** mỗi tài khoản có nhiều bé. Bé đăng nhập bằng cách chọn hồ sơ của mình.
 - **Lưu tiến độ trên máy chủ:** học trên máy nào cũng giữ nguyên tiến độ.
 - **Thời gian thực qua WebSocket:** đếm số người online, Trường tiểu học OplaKid 3D và phòng đua với bạn.
-  - Người lạ chỉ thấy con vật đại diện và lớp học của bé, không thấy biệt danh.
-  - Biệt danh chỉ hiện với người cùng tài khoản hoặc cùng phòng đua.
+  - Các bạn đang online thấy con vật đại diện, biệt danh và cấp độ học của nhau. Mã phòng và dữ liệu cuộc đua chỉ hiện với người cùng tài khoản hoặc cùng phòng đua.
 - **Đua trực tuyến do máy chủ điều khiển:**
-  - Đua công khai 1 đấu 1, 3 đấu 3, 5 đấu 5, chỉ ghép các bé cùng lớp (Lớp 1 đến Lớp 5).
+  - Đua công khai 1 đấu 1, 3 đấu 3, 5 đấu 5, chỉ ghép các bé cùng cấp độ (Cấp độ 1 đến Cấp độ 5).
   - Đua với máy ở 3 mức Dễ, Vừa, Khó; phòng riêng có mã để mời bạn.
   - Danh sách cuộc đua đang chờ, hiện còn thiếu bao nhiêu người.
   - Chờ 40 giây chưa đủ người thì máy vào chơi cùng; sau 8 giây các bé có thể bấm "Đua luôn".
@@ -99,6 +98,6 @@ sqlite3 /srv/be-go-phim/be-go-phim.sqlite ".backup '/srv/backup/bgp-$(date +%F).
 
 - **Xác minh email khi đăng ký:** hiện tại ai cũng có thể đăng ký bằng email chưa xác minh.
 - **"Cổng phụ huynh" cho Góc phụ huynh:** ví dụ hỏi một phép nhân trước khi vào. Các thao tác nguy hiểm như đổi mật khẩu hay xoá tài khoản đã yêu cầu mật khẩu, nhưng bé vẫn mở được Góc phụ huynh để xem và đổi cài đặt.
-- **Lọc từ ngữ trong biệt danh:** biệt danh chỉ hiện cho bạn cùng phòng đua, nhưng vẫn nên lọc từ tục.
+- **Lọc từ ngữ trong biệt danh:** biệt danh hiện cho mọi bạn đang online nên cần lọc từ tục kỹ (danh sách chặn trong `cleanNick` còn ngắn).
 - **Khi cần mở rộng:** nếu chạy nhiều instance, chuyển danh sách người online và phòng đua sang Redis, chuyển SQLite sang PostgreSQL.
 - **Thông báo xử lý dữ liệu cá nhân trẻ em:** rà soát với luật sư theo Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15 và các nghị định hướng dẫn.
