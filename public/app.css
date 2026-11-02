@@ -223,7 +223,7 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--ink)}
 .subbtn{border:0;background:none;color:var(--muted);text-decoration:underline;font-size:15px;padding:4px 0;margin-top:6px}
 .adv-tag{display:inline-block;font-size:13px;font-weight:700;color:var(--ink);border:1.5px solid var(--ink);border-radius:8px;padding:0 7px;margin-left:8px;vertical-align:middle}
 .game-ico{background:transparent;font-size:32px}
-.stages{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 8px}
+.stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin:14px 0 8px}
 .stagebtn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 8px 12px;border:3px solid var(--line);border-radius:18px;background:var(--panel);text-align:center}
 .stagebtn:hover{border-color:color-mix(in srgb,var(--ink) 50%,var(--line))}
 .stagebtn .ico{font-size:clamp(34px,7vw,52px);line-height:1.1}
@@ -382,3 +382,29 @@ a{color:var(--ink)}
 .gbtn[hidden]{display:none}
 .gbtn.off{opacity:.55}
 .imewarn{margin:8px 0;padding:10px 16px;border-radius:14px;background:#fff3c4;border:2px solid #f0c040;color:var(--ink);font-weight:700}
+
+/* Trò chơi mới: chuột chũi, tên lửa, xếp chữ */
+.stage.moles{background:linear-gradient(var(--sky),#9ad47f)}
+.mgrid{position:absolute;inset:8px 12px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:6px 14px}
+.hole{position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+.hole::after{content:"";position:absolute;bottom:0;left:6%;right:6%;height:30%;border-radius:50%;background:#5b3a1e;z-index:2}
+.mole{position:relative;z-index:1;width:min(84px,58%);aspect-ratio:1;margin-bottom:10%;border-radius:50% 50% 42% 42%;background:#8d6e63;border:4px solid color-mix(in srgb,var(--fc,#888) 70%,#8d6e63);display:grid;place-items:center;transform:translateY(130%);transition:transform .14s ease-out}
+.mole b{font:800 clamp(26px,5.5vw,40px) "Andika",sans-serif;color:#fff;line-height:1}
+.hole.up .mole{transform:none}
+.hole.target .mole{box-shadow:0 0 0 6px color-mix(in srgb,var(--fc,#888) 40%,transparent)}
+.hole.hit .mole{background:#ffd54f;transform:translateY(50%) scale(.9)}
+.stage.sky{background:linear-gradient(#0d1b4c,#3b5bdb 62%,#9ad0ff)}
+.rmoon{position:absolute;right:7%;top:6%;font-size:clamp(34px,7vw,56px)}
+.rk{position:absolute;left:12%;bottom:6%;font-size:clamp(40px,8vw,64px);line-height:1;transition:bottom .4s ease-out}
+.rk.boost{animation:boost .4s}
+@keyframes boost{50%{transform:translateY(-10px) scale(1.12)}}
+.rword{position:absolute;left:34%;right:18%;top:0;bottom:0;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-content:center;align-items:center}
+.rword span{font:700 clamp(32px,6vw,52px) "Andika",sans-serif;color:#fff;opacity:.55;border-bottom:5px solid transparent;line-height:1.1;min-width:.5em;text-align:center}
+.rword span.done{opacity:1;color:#8ee0ff}
+.rword span.cur{opacity:1;border-bottom-color:#ffd54f}
+.rword.shake{animation:shake .25s}
+.stage.scr .qpic{font-size:clamp(54px,10vw,84px)}
+.tiles{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tile{width:clamp(36px,7vw,52px);height:clamp(36px,7vw,52px);border-radius:12px;background:color-mix(in srgb,var(--gold) 30%,var(--panel));border:2px solid var(--line);display:grid;place-items:center;font:700 clamp(22px,4.4vw,32px) "Andika",sans-serif;color:var(--ink);transition:transform .12s}
+.tile.used{opacity:.2}
+.tile.hint{border-color:var(--ink);transform:scale(1.18);background:color-mix(in srgb,var(--gold) 70%,var(--panel))}

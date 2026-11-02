@@ -1,6 +1,6 @@
 # OplaKid
 
-Web app luyện gõ 10 ngón cho trẻ tiểu học: 100 bài chia 3 lớp (Lớp 1, Lớp 2, Lớp 3); 3 trò chơi; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
+Web app luyện gõ 10 ngón cho trẻ tiểu học: 150 bài chia 5 lớp (Lớp 1 đến Lớp 5; 50 bài thêm không bắt buộc để mở lớp sau); 6 trò chơi; nhạc nền thiếu nhi khi gõ; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
 
 ## Có gì trong bản này
 
@@ -14,7 +14,7 @@ Web app luyện gõ 10 ngón cho trẻ tiểu học: 100 bài chia 3 lớp (Lớ
   - Người lạ chỉ thấy con vật đại diện và lớp học của bé, không thấy biệt danh.
   - Biệt danh chỉ hiện với người cùng tài khoản hoặc cùng phòng đua.
 - **Đua trực tuyến do máy chủ điều khiển:**
-  - Đua công khai 1 đấu 1, 3 đấu 3, 5 đấu 5, chỉ ghép các bé cùng lớp (Lớp 1, 2, 3).
+  - Đua công khai 1 đấu 1, 3 đấu 3, 5 đấu 5, chỉ ghép các bé cùng lớp (Lớp 1 đến Lớp 5).
   - Đua với máy ở 3 mức Dễ, Vừa, Khó; phòng riêng có mã để mời bạn.
   - Danh sách cuộc đua đang chờ, hiện còn thiếu bao nhiêu người.
   - Chờ 40 giây chưa đủ người thì máy vào chơi cùng; sau 8 giây các bé có thể bấm "Đua luôn".

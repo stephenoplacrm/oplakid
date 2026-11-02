@@ -1,7 +1,7 @@
 'use strict';
 /*
  * Quản lý cuộc đua trên máy chủ.
- * - Đua công khai theo lớp (Lớp 1 đua với Lớp 1, Lớp 2 với Lớp 2, Lớp 3 với Lớp 3): 1 đấu 1, 3 đấu 3, 5 đấu 5.
+ * - Đua công khai theo lớp (Lớp 1 đua với Lớp 1, Lớp 2 với Lớp 2, ... Lớp 5 với Lớp 5): 1 đấu 1, 3 đấu 3, 5 đấu 5.
  * - Đua với máy, phòng riêng có mã để mời bạn.
  * - Máy chủ giữ đồng hồ: tự đếm ngược, tự tính thời gian về đích, tự điền máy vào chỗ trống.
  */
@@ -13,13 +13,13 @@ const MODES = {
   '5v5': { cap: 10, teams: true, label: '5 đấu 5' },
   bot: { cap: 2, teams: false, label: 'Đua với máy' }
 };
-const STAGES = new Set(['bo', 'di', 'chay']);
+const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5']);
 const FILL_AFTER_MS = 40_000;      // chờ quá lâu thì máy vào chơi cùng
 const MIN_WAIT_TO_FILL_MS = 8_000; // sau 8 giây, các bé có thể bấm "đua luôn"
 const COUNTDOWN_MS = 5_000;
 const MAX_RACE_MS = 180_000;
 const KEEP_DONE_MS = 120_000;
-const BOT_WPM = { bo: [4, 7, 10], di: [6, 10, 14], chay: [8, 13, 18] };
+const BOT_WPM = { bo: [4, 7, 10], di: [6, 10, 14], chay: [8, 13, 18], l4: [10, 15, 20], l5: [12, 18, 24] };
 const BOT_NAMES = ['Máy Mít', 'Máy Na', 'Máy Cam', 'Máy Bơ', 'Máy Dừa', 'Máy Xoài', 'Máy Ổi', 'Máy Lê', 'Máy Nho', 'Máy Táo'];
 const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸']);
 const CODE_CH = 'abcdefghjkmnpqrstuvwxyz23456789';
@@ -51,7 +51,9 @@ function genText(stage) {
     for (let i = 0; i < 8; i++) { const src = i % 2 ? LETTERS : HOME_ROW; let g = ''; for (let j = 0; j < 3; j++) g += pick(src.split('')); groups.push(g); }
     return groups.join(' ');
   }
-  if (stage === 'di') return rnd(2) ? shuffle(WORDS).slice(0, 6).join(' ') : shuffle(SENTENCES).slice(0, 2).join(' ');
+  if (stage === 'di') return shuffle(WORDS).slice(0, 6).join(' ');
+  if (stage === 'chay') return shuffle(SENTENCES).slice(0, 2).join(' ');
+  if (stage === 'l4') return shuffle(SENTENCES).slice(0, 2).map(t => t.charAt(0).toUpperCase() + t.slice(1) + '.').join(' ');
   return shuffle(PARAS).slice(0, 2).join(' ');
 }
 
