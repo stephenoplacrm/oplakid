@@ -329,7 +329,7 @@ const GAMES={
 const GTAG={bubble:v=>v+' bóng',frog:v=>v+' giây',quiz:v=>v+'/10',mole:v=>v+' chú chuột',rocket:v=>v+' từ',scramble:v=>v+'/8'};
 
 /* ================= Storage ================= */
-const DEFAULTS={avatar:'🐯',nick:'',sound:true,speak:true,limit:15,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{}};
+const DEFAULTS={avatar:'🐯',nick:'',sound:true,music:true,speak:true,limit:15,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{}};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function readJSON(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
@@ -350,6 +350,60 @@ function save(){
   if(pe&&(pe.nick!==(state.nick||pe.nick)||pe.av!==state.avatar)){pe.nick=(state.nick||pe.nick).slice(0,12);pe.av=state.avatar;saveProfiles();}
   cloudSaveState();
 }
+
+/* ================= Nhạc nền khi gõ =================
+ * Tự tạo bằng WebAudio (không tải file nhạc, không cần mạng). Chỉ dùng giai điệu dân ca / nhạc thiếu nhi
+ * đã thuộc phạm vi công cộng (hết thời hạn bản quyền). Mỗi chữ trong 'notes' là nốt:độ dài (đơn vị tick); R là nghỉ. */
+const NOTE_IDX={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+const noteHz=n=>{const m=/^([A-G])(\d)?$/.exec(n),o=m[2]===undefined?4:+m[2];return 261.63*Math.pow(2,(NOTE_IDX[m[1]]+12*(o-4))/12);};
+const SONGS=[
+  {name:'Twinkle Twinkle',bpm:300,beat:2,notes:'C:2 C:2 G:2 G:2 A:2 A:2 G:4 F:2 F:2 E:2 E:2 D:2 D:2 C:4 G:2 G:2 F:2 F:2 E:2 E:2 D:4 G:2 G:2 F:2 F:2 E:2 E:2 D:4 C:2 C:2 G:2 G:2 A:2 A:2 G:4 F:2 F:2 E:2 E:2 D:2 D:2 C:4'},
+  {name:'Mary Had a Little Lamb',bpm:310,beat:2,notes:'E:2 D:2 C:2 D:2 E:2 E:2 E:4 D:2 D:2 D:4 E:2 G:2 G:4 E:2 D:2 C:2 D:2 E:2 E:2 E:2 E:2 D:2 D:2 E:2 D:2 C:8'},
+  {name:'Old MacDonald',bpm:320,beat:2,notes:'C:2 C:2 C:2 G:2 A:2 A:2 G:4 E:2 E:2 D:2 D:2 C:4 R:4 C:2 C:2 C:2 G:2 A:2 A:2 G:4 E:2 E:2 D:2 D:2 C:8'},
+  {name:'Row Row Row Your Boat',bpm:330,beat:3,notes:'C:3 C:3 C:2 D:1 E:3 E:2 D:1 E:2 F:1 G:6 C5:1 C5:1 C5:1 G:1 G:1 G:1 E:1 E:1 E:1 C:1 C:1 C:1 G:2 F:1 E:2 D:1 C:6'},
+  {name:'Jingle Bells',bpm:340,beat:2,notes:'E:2 E:2 E:4 E:2 E:2 E:4 E:2 G:2 C:3 D:1 E:8 F:2 F:2 F:3 F:1 F:2 E:2 E:2 E:1 E:1 E:2 D:2 D:2 E:2 D:4 G:4'},
+  {name:'London Bridge',bpm:310,beat:2,notes:'G:3 A:1 G:2 F:2 E:2 F:2 G:4 D:2 E:2 F:4 E:2 F:2 G:4 G:3 A:1 G:2 F:2 E:2 F:2 G:4 D:4 G:4 E:2 C:6'},
+  {name:'Frère Jacques',bpm:320,beat:2,notes:'C:2 D:2 E:2 C:2 C:2 D:2 E:2 C:2 E:2 F:2 G:4 E:2 F:2 G:4 G:1 A:1 G:1 F:1 E:2 C:2 G:1 A:1 G:1 F:1 E:2 C:2 C:2 G3:2 C:4 C:2 G3:2 C:4'},
+  {name:'Ode to Joy',bpm:310,beat:2,notes:'E:2 E:2 F:2 G:2 G:2 F:2 E:2 D:2 C:2 C:2 D:2 E:2 E:3 D:1 D:4 E:2 E:2 F:2 G:2 G:2 F:2 E:2 D:2 C:2 C:2 D:2 E:2 D:3 C:1 C:4'},
+  {name:'Hot Cross Buns',bpm:330,beat:2,notes:'E:2 D:2 C:4 E:2 D:2 C:4 C:1 C:1 C:1 C:1 D:1 D:1 D:1 D:1 E:2 D:2 C:4'},
+  {name:'Happy Birthday',bpm:290,beat:2,notes:'G:1 G:1 A:2 G:2 C5:2 B:4 G:1 G:1 A:2 G:2 D5:2 C5:4 G:1 G:1 G5:2 E5:2 C5:2 B:2 A:2 F5:1 F5:1 E5:2 C5:2 D5:2 C5:4'}
+].map(x=>Object.assign(x,{seq:x.notes.split(' ').map(t=>{const [n,d]=t.split(':');return {f:n==='R'?0:noteHz(n),d:+d};})}));
+const MU={on:false,timer:0,gain:null,list:[],si:0,ni:0,t:0,k:0,hat:null};
+function musicTone(f,t,dur){
+  const g=actx.createGain(),o=actx.createOscillator(),o2=actx.createOscillator(),g2=actx.createGain(),end=t+Math.min(.55,Math.max(.12,dur*1.1));
+  o.type='triangle';o.frequency.value=f;o2.type='sine';o2.frequency.value=f*2;g2.gain.value=.35;
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.055,t+.01);g.gain.exponentialRampToValueAtTime(.0001,end);
+  o.connect(g);o2.connect(g2).connect(g);g.connect(MU.gain);o.start(t);o2.start(t);o.stop(end+.02);o2.stop(end+.02);
+}
+function musicHat(t){
+  if(!MU.hat){const n=Math.floor(actx.sampleRate*.04),b=actx.createBuffer(1,n,actx.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);MU.hat=b;}
+  const s=actx.createBufferSource(),hp=actx.createBiquadFilter(),g=actx.createGain();s.buffer=MU.hat;hp.type='highpass';hp.frequency.value=6500;g.gain.value=.03;
+  s.connect(hp).connect(g).connect(MU.gain);s.start(t);
+}
+function musicPump(){
+  if(!MU.on||!actx)return;
+  while(MU.t<actx.currentTime+.5){
+    const song=MU.list[MU.si],n=song.seq[MU.ni],tick=60/song.bpm;
+    for(let i=0;i<n.d;i++)if((MU.k+i)%song.beat===0)musicHat(MU.t+i*tick);
+    if(n.f)musicTone(n.f,MU.t,n.d*tick);
+    MU.t+=n.d*tick;MU.k+=n.d;MU.ni++;
+    if(MU.ni>=song.seq.length){MU.ni=0;MU.k=0;MU.si++;MU.t+=tick*3;if(MU.si>=MU.list.length){MU.list=shuffle(SONGS);MU.si=0;}}
+  }
+}
+function musicStart(){
+  if(MU.on||!state.music)return;
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();
+    MU.gain=actx.createGain();MU.gain.gain.value=1;MU.gain.connect(actx.destination);}catch(e){return;}
+  if(!MU.list.length||MU.si>=MU.list.length){MU.list=shuffle(SONGS);MU.si=0;}
+  MU.ni=0;MU.k=0;MU.t=actx.currentTime+.2;MU.on=true;MU.timer=setInterval(musicPump,120);musicPump();
+}
+function musicStop(){
+  if(!MU.on)return;MU.on=false;clearInterval(MU.timer);
+  const g=MU.gain;if(g&&actx){try{g.gain.cancelScheduledValues(actx.currentTime);g.gain.setValueAtTime(g.gain.value,actx.currentTime);g.gain.linearRampToValueAtTime(0,actx.currentTime+.2);}catch(e){}setTimeout(()=>{try{g.disconnect();}catch(e){}},400);}
+  MU.si++;MU.ni=0;MU.k=0;                          // lần sau bắt đầu bằng bài khác
+}
+function musicSync(){(state.music&&(screen==='play'||screen==='game')&&!document.hidden)?musicStart():musicStop();}
+document.addEventListener('visibilitychange',musicSync);
 
 /* ---- Máy chủ: tài khoản ba mẹ và dữ liệu học của các bé ---- */
 async function api(method,url,body){
@@ -444,9 +498,11 @@ function show(name){
   if(name!=='play'&&name!=='game')window.scrollTo(0,0);
   updateOnlineCount();
   updateLobbyPresence();
+  musicSync();
 }
 function syncToggles(){
   $$('.tg-sound').forEach(b=>b.setAttribute('aria-pressed',String(state.sound)));
+  $$('.tg-music').forEach(b=>b.setAttribute('aria-pressed',String(state.music)));
   $$('.tg-speak').forEach(b=>b.setAttribute('aria-pressed',String(state.speak)));
   $('#kbt').setAttribute('aria-pressed',String(state.kbFull));
 }
@@ -982,16 +1038,17 @@ function renderParent(){
   $('#p-hist').innerHTML=h.length?h.map(s=>{const d=new Date(s.t);
     return '<tr><td>'+d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})+'</td><td>'+esc(modeName(s))+'</td><td>'+Math.round(s.acc*100)+'%</td><td>'+(s.wpm||0)+'</td><td>'+fmtTime(s.secs)+'</td></tr>';}).join(''):'<tr><td colspan="5">Chưa có buổi nào.</td></tr>';
   $('#set-unlock').checked=!!state.unlockAll;setSync(syncMsg);
-  $('#set-limit').value=String(state.limit);$('#set-sound').checked=state.sound;$('#set-speak').checked=state.speak;
+  $('#set-limit').value=String(state.limit);$('#set-sound').checked=state.sound;$('#set-music').checked=state.music;$('#set-speak').checked=state.speak;
 }
 function resetGhosts(){if(confirm('Đặt lại tốc độ của tất cả bóng ma về bóng ma tập sự?')){state.ghosts={};save();if(screen==='parent')renderParent();else renderHome();}}
 $('#ghost-reset-all').addEventListener('click',resetGhosts);
 $('#ghost-reset-home').addEventListener('click',resetGhosts);
 $('#set-limit').addEventListener('change',e=>{state.limit=+e.target.value;save();renderParent();});
 $('#set-sound').addEventListener('change',e=>{state.sound=e.target.checked;save();syncToggles();});
+$('#set-music').addEventListener('change',e=>{state.music=e.target.checked;save();syncToggles();musicSync();});
 $('#set-speak').addEventListener('change',e=>{state.speak=e.target.checked;save();syncToggles();});
 $('#set-unlock').addEventListener('change',e=>{state.unlockAll=e.target.checked;save();stageSel=null;});
-$('#reset').addEventListener('click',()=>{if(confirm('Xoá toàn bộ lịch sử, kỷ lục và bóng ma của bé này?')){const keep={avatar:state.avatar,nick:state.nick,sound:state.sound,speak:state.speak,limit:state.limit,kbFull:state.kbFull,unlockAll:state.unlockAll};state=Object.assign(clone(DEFAULTS),keep);save();renderParent();}});
+$('#reset').addEventListener('click',()=>{if(confirm('Xoá toàn bộ lịch sử, kỷ lục và bóng ma của bé này?')){const keep={avatar:state.avatar,nick:state.nick,sound:state.sound,music:state.music,speak:state.speak,limit:state.limit,kbFull:state.kbFull,unlockAll:state.unlockAll};state=Object.assign(clone(DEFAULTS),keep);save();renderParent();}});
 
 /* ================= Đua với các bạn (máy chủ điều khiển) ================= */
 let room=null,online=null,publicRaces=[],pendingJoin=null,progT=0,lobbyTimer=null;
@@ -1649,6 +1706,7 @@ $('#brand').addEventListener('click',exitToHome);
 $('#to-parent').addEventListener('click',()=>{stopAll();show('parent');});
 $('#p-back').addEventListener('click',()=>show('home'));
 $$('.tg-sound').forEach(b=>b.addEventListener('click',()=>{state.sound=!state.sound;save();syncToggles();}));
+$$('.tg-music').forEach(b=>b.addEventListener('click',e=>{e.currentTarget.blur();state.music=!state.music;save();syncToggles();musicSync();}));
 $$('.tg-speak').forEach(b=>b.addEventListener('click',()=>{state.speak=!state.speak;save();syncToggles();}));
 $('#kbt').addEventListener('click',e=>{e.currentTarget.blur();state.kbFull=!state.kbFull;save();syncToggles();if($('#deck').hidden===false)ensureKB(needFull());else kbFullNow=null;});
 $('#rest-ok').addEventListener('click',()=>{$('#rest').hidden=true;pending=null;show('home');});
