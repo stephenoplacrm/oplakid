@@ -99,18 +99,18 @@ function flash(ch,ok){flashKey(baseOf(ch),ok);}
 /* ================= Content ================= */
 const TOPICS={
   animals:{name:'Con vật',words:[['cat','🐱','con mèo'],['dog','🐶','con chó'],['pig','🐷','con heo'],['fox','🦊','con cáo'],['ant','🐜','con kiến'],['cow','🐄','con bò'],['hen','🐔','con gà mái'],['bee','🐝','con ong'],['owl','🦉','con cú'],['bat','🦇','con dơi'],['duck','🦆','con vịt'],['fish','🐟','con cá'],['frog','🐸','con ếch'],['bird','🐦','con chim'],['lion','🦁','sư tử'],['bear','🐻','con gấu'],['goat','🐐','con dê'],['horse','🐴','con ngựa'],['mouse','🐭','con chuột'],['snake','🐍','con rắn'],['tiger','🐯','con hổ'],['zebra','🦓','ngựa vằn'],['monkey','🐵','con khỉ'],['rabbit','🐰','con thỏ']]},
-  house:{name:'Đồ vật trong nhà',words:[['bed','🛏️','cái giường'],['cup','☕','cái cốc'],['box','📦','cái hộp'],['key','🔑','chìa khoá'],['door','🚪','cái cửa'],['lamp','💡','bóng đèn'],['bowl','🥣','cái bát'],['fork','🍴','cái nĩa'],['sofa','🛋️','ghế sofa'],['bath','🛁','bồn tắm'],['clock','⏰','đồng hồ'],['chair','🪑','cái ghế'],['phone','📱','điện thoại'],['spoon','🥄','cái thìa']]},
+  house:{name:'Đồ vật trong nhà',words:[['bed','🛏️','cái giường'],['cup','☕','cái ly'],['box','📦','cái hộp'],['key','🔑','chìa khoá'],['door','🚪','cái cửa'],['lamp','💡','bóng đèn'],['bowl','🥣','cái chén'],['fork','🍴','cái nĩa'],['sofa','🛋️','ghế sofa'],['bath','🛁','bồn tắm'],['clock','⏰','đồng hồ'],['chair','🪑','cái ghế'],['phone','📱','điện thoại'],['spoon','🥄','cái muỗng']]},
   colors:{name:'Màu sắc',words:[['red','🔴','màu đỏ'],['blue','🔵','màu xanh dương'],['pink','🩷','màu hồng'],['green','🟢','màu xanh lá'],['black','⚫','màu đen'],['white','⚪','màu trắng'],['brown','🟤','màu nâu'],['yellow','🟡','màu vàng'],['orange','🟠','màu cam'],['purple','🟣','màu tím']]},
   numbers:{name:'Số đếm',words:[['one','1️⃣','số một'],['two','2️⃣','số hai'],['six','6️⃣','số sáu'],['ten','🔟','số mười'],['four','4️⃣','số bốn'],['five','5️⃣','số năm'],['nine','9️⃣','số chín'],['three','3️⃣','số ba'],['seven','7️⃣','số bảy'],['eight','8️⃣','số tám']]},
   body:{name:'Cơ thể',words:[['eye','👁️','con mắt'],['ear','👂','cái tai'],['arm','💪','cánh tay'],['leg','🦵','cái chân'],['hand','✋','bàn tay'],['foot','🦶','bàn chân'],['nose','👃','cái mũi'],['bone','🦴','khúc xương'],['mouth','👄','cái miệng'],['tooth','🦷','cái răng'],['brain','🧠','bộ não'],['heart','❤️','trái tim']]},
-  food:{name:'Đồ ăn',words:[['egg','🥚','quả trứng'],['tea','🍵','trà'],['nut','🥜','hạt đậu'],['pie','🥧','bánh nướng'],['milk','🥛','sữa'],['cake','🍰','bánh ngọt'],['rice','🍚','cơm'],['corn','🌽','bắp'],['soup','🍲','món canh'],['bread','🍞','bánh mì'],['candy','🍬','kẹo'],['pizza','🍕','bánh pizza'],['honey','🍯','mật ong'],['cheese','🧀','phô mai'],['cookie','🍪','bánh quy']]},
-  fruit:{name:'Trái cây',words:[['kiwi','🥝','quả kiwi'],['pear','🍐','quả lê'],['apple','🍎','quả táo'],['grape','🍇','quả nho'],['lemon','🍋','quả chanh'],['peach','🍑','quả đào'],['mango','🥭','quả xoài'],['melon','🍈','quả dưa'],['olive','🫒','quả ô liu'],['banana','🍌','quả chuối'],['cherry','🍒','quả anh đào'],['coconut','🥥','quả dừa']]},
+  food:{name:'Đồ ăn',words:[['egg','🥚','trứng'],['tea','🍵','trà'],['nut','🥜','hạt đậu'],['pie','🥧','bánh nướng'],['milk','🥛','sữa'],['cake','🍰','bánh ngọt'],['rice','🍚','cơm'],['corn','🌽','bắp'],['soup','🍲','món canh'],['bread','🍞','bánh mì'],['candy','🍬','kẹo'],['pizza','🍕','bánh pizza'],['honey','🍯','mật ong'],['cheese','🧀','phô mai'],['cookie','🍪','bánh quy']]},
+  fruit:{name:'Trái cây',words:[['kiwi','🥝','trái kiwi'],['pear','🍐','trái lê'],['apple','🍎','trái táo'],['grape','🍇','trái nho'],['lemon','🍋','trái chanh'],['peach','🍑','trái đào'],['mango','🥭','trái xoài'],['melon','🍈','trái dưa'],['olive','🫒','trái ô liu'],['banana','🍌','trái chuối'],['cherry','🍒','trái anh đào'],['coconut','🥥','trái dừa']]},
   nature:{name:'Thiên nhiên',words:[['sun','☀️','mặt trời'],['sea','🌊','biển'],['moon','🌙','mặt trăng'],['star','⭐','ngôi sao'],['rain','🌧️','mưa'],['tree','🌳','cái cây'],['snow','❄️','tuyết'],['leaf','🍃','chiếc lá'],['rock','🪨','hòn đá'],['fire','🔥','lửa'],['hill','⛰️','ngọn đồi'],['wind','🌬️','gió'],['cloud','☁️','đám mây'],['flower','🌸','bông hoa']]},
-  family:{name:'Gia đình',words:[['mom','👩','mẹ'],['dad','👨','bố'],['boy','👦','bé trai'],['baby','👶','em bé'],['girl','👧','bé gái'],['friend','🤝','bạn bè'],['family','👪','gia đình'],['grandma','👵','bà'],['grandpa','👴','ông'],['teacher','🧑‍🏫','giáo viên']]},
-  clothes:{name:'Quần áo',words:[['hat','🎩','cái mũ'],['cap','🧢','mũ lưỡi trai'],['sock','🧦','chiếc tất'],['shoe','👟','giày'],['boot','👢','ủng'],['coat','🧥','áo khoác'],['dress','👗','váy'],['shirt','👕','áo phông'],['jeans','👖','quần jeans'],['scarf','🧣','khăn quàng'],['glove','🧤','găng tay']]},
-  school:{name:'Trường học',words:[['pen','🖊️','cây bút'],['bag','🎒','cái cặp'],['book','📕','quyển sách'],['bell','🔔','cái chuông'],['ruler','📏','thước kẻ'],['paper','📄','tờ giấy'],['globe','🌍','quả địa cầu'],['crayon','🖍️','bút sáp'],['pencil','✏️','bút chì'],['school','🏫','trường học'],['scissors','✂️','cái kéo'],['notebook','📓','quyển vở']]},
-  toys:{name:'Đồ chơi',words:[['ball','⚽','quả bóng'],['doll','🪆','búp bê'],['kite','🪁','con diều'],['drum','🥁','cái trống'],['dice','🎲','xúc xắc'],['yoyo','🪀','con yoyo'],['game','🎮','trò chơi điện tử'],['robot','🤖','người máy'],['teddy','🧸','gấu bông'],['blocks','🧱','khối xếp hình'],['puzzle','🧩','tranh ghép'],['balloon','🎈','bóng bay']]},
-  transport:{name:'Xe cộ',words:[['bus','🚌','xe buýt'],['car','🚗','xe hơi'],['van','🚐','xe tải nhỏ'],['bike','🚲','xe đạp'],['taxi','🚕','xe taxi'],['ship','🚢','tàu thuỷ'],['boat','⛵','thuyền buồm'],['train','🚂','tàu hoả'],['plane','✈️','máy bay'],['truck','🚚','xe tải'],['rocket','🚀','tên lửa'],['scooter','🛵','xe máy']]}
+  family:{name:'Gia đình',words:[['mom','👩','mẹ'],['dad','👨','ba'],['boy','👦','bé trai'],['baby','👶','em bé'],['girl','👧','bé gái'],['friend','🤝','bạn bè'],['family','👪','gia đình'],['grandma','👵','bà'],['grandpa','👴','ông'],['teacher','🧑‍🏫','giáo viên']]},
+  clothes:{name:'Quần áo',words:[['hat','🎩','cái nón'],['cap','🧢','nón lưỡi trai'],['sock','🧦','chiếc vớ'],['shoe','👟','giày'],['boot','👢','ủng'],['coat','🧥','áo khoác'],['dress','👗','váy'],['shirt','👕','áo thun'],['jeans','👖','quần jeans'],['scarf','🧣','khăn quàng'],['glove','🧤','bao tay']]},
+  school:{name:'Trường học',words:[['pen','🖊️','cây viết'],['bag','🎒','cái cặp'],['book','📕','quyển sách'],['bell','🔔','cái chuông'],['ruler','📏','thước kẻ'],['paper','📄','tờ giấy'],['globe','🌍','trái địa cầu'],['crayon','🖍️','viết sáp'],['pencil','✏️','viết chì'],['school','🏫','trường học'],['scissors','✂️','cái kéo'],['notebook','📓','quyển tập']]},
+  toys:{name:'Đồ chơi',words:[['ball','⚽','trái banh'],['doll','🪆','búp bê'],['kite','🪁','con diều'],['drum','🥁','cái trống'],['dice','🎲','xúc xắc'],['yoyo','🪀','con yoyo'],['game','🎮','trò chơi điện tử'],['robot','🤖','người máy'],['teddy','🧸','gấu bông'],['blocks','🧱','khối xếp hình'],['puzzle','🧩','tranh ghép'],['balloon','🎈','bóng bay']]},
+  transport:{name:'Xe cộ',words:[['bus','🚌','xe buýt'],['car','🚗','xe hơi'],['van','🚐','xe tải nhỏ'],['bike','🚲','xe đạp'],['taxi','🚕','xe taxi'],['ship','🚢','tàu thuỷ'],['boat','⛵','thuyền buồm'],['train','🚂','tàu lửa'],['plane','✈️','máy bay'],['truck','🚚','xe tải'],['rocket','🚀','tên lửa'],['scooter','🛵','xe máy']]}
 };
 const PICS=(()=>{const seen=new Set(),out=[];Object.values(TOPICS).forEach(t=>t.words.forEach(w=>{if(!seen.has(w[0])){seen.add(w[0]);out.push(w);}}));return out;})();
 const HOME_W='as ad add all ask dad sad lad had has gas hall fall glad flag dash flash salad shall half ash'.split(' ');
@@ -279,7 +279,7 @@ function save(){
   cloudSaveState();
 }
 
-/* ---- Máy chủ: tài khoản bố mẹ và dữ liệu học của các bé ---- */
+/* ---- Máy chủ: tài khoản ba mẹ và dữ liệu học của các bé ---- */
 async function api(method,url,body){
   const r=await fetch(url,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
   let data=null;try{data=await r.json();}catch(e){}
@@ -302,7 +302,7 @@ function queueWrite(key,ref,getData){
   clearTimeout(w.t);w.t=setTimeout(async function run(){
     if(w.busy){w.again=true;return;}
     w.busy=true;
-    try{await ref().set(getData());setSync('Đã đồng bộ với tài khoản của bố mẹ. Học trên máy khác vẫn giữ tiến độ.');}
+    try{await ref().set(getData());setSync('Đã đồng bộ với tài khoản của ba mẹ. Học trên máy khác vẫn giữ tiến độ.');}
     catch(e){setSync('Chưa đồng bộ được lên tài khoản, tiến độ vẫn lưu trên máy này.');}
     w.busy=false;if(w.again){w.again=false;run();}
   },2000);
@@ -319,7 +319,7 @@ async function cloudPullProfiles(){
         else{c.list.forEach(x=>{if(!ids.has(x.id))profiles.list.push(x);});writeJSON(K('profiles'),profiles);cloudSaveProfiles();}
       }
     }else if(profiles.list.length)cloudSaveProfiles();
-    setSync('Đã đồng bộ với tài khoản của bố mẹ. Học trên máy khác vẫn giữ tiến độ.');
+    setSync('Đã đồng bộ với tài khoản của ba mẹ. Học trên máy khác vẫn giữ tiến độ.');
     await Promise.all(profiles.list.map(async pr=>{
       try{const d=await sDoc(pr.id).get();if(!d.exists)return;const c=JSON.parse(d.data().json||'{}');
         const local=readJSON(K('p:'+pr.id));if(!local||(c.updatedAt||0)>(local.updatedAt||0))writeJSON(K('p:'+pr.id),c);}catch(e){}
@@ -1360,7 +1360,7 @@ function handleShortcut(e){
 }
 
 $('#cont').addEventListener('click',e=>{e.currentTarget.blur();continueLearning();});
-/* ================= Tài khoản bố mẹ ================= */
+/* ================= Tài khoản ba mẹ ================= */
 let resetToken=null;
 function authMode(m){
   ['login','register','forgot','reset'].forEach(x=>{$('#f-'+x).hidden=x!==m;});

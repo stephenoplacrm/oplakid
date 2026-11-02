@@ -227,7 +227,7 @@ app.post('/api/auth/register', wrap(async (req, res) => {
   if (rateLimited('reg:' + ip(req), 10, 3_600_000)) return res.status(429).json({ error: 'Bạn thử quá nhiều lần. Đợi một lát rồi thử lại.' });
   if (!validEmail(email)) return res.status(400).json({ error: 'Email chưa đúng định dạng.' });
   if (!validPassword(password)) return res.status(400).json({ error: 'Mật khẩu cần từ 8 đến 128 ký tự.' });
-  if (consent !== true) return res.status(400).json({ error: 'Bạn cần xác nhận là cha mẹ hoặc người giám hộ và đồng ý với chính sách quyền riêng tư.' });
+  if (consent !== true) return res.status(400).json({ error: 'Bạn cần xác nhận là ba mẹ hoặc người giám hộ và đồng ý với chính sách quyền riêng tư.' });
   if (q.userByEmail.get(email)) return res.status(409).json({ error: 'Email này đã có tài khoản. Bạn hãy đăng nhập, hoặc dùng “Quên mật khẩu”.' });
   const id = crypto.randomUUID();
   const now = Date.now();
