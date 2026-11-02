@@ -52,6 +52,16 @@ CREATE TABLE IF NOT EXISTS resets(
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   expires_at INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS feedback(
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'other',
+  rating INTEGER NOT NULL DEFAULT 0,
+  message TEXT NOT NULL,
+  contact_ok INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS feedback_time ON feedback(created_at);
 CREATE TABLE IF NOT EXISTS docs(
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
@@ -68,6 +78,9 @@ const q = {
   insertUser: db.prepare('INSERT INTO users(id, email, pw, created_at, consent_at) VALUES(?, ?, ?, ?, ?)'),
   updatePw: db.prepare('UPDATE users SET pw = ? WHERE id = ?'),
   deleteUser: db.prepare('DELETE FROM users WHERE id = ?'),
+  insertFeedback: db.prepare('INSERT INTO feedback(id, user_id, kind, rating, message, contact_ok, created_at) VALUES(?, ?, ?, ?, ?, ?, ?)'),
+  listFeedback: db.prepare('SELECT f.id, f.kind, f.rating, f.message, f.contact_ok, f.created_at, u.email FROM feedback f JOIN users u ON u.id = f.user_id ORDER BY f.created_at DESC LIMIT 200'),
+  deleteFeedback: db.prepare('DELETE FROM feedback WHERE id = ?'),
   insertSession: db.prepare('INSERT INTO sessions(token_hash, user_id, expires_at) VALUES(?, ?, ?)'),
   sessionUser: db.prepare('SELECT u.id, u.email FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?'),
   deleteSession: db.prepare('DELETE FROM sessions WHERE token_hash = ?'),
@@ -215,10 +228,14 @@ function requireUser(req, res, next) {
 const ip = req => req.ip || 'unknown';
 const wrap = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
+const ADMIN_EMAILS = new Set((process.env.ADMIN_EMAILS || '').split(',').map(normEmail).filter(Boolean));
+const isAdmin = u => !!u && ADMIN_EMAILS.has(u.email);
+const publicUser = u => ({ id: u.id, email: u.email, admin: isAdmin(u) });
+
 app.get('/api/auth/me', (req, res) => {
   const u = userFromRequest(req);
   if (!u) return res.status(401).json({ error: 'Chưa đăng nhập.' });
-  res.json({ user: { id: u.id, email: u.email } });
+  res.json({ user: publicUser(u) });
 });
 
 app.post('/api/auth/register', wrap(async (req, res) => {
@@ -233,7 +250,7 @@ app.post('/api/auth/register', wrap(async (req, res) => {
   const now = Date.now();
   q.insertUser.run(id, email, await hashPassword(password), now, now);
   startSession(res, id);
-  res.status(201).json({ user: { id, email } });
+  res.status(201).json({ user: publicUser({ id, email }) });
 }));
 
 app.post('/api/auth/login', wrap(async (req, res) => {
@@ -246,7 +263,7 @@ app.post('/api/auth/login', wrap(async (req, res) => {
   const ok = row ? await verifyPassword(password, row.pw) : (DUMMY_HASH && await verifyPassword(password, DUMMY_HASH), false);
   if (!ok) return res.status(401).json({ error: 'Email hoặc mật khẩu chưa đúng.' });
   startSession(res, row.id);
-  res.json({ user: { id: row.id, email: row.email } });
+  res.json({ user: publicUser(row) });
 }));
 
 /* ---------------- Đăng nhập bằng Google (chuyển hướng phía máy chủ, không cần script ngoài) ---------------- */
@@ -336,7 +353,7 @@ app.post('/api/auth/reset', wrap(async (req, res) => {
   q.deleteUserSessions.run(row.user_id);
   startSession(res, row.user_id);
   const u = q.userById.get(row.user_id);
-  res.json({ user: { id: u.id, email: u.email } });
+  res.json({ user: publicUser(u) });
 }));
 
 app.post('/api/auth/password', requireUser, wrap(async (req, res) => {
@@ -359,6 +376,41 @@ app.post('/api/account/delete', requireUser, wrap(async (req, res) => {
   clearCookie(res);
   res.json({ ok: true });
 }));
+
+/* Góp ý và đóng góp cải tiến: chỉ ba mẹ (tài khoản đã đăng nhập) được gửi; chỉ quản trị viên (ADMIN_EMAILS) được xem.
+ * Không hiển thị cho các bé hay người dùng khác. Email chỉ lộ cho quản trị viên khi ba mẹ tick đồng ý liên hệ. */
+const FB_KINDS = new Set(['idea', 'bug', 'praise', 'other']);
+const FB_KIND_NAME = { idea: 'Ý tưởng cải tiến', bug: 'Báo lỗi', praise: 'Điều em thích', other: 'Khác' };
+const FB_CLEAN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g;
+app.post('/api/feedback', requireUser, wrap(async (req, res) => {
+  if (rateLimited('fb:' + req.user.id, 5, 3_600_000) || rateLimited('fbip:' + ip(req), 20, 3_600_000)) {
+    return res.status(429).json({ error: 'Ba mẹ gửi nhiều quá. Đợi một lát rồi gửi tiếp nhé.' });
+  }
+  const b = req.body || {};
+  const kind = FB_KINDS.has(b.kind) ? b.kind : 'other';
+  const rating = Number.isInteger(b.rating) && b.rating >= 0 && b.rating <= 5 ? b.rating : 0;
+  const message = typeof b.message === 'string' ? b.message.replace(FB_CLEAN, '').trim().slice(0, 1000) : '';
+  if (message.length < 5) return res.status(400).json({ error: 'Ba mẹ viết thêm một chút nhé (ít nhất 5 chữ).' });
+  const contact = b.contact === true ? 1 : 0;
+  q.insertFeedback.run(crypto.randomUUID(), req.user.id, kind, rating, message, contact, Date.now());
+  if (mailer && process.env.FEEDBACK_EMAIL) {
+    mailer.sendMail({
+      from: process.env.MAIL_FROM || 'OplaKid <no-reply@localhost>', to: process.env.FEEDBACK_EMAIL,
+      subject: '[OplaKid] Góp ý mới: ' + FB_KIND_NAME[kind],
+      text: `Loại: ${FB_KIND_NAME[kind]}\nĐánh giá: ${rating ? rating + '/5' : 'không chấm'}\nLiên hệ lại: ${contact ? req.user.email : 'ba mẹ không đồng ý'}\n\n${message}`
+    }).catch(e => console.error('Gửi email góp ý thất bại:', e.message));
+  }
+  res.status(201).json({ ok: true });
+}));
+app.get('/api/feedback', requireUser, (req, res) => {
+  if (!isAdmin(req.user)) return res.status(403).json({ error: 'Chỉ quản trị viên được xem.' });
+  res.json({ items: q.listFeedback.all().map(r => ({ id: r.id, kind: r.kind, rating: r.rating, message: r.message, createdAt: r.created_at, email: r.contact_ok ? r.email : null })) });
+});
+app.delete('/api/feedback/:id', requireUser, (req, res) => {
+  if (!isAdmin(req.user)) return res.status(403).json({ error: 'Chỉ quản trị viên được xoá.' });
+  q.deleteFeedback.run(String(req.params.id).slice(0, 64));
+  res.json({ ok: true });
+});
 
 /* Kho dữ liệu riêng của từng tài khoản: danh sách hồ sơ bé và tiến độ từng bé */
 const DOC_RE = /^(profiles|p-[a-z0-9]{4,32})$/;

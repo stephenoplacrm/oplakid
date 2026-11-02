@@ -1032,8 +1032,45 @@ $('#r-again').addEventListener('click',()=>{if(resAgain)resAgain();});
 $('#r-next').addEventListener('click',()=>{if(resNext)resNext();});
 $('#r-home').addEventListener('click',()=>show('home'));
 
+/* ================= Góp ý của ba mẹ ================= */
+const FB_KIND={idea:'💡 Ý tưởng',bug:'🐞 Báo lỗi',praise:'❤️ Điều em thích',other:'💬 Khác'};
+let fbRating=0;
+(function(){
+  const box=$('#fb-rate');
+  for(let n=1;n<=5;n++){const b=document.createElement('button');b.type='button';b.textContent='⭐';b.setAttribute('aria-label',n+' sao');b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',()=>{fbRating=fbRating===n?0:n;paintRate();});box.appendChild(b);}
+})();
+function paintRate(){$$('#fb-rate button').forEach((b,i)=>b.setAttribute('aria-pressed',String(i<fbRating)));}
+$('#f-fb').addEventListener('submit',async e=>{
+  e.preventDefault();const f=e.currentTarget,msg=$('#fb-msg');msg.textContent='';msg.style.color='';busy(f,true);
+  try{
+    await api('POST','/api/feedback',{kind:f.kind.value,rating:fbRating,message:f.message.value,contact:f.contact.checked});
+    f.message.value='';f.contact.checked=false;fbRating=0;paintRate();msg.textContent='Cảm ơn ba mẹ! OplaKid đã nhận được góp ý.';
+  }catch(err){msg.textContent=err.message;msg.style.color='var(--bad)';}
+  busy(f,false);
+});
+$('#to-feedback').addEventListener('click',()=>{if(!uid)return;stopAll();show('parent');setTimeout(()=>$('#fb-box').scrollIntoView({behavior:'smooth',block:'start'}),50);});
+async function loadFeedback(){
+  const list=$('#fb-list'),note=$('#fb-admin-note');
+  try{
+    const r=await api('GET','/api/feedback');list.innerHTML='';
+    note.textContent=r.items.length?r.items.length+' góp ý gần nhất (tối đa 200). Email chỉ hiện khi ba mẹ đồng ý liên hệ.':'Chưa có góp ý nào.';
+    r.items.forEach(it=>{
+      const d=document.createElement('div');d.className='fbitem';
+      const h=document.createElement('div');h.className='fbhead';
+      h.textContent=(FB_KIND[it.kind]||FB_KIND.other)+(it.rating?'  '+'⭐'.repeat(it.rating):'')+'  ·  '+new Date(it.createdAt).toLocaleString('vi-VN')+(it.email?'  ·  '+it.email:'');
+      const p=document.createElement('p');p.className='fbmsg';p.textContent=it.message;
+      const x=document.createElement('button');x.type='button';x.className='chip';x.textContent='Xoá';
+      x.addEventListener('click',async()=>{if(!confirm('Xoá góp ý này?'))return;try{await api('DELETE','/api/feedback/'+encodeURIComponent(it.id));loadFeedback();}catch(e){note.textContent=e.message;}});
+      d.append(h,p,x);list.appendChild(d);
+    });
+  }catch(e){note.textContent=e.message;}
+}
+$('#fb-reload').addEventListener('click',loadFeedback);
+
 /* ================= Parent ================= */
 function renderParent(){
+  if(me&&me.admin)loadFeedback();
   const tm=todayMin();$('#p-today').textContent=Math.round(tm)+' phút';
   $('#p-limit-note').textContent='Giới hạn đang đặt: '+state.limit+' phút mỗi ngày.';
   const wk=Date.now()-7*864e5,ws=state.sessions.filter(s=>s.t>=wk);
@@ -1675,7 +1712,7 @@ $('#f-reset').addEventListener('submit',e=>{e.preventDefault();const f=e.current
 async function afterAuth(user){
   me=user;uid=user.id;db=true;
   loadProfilesLocal();curPid=null;state=clone(DEFAULTS);
-  $('#acct-email').textContent=user.email;
+  $('#acct-email').textContent=user.email;$('#fb-admin').hidden=!user.admin;
   setSync('Đang đồng bộ…');
   startRealtime();
   await cloudPullProfiles();

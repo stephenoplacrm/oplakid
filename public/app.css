@@ -160,8 +160,8 @@ h1{font-weight:800;color:var(--ink);font-size:clamp(30px,5.4vw,46px);line-height
 
 /* Parent */
 #s-parent h1{max-width:none}
-.pgrid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:14px}
-@media (min-width:760px){.pgrid{grid-template-columns:1fr 1fr}}
+.pgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;margin-top:14px}
+@media (min-width:760px){.pgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .box{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:14px 16px}
 .box h2{margin:0 0 6px;font-size:20px;color:var(--ink)}
 .box.wide{grid-column:1/-1}
@@ -412,3 +412,15 @@ a{color:var(--ink)}
 .gdur{display:flex;align-items:center;gap:8px;margin:4px 0 8px;font-weight:700;color:var(--muted);font-size:15px}
 .gdur select{border:2px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit;font-weight:700;padding:3px 8px}
 .gdone{position:absolute;right:10px;bottom:10px;z-index:5}
+
+/* Góp ý của ba mẹ */
+.rate{display:flex;gap:2px}
+.rate button{border:0;background:none;font-size:32px;line-height:1;padding:2px 3px;opacity:.28;filter:grayscale(1)}
+.rate button[aria-pressed="true"]{opacity:1;filter:none}
+#f-fb{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.fbtext{width:min(620px,100%);resize:vertical;font-size:17px;line-height:1.4}
+#f-fb .field{width:min(620px,100%)}
+#f-fb select.textin{width:min(320px,100%)}
+.fbitem{border-top:1px solid var(--line);padding:10px 0}
+.fbhead{font-weight:700;color:var(--ink);font-size:15px;overflow-wrap:anywhere}
+.fbmsg{margin:4px 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
