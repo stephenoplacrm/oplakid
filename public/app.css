@@ -193,11 +193,15 @@ input[type=checkbox]{width:20px;height:20px;accent-color:var(--ink)}
 :root[data-theme="dark"]{--sky:#1d2843;--water:#16334a;--pad:#3f8f4c;--pad-line:#2b6635;--sand:#4a3f2c}
 
 .hright{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
-.kbtoggle{display:flex;align-items:center;gap:8px}
+.kbwrap{width:max-content;max-width:100%;margin:0 auto}
+.kbtoggle{display:flex;align-items:center;gap:6px;margin:0 0 4px auto;border:0;background:none;padding:2px 4px;font-size:13px;font-weight:700;color:var(--muted)}
+.kbwrap .kb{margin:0}
+.kbtoggle .switch{width:28px;height:16px;border-radius:8px}
+.kbtoggle .switch::after{top:2px;left:2px;width:12px;height:12px}
 .switch{width:38px;height:22px;border-radius:11px;background:var(--line);position:relative;transition:background-color .15s;flex:none}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
 .kbtoggle[aria-pressed="true"] .switch{background:var(--ink)}
-.kbtoggle[aria-pressed="true"] .switch::after{transform:translateX(16px)}
+.kbtoggle[aria-pressed="true"] .switch::after{transform:translateX(12px)}
 
 .kb.full{--u:clamp(17px,5.3vw,46px)}
 .key.mod{font-family:"Baloo 2",sans-serif;font-size:calc(var(--u)*.3);font-weight:700}
