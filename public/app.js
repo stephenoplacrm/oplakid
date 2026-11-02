@@ -289,14 +289,20 @@ const UNITS=[
     [['food','Đồ ăn'],['sport','Thể thao'],['travel','Du lịch'],['garden','Khu vườn'],['story','Truyện ngắn'],['space','Vũ trụ']]
       .map(([id,name])=>({id,name,gen:()=>pick(PARAS2[id],3)}))}
 ];
-const FLAT=UNITS.flatMap(u=>u.steps.map(st=>({u:u.id,s:st.id,b:!!(u.bonus||st.bonus)}))); // b: bài thêm, không bắt buộc để mở lớp sau
+/* Mỗi bài thuộc một trong 5 lớp (g). Bài thêm (b) không bắt buộc để mở lớp sau. */
+const UNIT_STAGE={home:'bo',top:'bo',bottom:'bo',mix:'di',fing:'di',rhy:'di',words:'chay',phr:'chay',caps:'l4',punct:'l4',num:'l5',para:'l5',sym:'l5',num2:'l5',para2:'l5'};
+const stageIdOf=(u,st)=>u==='words'?(st.bonus?'l4':/^(animals|house|colors|numbers)\d$/.test(st.id)?'di':'chay'):u==='phr'?(st.bonus?'l4':'chay'):UNIT_STAGE[u];
+const FLAT=UNITS.flatMap(u=>u.steps.map(st=>({u:u.id,s:st.id,b:!!(u.bonus||st.bonus),g:stageIdOf(u.id,st)})));
 const STAGES=[
-  {id:'bo',name:'Lớp 1',icon:'🐢',desc:'Làm quen từng hàng phím',units:['home','top','bottom','mix','fing','rhy']},
-  {id:'di',name:'Lớp 2',icon:'🚶',desc:'Gõ từ, cụm từ và câu tiếng Anh',units:['words','phr']},
-  {id:'chay',name:'Lớp 3',icon:'🏃',desc:'Chữ hoa, dấu câu, số và đoạn văn',units:['caps','punct','num','para','sym','num2','para2']}
+  {id:'bo',name:'Lớp 1',icon:'🐢',desc:'Làm quen từng hàng phím'},
+  {id:'di',name:'Lớp 2',icon:'🚶',desc:'Cả bàn phím, từng ngón tay và những từ đầu tiên'},
+  {id:'chay',name:'Lớp 3',icon:'🏃',desc:'Từ tiếng Anh có hình, cụm từ và câu'},
+  {id:'l4',name:'Lớp 4',icon:'🚴',adv:true,desc:'Từ mới, câu hay gặp, chữ hoa và dấu câu'},
+  {id:'l5',name:'Lớp 5',icon:'🚀',adv:true,desc:'Số, ký hiệu và đoạn văn dài'}
 ];
-const stageOf=uid=>STAGES.find(S=>S.units.includes(uid));
-function stageDone(S){const all=FLAT.filter(x=>S.units.includes(x.u));return [all.filter(x=>state.best[x.u+':'+x.s]).length,all.length];}
+const stageById=id=>STAGES.find(S=>S.id===id);
+const stageOfLesson=(u,st)=>{const f=FLAT.find(x=>x.u===u&&x.s===st);return f?stageById(f.g):null;};
+function stageDone(S){const all=FLAT.filter(x=>x.g===S.id);return [all.filter(x=>state.best[x.u+':'+x.s]).length,all.length];}
 let stageSel=null;
 const findStep=(u,s)=>{const U=UNITS.find(x=>x.id===u);return U?{U,st:U.steps.find(x=>x.id===s)}:null;};
 
@@ -535,8 +541,8 @@ function stopAll(){
 
 /* ================= Home ================= */
 let tab='lessons';
-function setTab(t){tab=t;$$('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));['lessons','games','race'].forEach(x=>$('#tab-'+x).hidden=x!==t);}
-$$('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+function setTab(t){tab=t;$$('.tab[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));['lessons','games','race'].forEach(x=>$('#tab-'+x).hidden=x!==t);}
+$$('.tab[data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 function renderHome(){
   if(!stageSel)stageSel=curStage().id;
   renderPublicRaces();if(room)renderOnlineStrip(onlinePeople());
@@ -550,13 +556,13 @@ function renderHome(){
   const SS=STAGES.find(x=>x.id===stageSel),[sd,sn]=stageDone(SS);
   const SSlk=!stageUnlocked(SS),prevS=STAGES[STAGES.indexOf(SS)-1];
   if(SSlk){const [pd,pn]=stageDoneFor(state,prevS);$('#progress').textContent=SS.name+' đang khoá. Em cần xong hết '+pn+' bài của '+prevS.name+' (còn '+(pn-pd)+' bài) thì lớp này mới mở.';}
-  else $('#progress').textContent=SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.id==='chay'?' Lớp này dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
+  else $('#progress').textContent=SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.adv?' Lớp này có bài dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
   const ul=$('#units');ul.innerHTML='';
-  SS.units.map(id=>UNITS.find(U=>U.id===id)).forEach((U,ui)=>{
+  UNITS.filter(U=>U.steps.some(st=>stageIdOf(U.id,st)===SS.id)).forEach((U,ui)=>{
     const li=document.createElement('li');li.className='lesson';
     li.innerHTML='<span class="num">'+(ui+1)+'</span><h2>'+esc(U.title)+'</h2><p>'+esc(U.desc)+'</p><div class="acts"></div>';
     const acts=li.querySelector('.acts');
-    U.steps.forEach(st=>{const b=document.createElement('button');b.type='button';b.className='chip';
+    U.steps.filter(st=>stageIdOf(U.id,st)===SS.id).forEach(st=>{const b=document.createElement('button');b.type='button';b.className='chip';
       const best=state.best[U.id+':'+st.id]||0;b.innerHTML=esc(st.name)+(best?'<span class="st">'+starStr(best)+'</span>':'');
       if(SSlk){b.classList.add('lockedc');b.disabled=true;}
       b.addEventListener('click',()=>startLesson(U.id,st.id));acts.appendChild(b);});
@@ -581,7 +587,7 @@ function renderHome(){
   Object.entries(TRACKS).forEach(([id,t])=>{const b=document.createElement('button');b.type='button';b.className='chip';
     const g=state.ghosts[id];
     b.innerHTML=esc(t.name)+(g&&g.wpm?'<span class="st" style="color:var(--muted);letter-spacing:0">'+g.wpm+' WPM</span>':'');
-    if(t.adv&&!stageUnlocked(STAGES[2])){b.disabled=true;b.classList.add('lockedc');b.innerHTML='🔒 '+b.innerHTML;b.title='Mở khi em lên Lớp 3';}
+    if(t.adv&&!stageUnlocked(STAGES[3])){b.disabled=true;b.classList.add('lockedc');b.innerHTML='🔒 '+b.innerHTML;b.title='Mở khi em lên Lớp 4';}
     b.addEventListener('click',()=>startRace(id));tr.appendChild(b);});
 }
 
@@ -590,7 +596,7 @@ function startWpm(){clearInterval(wpmTimer);$('#wpm').textContent='0';wpmTimer=s
 function updateWpm(){if(!game||!game.start)return;if(game.timed&&game.done)return;$('#wpm').textContent=wpmOf(game.chars,(performance.now()-game.start)/1000);}
 function startLesson(uid,sid){guardStart(()=>{
   const f=findStep(uid,sid);if(!f)return;
-  const stg=stageOf(uid);if(stg&&!stageUnlocked(stg))return;if(stg)stageSel=stg.id;
+  const stg=stageOfLesson(uid,sid);if(stg&&!stageUnlocked(stg))return;if(stg)stageSel=stg.id;
   stopAll();
   const items=f.st.gen();
   const adv=!!f.U.adv||items.some(x=>[...x.t].some(c=>!SIMPLE_SET.has(c)));
@@ -656,8 +662,8 @@ function finishLesson(){
   const titles={3:'Giỏi quá!',2:'Tốt lắm!',1:'Em làm xong rồi!'};
   const subs={3:'Ngón tay nào cũng làm đúng việc của mình.',2:'Còn vài chữ nhầm, chơi lại một lần nữa là thuộc.',1:'Gõ chậm lại một chút, nhìn ngón tay sáng trên màn hình để gõ cho đúng.'};
   let sub=subs[stars];if(newWpm&&prev)sub+=' Kỷ lục tốc độ mới ở bài này: '+wpm+' WPM (lần trước '+prev+').';
-  const stg=stageOf(game.unit);if(firstTime&&stg){const [d,n]=stageDone(stg);if(d===n)sub+=' Em đã hoàn thành '+stg.name+'!';}
-  const u=game.unit,s=game.step,i=FLAT.findIndex(x=>x.u===u&&x.s===s),nx0=i>=0&&i<FLAT.length-1?FLAT[i+1]:null,nx=nx0&&stageUnlocked(stageOf(nx0.u))?nx0:null;
+  const stg=stageOfLesson(game.unit,game.step);if(firstTime&&stg){const [d,n]=stageDone(stg);if(d===n)sub+=' Em đã hoàn thành '+stg.name+'!';}
+  const u=game.unit,s=game.step,i=FLAT.findIndex(x=>x.u===u&&x.s===s),nx0=i>=0&&i<FLAT.length-1?FLAT[i+1]:null,nx=nx0&&stageUnlocked(stageById(nx0.g))?nx0:null;
   showResults({stars,title:titles[stars],sub,acc,miss:game.missLocal,
     stats:[[wpm,'WPM'],[Math.round(acc*100)+'%','gõ đúng'],[game.chars,'chữ cái'],[fmtTime(secs),'thời gian']],
     again:()=>startLesson(u,s),againLabel:'Chơi lại (đề mới)',next:nx?()=>startLesson(nx.u,nx.s):null});
@@ -1019,8 +1025,8 @@ function renderParent(){
   const wk=Date.now()-7*864e5,ws=state.sessions.filter(s=>s.t>=wk);
   $('#p-week').textContent=ws.length+' buổi';
   $('#p-week-note').textContent='Tổng '+Math.round(ws.reduce((a,s)=>a+s.secs/60,0))+' phút luyện tập.';
-  const groups=STAGES.map(S=>[S.units,S.icon+' '+S.name+' ('+stageDone(S).join('/')+' bài)']).concat([[['race'],'Đua với bóng ma'],[['game'],'Trò chơi']]);
-  $('#p-acc').innerHTML=groups.map(([m,n])=>{const ss=state.sessions.filter(s=>m.includes(s.unit));
+  const groups=STAGES.map(S=>[s=>{const f=stageOfLesson(s.unit,s.step);return !!f&&f.id===S.id;},S.icon+' '+S.name+' ('+stageDone(S).join('/')+' bài)']).concat([[s=>s.unit==='race','Đua với bóng ma'],[s=>s.unit==='game','Trò chơi']]);
+  $('#p-acc').innerHTML=groups.map(([m,n])=>{const ss=state.sessions.filter(m);
     const v=ss.length?Math.round(ss.reduce((a,s)=>a+s.acc,0)/ss.length*100)+'%':'chưa chơi';
     return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0"><span>'+esc(n)+'</span><b>'+v+'</b></div>';}).join('');
   const rec=state.sessions.slice(-5);
@@ -1102,7 +1108,7 @@ function onRaceMsg(m){
 
 function startOnlineRace(r){
   stopAll();
-  game={kind:'race',online:true,raceId:r.id,unit:'race',step:'online',adv:r.stage==='chay',text:r.text,pos:0,errs:0,chars:0,start:0,times:[],missLocal:{},go:false,locked:false,timed:0};
+  game={kind:'race',online:true,raceId:r.id,unit:'race',step:'online',adv:!!(stageById(r.stage)||{}).adv,text:r.text,pos:0,errs:0,chars:0,start:0,times:[],missLocal:{},go:false,locked:false,timed:0};
   show('play');syncToggles();$('#pic').hidden=true;$('#race').hidden=false;$('#dots').innerHTML='';$('#race-timer').hidden=true;
   $$('#race .lane.static').forEach(x=>x.hidden=true);$('#olanes').hidden=false;$('#olanes').innerHTML='';
   startWpm();renderTarget(r.text,true);showNext(null);renderOnlineLanes();
@@ -1285,7 +1291,7 @@ function stopRealtime(){if(room){room.close();room=null;}online=null;updateOnlin
 /* ================= Login (kid profiles) ================= */
 let npAv='🐯';
 function profileSummary(pid){
-  const st=loadState(pid);const S=curStageOf(st);const all=FLAT.filter(x=>S.units.includes(x.u));
+  const st=loadState(pid);const S=curStageOf(st);const all=FLAT.filter(x=>x.g===S.id);
   return S.icon+' '+S.name+': '+all.filter(x=>st.best[x.u+':'+x.s]).length+'/'+all.length;
 }
 function renderLogin(){
@@ -1340,7 +1346,7 @@ $('#del-profile').addEventListener('click',()=>{
 });
 
 /* ================= Stage locking ================= */
-function stageDoneFor(st,S){const all=FLAT.filter(x=>S.units.includes(x.u)&&!x.b);return [all.filter(x=>st.best[x.u+':'+x.s]).length,all.length];}
+function stageDoneFor(st,S){const all=FLAT.filter(x=>x.g===S.id&&!x.b);return [all.filter(x=>st.best[x.u+':'+x.s]).length,all.length];}
 function stageUnlockedFor(st,S){const i=STAGES.indexOf(S);if(i<=0||st.unlockAll)return true;const [d,n]=stageDoneFor(st,STAGES[i-1]);return d>=n;}
 function curStageOf(st){
   const open=STAGES.filter(S=>stageUnlockedFor(st,S));
@@ -1350,9 +1356,9 @@ const stageUnlocked=S=>stageUnlockedFor(state,S);
 const curStage=()=>curStageOf(state);
 function nextLesson(){
   const S=curStage();
-  const inStage=FLAT.find(x=>S.units.includes(x.u)&&!state.best[x.u+':'+x.s]);
+  const inStage=FLAT.find(x=>x.g===S.id&&!state.best[x.u+':'+x.s]);
   if(inStage)return inStage;
-  return FLAT.find(x=>{const s=stageOf(x.u);return s&&stageUnlocked(s)&&!state.best[x.u+':'+x.s];})||null;
+  return FLAT.find(x=>{const s=stageById(x.g);return s&&stageUnlocked(s)&&!state.best[x.u+':'+x.s];})||null;
 }
 function continueLearning(){const n=nextLesson();if(n)startLesson(n.u,n.s);}
 
@@ -1360,7 +1366,7 @@ function continueLearning(){const n=nextLesson();if(n)startLesson(n.u,n.s);}
 let lastPresKey='';
 function updateLobbyPresence(){
   if(!room||!curPid)return;
-  const gS=game&&game.kind==='lesson'?stageOf(game.unit):null,vS=screen==='home'&&stageSel?STAGES.find(x=>x.id===stageSel):null;
+  const gS=game&&game.kind==='lesson'?stageOfLesson(game.unit,game.step):null,vS=screen==='home'&&stageSel?STAGES.find(x=>x.id===stageSel):null;
   const S=gS||(vS&&stageUnlocked(vS)?vS:curStage()),act=screen==='online'||((screen==='play'||screen==='game')&&game&&game.online)?'race':(screen==='play'||screen==='game'||screen==='results')?'learn':'yard',p={nick:myNick(),av:state.avatar,stage:S?S.id:'bo',where:screen,act};
   const k=JSON.stringify(p);if(k===lastPresKey)return;lastPresKey=k;
   room.presence(p).catch(()=>{});
@@ -1378,15 +1384,16 @@ function updateOnlineCount(){
 function renderOnlineStrip(ppl){
   const box=$('#onstrip');if(!room||!ppl.length){box.hidden=true;return;}
   box.hidden=false;$('#os-n').textContent=ppl.length;
-  const c={bo:0,di:0,chay:0};ppl.forEach(p=>{c[p.presence.stage||'bo']++;});
-  $('#os-zones').textContent='🐢 Lớp 1 '+c.bo+'   🚶 Lớp 2 '+c.di+'   🏃 Lớp 3 '+c.chay;
+  const c={};STAGES.forEach(S=>{c[S.id]=0;});ppl.forEach(p=>{const k=p.presence.stage;c[k in c?k:'bo']++;});
+  $('#os-zones').textContent=STAGES.map(S=>S.icon+' '+S.name+' '+c[S.id]).join('   ');
   const avs=$('#os-avs');avs.innerHTML='';
   ppl.slice(0,16).forEach(p=>{const s=document.createElement('span');s.className='osav'+(p.isMe&&p.sameTab?' me':'');s.textContent=String(p.presence.av||'🙂').slice(0,8);avs.appendChild(s);});
   if(ppl.length>16){const s=document.createElement('span');s.className='osmore';s.textContent='+'+(ppl.length-16);avs.appendChild(s);}
 }
 
 /* ================= 3D stadium ================= */
-const ZONES=[{id:'bo',name:'Lớp 1',icon:'🐢',color:0x36a653,speed:.12,a0:Math.PI*0.5},{id:'di',name:'Lớp 2',icon:'🚶',color:0x2b7fd0,speed:.35,a0:Math.PI*0.5+Math.PI*2/3},{id:'chay',name:'Lớp 3',icon:'🏃',color:0xee9124,speed:.9,a0:Math.PI*0.5+Math.PI*4/3}];
+const ZONE_COLORS=[0x36a653,0x2b7fd0,0xee9124,0x8763d1,0xe4508a];
+const ZONES=STAGES.map((S,i)=>({id:S.id,name:S.name,icon:S.icon,color:ZONE_COLORS[i],speed:.12+i*.2,a0:0}));
 let W3=null,threeP=null;
 function loadThree(){
   if(window.THREE)return Promise.resolve(window.THREE);
@@ -1539,7 +1546,7 @@ function worldLoop(){
   W3.cam.position.set(Math.sin(ang)*R,19,-2+Math.cos(ang)*R);W3.cam.lookAt(0,.5,-2);
   W3.sprites.forEach((k,key)=>{
     let tx,tz,spd,seat=null;
-    if(k.act==='race'){const th=k.ph+t*[.45,.55,.7][ZONES.indexOf(k.z0)<0?0:ZONES.indexOf(k.z0)],r=5.1+k.lane*1;tx=Math.cos(th)*r*2;tz=TZ+Math.sin(th)*r;spd=11;}
+    if(k.act==='race'){const th=k.ph+t*(.38+.08*Math.max(0,ZONES.indexOf(k.z0))),r=5.1+k.lane*1;tx=Math.cos(th)*r*2;tz=TZ+Math.sin(th)*r;spd=11;}
     else if(k.act==='learn'){seat=SEATS[W3.seatOf.get(key)||0];tx=seat.x;tz=seat.z;spd=7;}
     else{if(now>k.wt||Math.hypot(k.wx-k.x,k.wz-k.z)<.2){k.wx=YARD.x0+Math.random()*(YARD.x1-YARD.x0);k.wz=YARD.z0+Math.random()*(YARD.z1-YARD.z0);k.wt=now+3000+Math.random()*5000;}tx=k.wx;tz=k.wz;spd=1.7;}
     const dx=tx-k.x,dz=tz-k.z,d=Math.hypot(dx,dz),step=Math.min(d,spd*dt);
