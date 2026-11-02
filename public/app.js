@@ -341,7 +341,7 @@ function doneBtn(stage,fn){const b=document.createElement('button');b.type='butt
 const GTAG={bubble:v=>v+' bóng',frog:v=>v+' giây',quiz:v=>v+'/10',mole:v=>v+' chú chuột',rocket:v=>v+' từ',scramble:v=>v+'/8'};
 
 /* ================= Storage ================= */
-const DEFAULTS={avatar:'🐯',nick:'',sound:true,music:true,speak:true,limit:15,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{},gdur:{}};
+const DEFAULTS={avatar:'🐯',nick:'',sound:true,music:true,speak:true,limit:45,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{},gdur:{}};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function readJSON(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
@@ -352,7 +352,10 @@ const K=n=>'bgp:'+uid+':'+n;
 let profiles={list:[],cur:null,updatedAt:0},curPid=null;
 let state=clone(DEFAULTS);
 function loadProfilesLocal(){const p=readJSON(K('profiles'));profiles=p&&Array.isArray(p.list)?p:{list:[],cur:null,updatedAt:0};}
-function loadState(pid){return Object.assign(clone(DEFAULTS),readJSON(K('p:'+pid))||{});}
+const LIMITS=[15,30,45,60,90];   // giới hạn phút mỗi ngày; mặc định 45
+const normLimit=v=>LIMITS.includes(v)?v:typeof v==='number'&&isFinite(v)?LIMITS.reduce((a,b)=>Math.abs(b-v)<Math.abs(a-v)?b:a,LIMITS[2]):LIMITS[2];
+const withDefaults=c=>{const s=Object.assign(clone(DEFAULTS),c||{});s.limit=normLimit(s.limit);return s;};   // giá trị cũ (10, 20 phút) chuyển về mức gần nhất
+function loadState(pid){return withDefaults(readJSON(K('p:'+pid)));}
 function saveProfiles(){if(!uid)return;profiles.updatedAt=Date.now();writeJSON(K('profiles'),profiles);cloudSaveProfiles();}
 function save(){
   if(!curPid||!uid)return;
@@ -470,7 +473,7 @@ async function cloudPullState(pid){
   try{
     const s=await sDoc(pid).get();
     if(s.exists){const c=JSON.parse(s.data().json||'{}');
-      if(curPid===pid&&(c.updatedAt||0)>(state.updatedAt||0)){state=Object.assign(clone(DEFAULTS),c);writeJSON(K('p:'+pid),state);syncToggles();if(screen==='home'){stageSel=null;renderHome();}updateLobbyPresence();}
+      if(curPid===pid&&(c.updatedAt||0)>(state.updatedAt||0)){state=withDefaults(c);writeJSON(K('p:'+pid),state);syncToggles();if(screen==='home'){stageSel=null;renderHome();}updateLobbyPresence();}
       else if(curPid===pid&&(state.updatedAt||0)>(c.updatedAt||0))cloudSaveState();
     }else if(curPid===pid&&state.updatedAt)cloudSaveState();
   }catch(e){}
@@ -1100,7 +1103,7 @@ function renderParent(){
 function resetGhosts(){if(confirm('Đặt lại tốc độ của tất cả bóng ma về bóng ma tập sự?')){state.ghosts={};save();if(screen==='parent')renderParent();else renderHome();}}
 $('#ghost-reset-all').addEventListener('click',resetGhosts);
 $('#ghost-reset-home').addEventListener('click',resetGhosts);
-$('#set-limit').addEventListener('change',e=>{state.limit=+e.target.value;save();renderParent();});
+$('#set-limit').addEventListener('change',e=>{state.limit=normLimit(+e.target.value);save();renderParent();});
 $('#set-sound').addEventListener('change',e=>{state.sound=e.target.checked;save();syncToggles();});
 $('#set-music').addEventListener('change',e=>{state.music=e.target.checked;save();syncToggles();musicSync();});
 $('#set-speak').addEventListener('change',e=>{state.speak=e.target.checked;save();syncToggles();});
