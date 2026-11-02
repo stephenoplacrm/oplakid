@@ -1,12 +1,14 @@
 FROM node:22-bookworm-slim
 WORKDIR /app
+
+# Cài đặt công cụ biên dịch cho better-sqlite3
+RUN apt-get update && apt-get install -y python3 make g++ --no-install-recommends && rm -rf /var/lib/apt-get/lists/*
+
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
+
 COPY server.js ./
 COPY public ./public
-ENV NODE_ENV=production PORT=3000 DATABASE_PATH=/data/be-go-phim.sqlite
-RUN mkdir -p /data && chown node:node /data
-VOLUME ["/data"]
+
 EXPOSE 3000
-USER node
 CMD ["node", "server.js"]
