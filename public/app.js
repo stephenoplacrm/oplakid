@@ -370,6 +370,7 @@ function show(name){
   if(name==='login')renderLogin();
   $('#who').disabled=name==='login';$('#to-parent').hidden=!uid;$('#logout-top').hidden=!uid;$('#kbt').hidden=!uid;
   if(name!=='play'&&name!=='game')window.scrollTo(0,0);
+  updateOnlineCount();
   updateLobbyPresence();
 }
 function syncToggles(){
@@ -1119,7 +1120,7 @@ function onlinePeople(){
   return room.peers().filter(p=>p.presence&&typeof p.presence.stage==='string');
 }
 function updateOnlineCount(){
-  const pill=$('#online-pill');if(!room){pill.hidden=true;$('#onstrip').hidden=true;return;}
+  const pill=$('#online-pill');if(!room||!curPid||screen==='login'){pill.hidden=true;$('#onstrip').hidden=true;return;} // chọn bé xong mới thấy ai online
   pill.hidden=false;const ppl=onlinePeople(),n=ppl.length;$('#online-n').textContent=n;
   if(screen==='world')renderWorldList();
   renderOnlineStrip(ppl);
@@ -1318,6 +1319,7 @@ function renderWorldList(){
   syncKids();
 }
 function openWorld(){
+  if(!curPid||screen==='login')return;
   stopAll();show('world');renderWorldList();
   $('#w-note').textContent=room?'Kéo sang trái phải để xoay sân. Mỗi bạn đứng ở khu của chặng mình đang học. Em chỉ thấy biệt danh của các bạn cùng nhà.':'Đang kết nối máy chủ…';
   loadThree().then(T=>{if(!W3)initWorld(T);sizeWorld();syncKids();if(!W3.raf)worldLoop();})
