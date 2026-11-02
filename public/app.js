@@ -368,7 +368,7 @@ function show(name){
   if(name==='home')renderHome();
   if(name==='parent')renderParent();
   if(name==='login')renderLogin();
-  $('#who').disabled=name==='login';$('#to-parent').hidden=!uid;$('#kbt').hidden=!uid;
+  $('#who').disabled=name==='login';$('#to-parent').hidden=!uid;$('#logout-top').hidden=!uid;$('#kbt').hidden=!uid;
   if(name!=='play'&&name!=='game')window.scrollTo(0,0);
   updateLobbyPresence();
 }
@@ -1406,7 +1406,8 @@ function signedOut(){
   me=null;uid=null;db=null;curPid=null;profiles={list:[],cur:null,updatedAt:0};state=clone(DEFAULTS);
   syncToggles();renderWho();authMode('login');show('auth');
 }
-$('#logout').addEventListener('click',async()=>{try{await api('POST','/api/auth/logout');}catch(e){}signedOut();});
+const doLogout=async()=>{try{await api('POST','/api/auth/logout');}catch(e){}signedOut();};
+$('#logout').addEventListener('click',doLogout);$('#logout-top').addEventListener('click',doLogout);
 $('#f-chpw').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget;$('#acct-msg').textContent='';busy(f,true);
   try{await api('POST','/api/auth/password',{oldPassword:f.old.value,newPassword:f.nw.value});f.old.value='';f.nw.value='';$('#acct-msg').textContent='Đã đổi mật khẩu. Các máy khác đã bị đăng xuất.';}
   catch(err){$('#acct-msg').textContent=err.message;}busy(f,false);});
@@ -1460,7 +1461,14 @@ function pressVirtual(k){
 }
 const CODE={Backquote:'`',Minus:'-',Equal:'=',BracketLeft:'[',BracketRight:']',Backslash:'\\',Semicolon:';',Quote:"'",Comma:',',Period:'.',Slash:'/',Space:' '};
 for(let d=0;d<10;d++)CODE['Digit'+d]=String(d);
+let imeTimer=0;
+function showImeWarn(){const w=$('#ime-warn');w.hidden=false;clearTimeout(imeTimer);imeTimer=setTimeout(()=>{w.hidden=true;},12000);}
 document.addEventListener('keydown',e=>{
+  if(e.isComposing||e.key==='Process'||e.keyCode===229){
+    const t=document.activeElement&&document.activeElement.tagName;
+    if(t!=='INPUT'&&t!=='TEXTAREA')showImeWarn();
+    return;
+  }
   if(e.key==='Escape'&&(screen==='play'||screen==='game')){exitToHome();return;}
   if(handleShortcut(e))return;
   if(e.ctrlKey||e.metaKey||e.altKey||e.repeat)return;
@@ -1479,7 +1487,7 @@ document.addEventListener('keydown',e=>{
 });
 
 if(window.matchMedia&&matchMedia('(pointer:coarse)').matches){
-  $('#ime-tip').textContent='Trên điện thoại có thể chạm vào bàn phím trên màn hình để thử, nhưng muốn luyện ngón tay đúng thì cần máy tính có bàn phím thật.';
+  $('#ime-tip').hidden=false;$('#ime-tip').textContent='Trên điện thoại có thể chạm vào bàn phím trên màn hình để thử, nhưng muốn luyện ngón tay đúng thì cần máy tính có bàn phím thật.';
 }
 syncToggles();renderWho();bootstrap();
 })();

@@ -2,30 +2,31 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="description" content="Bé Gõ Phím: luyện gõ 10 ngón cho trẻ tiểu học, tiếng Anh và tiếng Việt.">
+<meta name="description" content="OplaKid: luyện gõ 10 ngón cho trẻ tiểu học, tiếng Anh và tiếng Việt.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bé Gõ Phím</title>
+<title>OplaKid</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/logo.png">
 <link rel="stylesheet" href="/app.css">
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <button class="brand" id="brand" type="button" aria-label="Về trang chính"><span class="cap">F</span>Bé Gõ Phím</button>
+    <button class="brand" id="brand" type="button" aria-label="Về trang chính"><img class="logo" src="/logo.png" alt="" width="26" height="44">OplaKid</button>
     <div class="hright">
       <button class="pill onpill" id="online-pill" type="button" hidden><span class="dotg" aria-hidden="true"></span><b id="online-n">0</b> đang online</button>
       <button class="pill whobtn" id="who" type="button" hidden title="Đổi người học"><span id="who-av"></span><span id="who-nm"></span></button>
       <button class="pill kbtoggle" id="kbt" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Bàn phím đầy đủ</button>
       <button class="pill" id="to-parent" type="button">Góc phụ huynh</button>
+      <button class="pill" id="logout-top" type="button" hidden>Đăng xuất</button>
     </div>
   </header>
+  <p class="imewarn" id="ime-warn" role="alert" hidden>Nhớ tắt bộ gõ tiếng Việt (Unikey, EVKey) nhé!</p>
 
   <main>
     <section id="s-home">
-      <h1>Mỗi ngón tay có một việc riêng</h1>
-      <p class="lede">Đặt hai ngón trỏ lên phím F và J. Sờ thấy gờ nhỏ là đúng chỗ. Bấm thử một phím bất kỳ để xem ngón nào phụ trách phím đó.</p>
       <button class="btn primary cont" id="cont" type="button">Học tiếp <kbd>Enter</kbd></button>
       <div class="onstrip" id="onstrip" hidden>
         <span class="dotg" aria-hidden="true"></span><b><span id="os-n"></span> bạn đang online</b>
@@ -33,7 +34,7 @@
         <span class="osavs" id="os-avs" aria-hidden="true"></span>
         <button class="chip" id="os-world" type="button">Xem sân vận động</button>
       </div>
-      <p class="tip" id="ime-tip">Nhớ tắt bộ gõ tiếng Việt (Unikey, EVKey) trước khi chơi.</p>
+      <p class="tip" id="ime-tip" hidden></p>
     </section>
 
     <section id="s-play" hidden>
@@ -146,8 +147,8 @@
           </form>
           <form id="f-register" class="aform" hidden novalidate>
             <label class="field">Email của ba mẹ<input class="textin" name="email" type="email" autocomplete="email" required></label>
-            <label class="field">Mật khẩu (ít nhất 8 ký tự)<input class="textin" name="password" type="password" autocomplete="new-password" minlength="8" required></label>
-            <label class="field">Nhập lại mật khẩu<input class="textin" name="password2" type="password" autocomplete="new-password" minlength="8" required></label>
+            <label class="field">Mật khẩu<input class="textin" name="password" type="password" autocomplete="new-password" required></label>
+            <label class="field">Nhập lại mật khẩu<input class="textin" name="password2" type="password" autocomplete="new-password" required></label>
             <label class="consent"><input type="checkbox" name="consent"> <span>Tôi là ba mẹ hoặc người giám hộ của bé, từ đủ 18 tuổi, đồng ý với <a href="/privacy" target="_blank" rel="noopener">Chính sách quyền riêng tư</a> và cho phép lưu biệt danh và tiến độ học của bé.</span></label>
             <button class="btn primary" type="submit">Tạo tài khoản</button>
             <a class="btn gbtn" data-google="register" href="/auth/google/start?mode=register" hidden>Đăng ký bằng Google (Gmail)</a>
@@ -160,8 +161,8 @@
           </form>
           <form id="f-reset" class="aform" hidden novalidate>
             <h2>Đặt mật khẩu mới</h2>
-            <label class="field">Mật khẩu mới (ít nhất 8 ký tự)<input class="textin" name="password" type="password" autocomplete="new-password" minlength="8" required></label>
-            <label class="field">Nhập lại mật khẩu<input class="textin" name="password2" type="password" autocomplete="new-password" minlength="8" required></label>
+            <label class="field">Mật khẩu mới<input class="textin" name="password" type="password" autocomplete="new-password" required></label>
+            <label class="field">Nhập lại mật khẩu<input class="textin" name="password2" type="password" autocomplete="new-password" required></label>
             <button class="btn primary" type="submit">Đặt mật khẩu mới</button>
           </form>
           <p class="aerr" id="a-err" role="alert"></p>
@@ -188,7 +189,7 @@
 
     <section id="s-world" hidden>
       <div class="playbar"><button class="pill" id="w-back" type="button">Về trang chính <kbd>Esc</kbd></button><span class="stat"><b id="w-total"></b></span><span></span></div>
-      <h1>Sân vận động Bé Gõ Phím</h1>
+      <h1>Sân vận động OplaKid</h1>
       <p class="note" id="w-note"></p>
       <div id="world3d"></div>
       <div class="wzones" id="w-zones"></div>
@@ -204,7 +205,7 @@
       <p class="lede" id="o-status" aria-live="polite"></p>
       <div class="sharebox" id="o-share" hidden>
         <p style="margin:0 0 4px">Mã phòng: <b class="code" id="o-code2"></b></p>
-        <p class="note" style="margin:0 0 8px">Gửi link cho ba mẹ của bạn. Link đã kèm sẵn mã phòng. Bạn cần có tài khoản Bé Gõ Phím.</p>
+        <p class="note" style="margin:0 0 8px">Gửi link cho ba mẹ của bạn. Link đã kèm sẵn mã phòng. Bạn cần có tài khoản OplaKid.</p>
         <button class="chip" id="o-copy" type="button">Sao chép link mời bạn</button>
       </div>
       <div class="teams" id="o-teams"></div>
@@ -244,7 +245,7 @@
           <p style="margin:0 0 8px">Email: <b id="acct-email"></b></p>
           <form id="f-chpw" class="set" novalidate>
             <label class="field">Mật khẩu hiện tại<input class="textin" name="old" type="password" autocomplete="current-password"></label>
-            <label class="field">Mật khẩu mới<input class="textin" name="nw" type="password" autocomplete="new-password" minlength="8"></label>
+            <label class="field">Mật khẩu mới<input class="textin" name="nw" type="password" autocomplete="new-password"></label>
             <button class="btn" type="submit">Đổi mật khẩu</button>
           </form>
           <div class="btns" style="justify-content:flex-start;margin-top:12px">

@@ -1,6 +1,6 @@
 'use strict';
 /*
- * Bé Gõ Phím: máy chủ web.
+ * OplaKid: máy chủ web.
  * - Tài khoản phụ huynh: đăng ký, đăng nhập, đăng xuất, quên mật khẩu, đổi mật khẩu, xoá tài khoản.
  * - Lưu hồ sơ bé và tiến độ học theo từng tài khoản (SQLite).
  * - WebSocket /ws: ai đang online, phòng đua với bạn.
@@ -145,7 +145,7 @@ setInterval(() => { const now = Date.now(); q.purgeSessions.run(now); q.purgeRes
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const normEmail = e => String(e || '').trim().toLowerCase();
 const validEmail = e => e.length <= 254 && EMAIL_RE.test(e);
-const validPassword = p => typeof p === 'string' && p.length >= 8 && p.length <= 128;
+const validPassword = p => typeof p === 'string' && p.length >= 1 && p.length <= 128;
 
 /* ---------------- Gửi email ---------------- */
 let mailer = null;
@@ -159,10 +159,10 @@ async function sendResetEmail(to, link) {
     return;
   }
   await mailer.sendMail({
-    from: process.env.MAIL_FROM || 'Bé Gõ Phím <no-reply@localhost>',
+    from: process.env.MAIL_FROM || 'OplaKid <no-reply@localhost>',
     to,
-    subject: 'Đặt lại mật khẩu Bé Gõ Phím',
-    text: `Chào bạn,\n\nBấm vào link dưới đây để đặt mật khẩu mới (link có hiệu lực trong 1 giờ):\n${link}\n\nNếu bạn không yêu cầu, hãy bỏ qua email này.\n\nBé Gõ Phím`
+    subject: 'Đặt lại mật khẩu OplaKid',
+    text: `Chào bạn,\n\nBấm vào link dưới đây để đặt mật khẩu mới (link có hiệu lực trong 1 giờ):\n${link}\n\nNếu bạn không yêu cầu, hãy bỏ qua email này.\n\nOplaKid`
   });
 }
 
@@ -226,7 +226,7 @@ app.post('/api/auth/register', wrap(async (req, res) => {
   const { password, consent } = req.body;
   if (rateLimited('reg:' + ip(req), 10, 3_600_000)) return res.status(429).json({ error: 'Bạn thử quá nhiều lần. Đợi một lát rồi thử lại.' });
   if (!validEmail(email)) return res.status(400).json({ error: 'Email chưa đúng định dạng.' });
-  if (!validPassword(password)) return res.status(400).json({ error: 'Mật khẩu cần từ 8 đến 128 ký tự.' });
+  if (!validPassword(password)) return res.status(400).json({ error: 'Hãy nhập mật khẩu (tối đa 128 ký tự).' });
   if (consent !== true) return res.status(400).json({ error: 'Bạn cần xác nhận là ba mẹ hoặc người giám hộ và đồng ý với chính sách quyền riêng tư.' });
   if (q.userByEmail.get(email)) return res.status(409).json({ error: 'Email này đã có tài khoản. Bạn hãy đăng nhập, hoặc dùng “Quên mật khẩu”.' });
   const id = crypto.randomUUID();
@@ -328,7 +328,7 @@ app.post('/api/auth/reset', wrap(async (req, res) => {
   const token = String(req.body.token || '');
   const { password } = req.body;
   if (rateLimited('reset:' + ip(req), 20, 3_600_000)) return res.status(429).json({ error: 'Bạn thử quá nhiều lần.' });
-  if (!validPassword(password)) return res.status(400).json({ error: 'Mật khẩu cần từ 8 đến 128 ký tự.' });
+  if (!validPassword(password)) return res.status(400).json({ error: 'Hãy nhập mật khẩu (tối đa 128 ký tự).' });
   const row = token ? q.resetUser.get(sha256(token), Date.now()) : null;
   if (!row) return res.status(400).json({ error: 'Link đặt lại đã hết hạn hoặc đã dùng rồi. Bạn hãy yêu cầu link mới.' });
   q.updatePw.run(await hashPassword(password), row.user_id);
@@ -342,7 +342,7 @@ app.post('/api/auth/reset', wrap(async (req, res) => {
 app.post('/api/auth/password', requireUser, wrap(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   if (rateLimited('pw:' + req.user.id, 10, 900_000)) return res.status(429).json({ error: 'Bạn thử quá nhiều lần.' });
-  if (!validPassword(newPassword)) return res.status(400).json({ error: 'Mật khẩu mới cần từ 8 đến 128 ký tự.' });
+  if (!validPassword(newPassword)) return res.status(400).json({ error: 'Hãy nhập mật khẩu mới (tối đa 128 ký tự).' });
   const row = q.userPwById.get(req.user.id);
   if (!row || !(await verifyPassword(String(oldPassword || ''), row.pw))) return res.status(401).json({ error: 'Mật khẩu hiện tại chưa đúng.' });
   q.updatePw.run(await hashPassword(newPassword), req.user.id);
@@ -523,6 +523,6 @@ setInterval(() => {
 }, 30_000).unref();
 
 server.listen(PORT, () => {
-  console.log(`Bé Gõ Phím đang chạy tại ${APP_ORIGIN} (cổng ${PORT})`);
+  console.log(`OplaKid đang chạy tại ${APP_ORIGIN} (cổng ${PORT})`);
   if (!mailer) console.log('Chưa cấu hình SMTP_URL: link “Quên mật khẩu” sẽ được in ra log thay vì gửi email.');
 });
