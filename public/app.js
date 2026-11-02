@@ -1421,8 +1421,18 @@ $('#o-copy').addEventListener('click',async e=>{
   try{await navigator.clipboard.writeText(link);b.textContent='Đã sao chép link';}catch(_){b.textContent=link;}
   setTimeout(()=>{b.textContent='Sao chép link mời bạn';},2500);
 });
+const AUTH_ERRS={nouser:'Gmail này chưa có tài khoản. Bấm “Đăng ký” trước nhé.',consent:'Ba mẹ hãy tick ô đồng ý trước nhé.',many:'Bạn thử quá nhiều lần. Đợi một lát rồi thử lại.',off:'Chưa dùng được Google. Bạn đăng ký bằng email nhé.',google:'Đăng nhập Google chưa được. Bạn thử lại nhé.'};
+function setupGoogle(){
+  const reg=document.querySelector('[data-google=register]'),cb=$('#f-register').consent;
+  const sync=()=>{reg.classList.toggle('off',!cb.checked);reg.href='/auth/google/start?mode=register'+(cb.checked?'&consent=1':'');};
+  cb.addEventListener('change',sync);sync();
+  reg.addEventListener('click',e=>{if(!cb.checked){e.preventDefault();$('#a-err').textContent=AUTH_ERRS.consent;}});
+  api('GET','/api/auth/providers').then(r=>{if(r.google)$$('[data-google]').forEach(a=>a.hidden=false);}).catch(()=>{});
+}
 async function bootstrap(){
-  const params=new URLSearchParams(location.search),rt=params.get('reset');
+  setupGoogle();
+  const params=new URLSearchParams(location.search),rt=params.get('reset'),ae=params.get('auth_err');
+  if(ae){try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}show('auth');authMode(ae==='nouser'?'register':'login');$('#a-err').textContent=AUTH_ERRS[ae]||AUTH_ERRS.google;return;}
   if(rt){resetToken=rt;try{history.replaceState(null,'',location.pathname+location.hash);}catch(e){}show('auth');authMode('reset');return;}
   try{const r=await api('GET','/api/auth/me');await afterAuth(r.user);}
   catch(e){show('auth');authMode('login');}
