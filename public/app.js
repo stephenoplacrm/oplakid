@@ -289,16 +289,16 @@ const UNITS=[
     [['food','Đồ ăn'],['sport','Thể thao'],['travel','Du lịch'],['garden','Khu vườn'],['story','Truyện ngắn'],['space','Vũ trụ']]
       .map(([id,name])=>({id,name,gen:()=>pick(PARAS2[id],3)}))}
 ];
-/* Mỗi bài thuộc một trong 5 lớp (g). Bài thêm (b) không bắt buộc để mở lớp sau. */
+/* Mỗi bài thuộc một trong 5 cấp độ (g). Bài thêm (b) không bắt buộc để mở cấp độ sau. */
 const UNIT_STAGE={home:'bo',top:'bo',bottom:'bo',mix:'di',fing:'di',rhy:'di',words:'chay',phr:'chay',caps:'l4',punct:'l4',num:'l5',para:'l5',sym:'l5',num2:'l5',para2:'l5'};
 const stageIdOf=(u,st)=>u==='words'?(st.bonus?'l4':/^(animals|house|colors|numbers)\d$/.test(st.id)?'di':'chay'):u==='phr'?(st.bonus?'l4':'chay'):UNIT_STAGE[u];
 const FLAT=UNITS.flatMap(u=>u.steps.map(st=>({u:u.id,s:st.id,b:!!(u.bonus||st.bonus),g:stageIdOf(u.id,st)})));
 const STAGES=[
-  {id:'bo',name:'Lớp 1',icon:'🐢',desc:'Làm quen từng hàng phím'},
-  {id:'di',name:'Lớp 2',icon:'🚶',desc:'Cả bàn phím, từng ngón tay và những từ đầu tiên'},
-  {id:'chay',name:'Lớp 3',icon:'🏃',desc:'Từ tiếng Anh có hình, cụm từ và câu'},
-  {id:'l4',name:'Lớp 4',icon:'🚴',adv:true,desc:'Từ mới, câu hay gặp, chữ hoa và dấu câu'},
-  {id:'l5',name:'Lớp 5',icon:'🚀',adv:true,desc:'Số, ký hiệu và đoạn văn dài'}
+  {id:'bo',name:'Cấp độ 1',icon:'🐢',desc:'Làm quen từng hàng phím'},
+  {id:'di',name:'Cấp độ 2',icon:'🚶',desc:'Cả bàn phím, từng ngón tay và những từ đầu tiên'},
+  {id:'chay',name:'Cấp độ 3',icon:'🏃',desc:'Từ tiếng Anh có hình, cụm từ và câu'},
+  {id:'l4',name:'Cấp độ 4',icon:'🚴',adv:true,desc:'Từ mới, câu hay gặp, chữ hoa và dấu câu'},
+  {id:'l5',name:'Cấp độ 5',icon:'🚀',adv:true,desc:'Số, ký hiệu và đoạn văn dài'}
 ];
 const stageById=id=>STAGES.find(S=>S.id===id);
 const stageOfLesson=(u,st)=>{const f=FLAT.find(x=>x.u===u&&x.s===st);return f?stageById(f.g):null;};
@@ -561,8 +561,8 @@ function renderHome(){
     b.addEventListener('click',()=>{stageSel=S.id;renderHome();updateLobbyPresence();});sb.appendChild(b);});
   const SS=STAGES.find(x=>x.id===stageSel),[sd,sn]=stageDone(SS);
   const SSlk=!stageUnlocked(SS),prevS=STAGES[STAGES.indexOf(SS)-1];
-  if(SSlk){const [pd,pn]=stageDoneFor(state,prevS);$('#progress').textContent=SS.name+' đang khoá. Em cần xong hết '+pn+' bài của '+prevS.name+' (còn '+(pn-pd)+' bài) thì lớp này mới mở.';}
-  else $('#progress').textContent=SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.adv?' Lớp này có bài dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
+  if(SSlk){const [pd,pn]=stageDoneFor(state,prevS);$('#progress').textContent=SS.name+' đang khoá. Em cần xong hết '+pn+' bài của '+prevS.name+' (còn '+(pn-pd)+' bài) thì cấp độ này mới mở.';}
+  else $('#progress').textContent=SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.adv?' Cấp độ này có bài dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
   const ul=$('#units');ul.innerHTML='';
   UNITS.filter(U=>U.steps.some(st=>stageIdOf(U.id,st)===SS.id)).forEach((U,ui)=>{
     const li=document.createElement('li');li.className='lesson';
@@ -597,7 +597,7 @@ function renderHome(){
   Object.entries(TRACKS).forEach(([id,t])=>{const b=document.createElement('button');b.type='button';b.className='chip';
     const g=state.ghosts[id];
     b.innerHTML=esc(t.name)+(g&&g.wpm?'<span class="st" style="color:var(--muted);letter-spacing:0">'+g.wpm+' WPM</span>':'');
-    if(t.adv&&!stageUnlocked(STAGES[3])){b.disabled=true;b.classList.add('lockedc');b.innerHTML='🔒 '+b.innerHTML;b.title='Mở khi em lên Lớp 4';}
+    if(t.adv&&!stageUnlocked(STAGES[3])){b.disabled=true;b.classList.add('lockedc');b.innerHTML='🔒 '+b.innerHTML;b.title='Mở khi em lên Cấp độ 4';}
     b.addEventListener('click',()=>startRace(id));tr.appendChild(b);});
 }
 
@@ -1399,7 +1399,7 @@ function renderOnlineStrip(ppl){
   const box=$('#onstrip');if(!room||!ppl.length){box.hidden=true;return;}
   box.hidden=false;$('#os-n').textContent=ppl.length;
   const c={};STAGES.forEach(S=>{c[S.id]=0;});ppl.forEach(p=>{const k=p.presence.stage;c[k in c?k:'bo']++;});
-  $('#os-zones').textContent=STAGES.map(S=>S.icon+' '+S.name+' '+c[S.id]).join('   ');
+  $('#os-zones').textContent=STAGES.map(S=>S.icon+' '+S.name+': '+c[S.id]).join(' · ');
   const avs=$('#os-avs');avs.innerHTML='';
   ppl.slice(0,16).forEach(p=>{const s=document.createElement('span');s.className='osav'+(p.isMe&&p.sameTab?' me':'');s.textContent=String(p.presence.av||'🙂').slice(0,8);avs.appendChild(s);});
   if(ppl.length>16){const s=document.createElement('span');s.className='osmore';s.textContent='+'+(ppl.length-16);avs.appendChild(s);}
