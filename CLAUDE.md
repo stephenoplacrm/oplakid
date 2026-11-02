@@ -17,7 +17,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 - Không đổi tên hay xoá cột trong bảng SQLite đang có. Muốn thêm dữ liệu thì thêm bảng hoặc cột mới, có giá trị mặc định.
 - CSP chỉ cho phép script từ chính trang (`script-src 'self'`): không dùng script inline, không gọi CDN bên ngoài.
 - Thư viện 3D (three.js r128) được phục vụ tại `/vendor/three.min.js` từ `node_modules`.
-- Người dùng là trẻ em: không thêm tính năng nhắn tin tự do; biệt danh phải qua `cleanNick` trong `races.js`; người lạ không được thấy biệt danh trong Trường đi.
+- Người dùng là trẻ em: không thêm tính năng nhắn tin tự do; biệt danh phải qua `cleanNick` trong `races.js`; người lạ không được thấy biệt danh trong Trường tiểu học OplaKid.
 - Giao diện và thông báo viết bằng tiếng Việt, câu ngắn, dễ hiểu với trẻ lớp 1.
 
 ## Kiểm tra trước khi mở pull request

@@ -1165,7 +1165,7 @@ function drawBoard(){
   if(!W3)return;const c=actCounts(),n=c.race+c.learn+c.yard,key=n+'|'+c.race+'|'+c.learn+'|'+c.yard;if(W3.boardKey===key)return;W3.boardKey=key;
   const cv=W3.boardCanvas,g=cv.getContext('2d'),w=cv.width,h=cv.height;
   const grd=g.createLinearGradient(0,0,0,h);grd.addColorStop(0,'#2b2a6b');grd.addColorStop(1,'#4a3f9a');g.fillStyle=grd;g.fillRect(0,0,w,h);
-  g.textAlign='center';g.textBaseline='middle';g.fillStyle='#ffe066';g.font='800 84px '+FONT;g.fillText('TRƯỜNG ĐI OPLAKID',w/2,84);
+  g.textAlign='center';g.textBaseline='middle';g.fillStyle='#ffe066';g.font='800 66px '+FONT;g.fillText('TRƯỜNG TIỂU HỌC OPLAKID',w/2,84);
   g.fillStyle='#ffffff';g.font='700 56px '+FONT;g.fillText('🟢 '+n+' bạn đang online',w/2,170);
   g.font='700 46px '+FONT;g.fillText('🏃 '+c.race+' đua   ⌨️ '+c.learn+' học   🌳 '+c.yard+' chơi',w/2,244);
   W3.boardTex.needsUpdate=true;

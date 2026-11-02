@@ -1,6 +1,6 @@
 # OplaKid
 
-Web app luyện gõ 10 ngón cho trẻ tiểu học: 100 bài chia 3 chặng Bò, Đi, Chạy; 3 trò chơi; đua với bóng ma; đua trực tuyến với bạn; Trường đi 3D xem ai đang online.
+Web app luyện gõ 10 ngón cho trẻ tiểu học: 100 bài chia 3 chặng Bò, Đi, Chạy; 3 trò chơi; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
 
 ## Có gì trong bản này
 
@@ -10,7 +10,7 @@ Web app luyện gõ 10 ngón cho trẻ tiểu học: 100 bài chia 3 chặng Bò
   - Giới hạn số lần thử để chống dò mật khẩu.
 - **Hồ sơ bé:** mỗi tài khoản có nhiều bé. Bé đăng nhập bằng cách chọn hồ sơ của mình.
 - **Lưu tiến độ trên máy chủ:** học trên máy nào cũng giữ nguyên tiến độ.
-- **Thời gian thực qua WebSocket:** đếm số người online, Trường đi 3D và phòng đua với bạn.
+- **Thời gian thực qua WebSocket:** đếm số người online, Trường tiểu học OplaKid 3D và phòng đua với bạn.
   - Người lạ chỉ thấy con vật đại diện và chặng học của bé, không thấy biệt danh.
   - Biệt danh chỉ hiện với người cùng tài khoản hoặc cùng phòng đua.
 - **Đua trực tuyến do máy chủ điều khiển:**
