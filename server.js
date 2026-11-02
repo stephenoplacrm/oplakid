@@ -418,6 +418,7 @@ const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸']);
 const STAGES = new Set(['bo', 'di', 'chay']);
 const PHASES = new Set(['lobby', 'countdown', 'racing', 'done']);
 const KINDS = new Set(['sent', 'long', 'words', 'home', 'keys']);
+const ACTS = new Set(['race', 'learn', 'yard']);
 const WHERE = new Set(['home', 'play', 'game', 'results', 'parent', 'online', 'login', 'world', 'auth']);
 const BAD_CHARS = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g;
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : undefined);
@@ -432,6 +433,7 @@ function cleanPatch(patch) {
       case 'av': if (AVATARS.has(v)) out.av = v; break;
       case 'stage': if (STAGES.has(v)) out.stage = v; break;
       case 'where': if (WHERE.has(v)) out.where = v; break;
+      case 'act': if (ACTS.has(v)) out.act = v; break;
       case 'race': if (typeof v === 'string' && /^[a-z0-9]{5}$/.test(v)) out.race = v; break;
       case 'host': if (typeof v === 'boolean') out.host = v; break;
       case 'phase': if (PHASES.has(v)) out.phase = v; break;
@@ -455,7 +457,7 @@ function visiblePresence(p, viewer) {
   const pr = p.presence;
   if (p === viewer || p.userId === viewer.userId) return pr;
   const sameRace = pr.race && viewer.presence.race && pr.race === viewer.presence.race;
-  const out = { av: pr.av, stage: pr.stage, where: pr.where };
+  const out = { av: pr.av, stage: pr.stage, where: pr.where, act: pr.act };
   if (sameRace) { out.nick = pr.nick; for (const k of RACE_KEYS) if (pr[k] !== undefined) out[k] = pr[k]; }
   return out;
 }
