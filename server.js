@@ -13,6 +13,7 @@ const { promisify } = require('util');
 const express = require('express');
 const { WebSocketServer } = require('ws');
 const Database = require('better-sqlite3');
+const { RaceManager, cleanNick } = require('./races');
 
 const scrypt = promisify(crypto.scrypt);
 
@@ -374,7 +375,7 @@ function cleanPatch(patch) {
   for (const [k, v] of Object.entries(patch)) {
     if (v === null) { out[k] = null; continue; }
     switch (k) {
-      case 'nick': if (typeof v === 'string') { const s = v.replace(BAD_CHARS, '').trim().slice(0, 12); if (s) out.nick = s; } break;
+      case 'nick': if (typeof v === 'string') out.nick = cleanNick(v); break;
       case 'av': if (AVATARS.has(v)) out.av = v; break;
       case 'stage': if (STAGES.has(v)) out.stage = v; break;
       case 'where': if (WHERE.has(v)) out.where = v; break;
@@ -421,6 +422,10 @@ function scheduleBroadcast() {
     }
   }, 60);
 }
+const races = new RaceManager(
+  (peerId, msg) => { const p = peers.get(peerId); if (p && p.ws.readyState === 1) p.ws.send(JSON.stringify(msg)); },
+  msg => { const s = JSON.stringify(msg); for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s); }
+);
 function disconnectUser(userId) {
   for (const p of peers.values()) if (p.userId === userId) p.ws.close(4001, 'account deleted');
 }
@@ -432,6 +437,7 @@ wss.on('connection', ws => {
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
   ws.send(JSON.stringify({ t: 'hello', you: id }));
+  ws.send(JSON.stringify({ t: 'races', list: races.listFor() }));
   scheduleBroadcast();
   ws.on('message', raw => {
     const now = Date.now();
@@ -448,9 +454,11 @@ wss.on('connection', ws => {
       peer.presence = next;
       peer.updatedAt = now;
       scheduleBroadcast();
+    } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('race.')) {
+      races.handle(id, msg);
     }
   });
-  ws.on('close', () => { peers.delete(id); scheduleBroadcast(); });
+  ws.on('close', () => { races.leave(id, true); peers.delete(id); scheduleBroadcast(); });
   ws.on('error', () => {});
 });
 setInterval(() => {

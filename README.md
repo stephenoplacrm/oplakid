@@ -13,7 +13,14 @@ Web app luyện gõ 10 ngón cho trẻ tiểu học: 100 bài chia 3 chặng Bò
 - **Thời gian thực qua WebSocket:** đếm số người online, sân vận động 3D và phòng đua với bạn.
   - Người lạ chỉ thấy con vật đại diện và chặng học của bé, không thấy biệt danh.
   - Biệt danh chỉ hiện với người cùng tài khoản hoặc cùng phòng đua.
-- **Trang Chính sách quyền riêng tư** (`/privacy`): đây là **bản nháp**, cần điền thông tin công ty và nhờ luật sư rà soát.
+- **Đua trực tuyến do máy chủ điều khiển:**
+  - Đua công khai 1 đấu 1, 3 đấu 3, 5 đấu 5, chỉ ghép các bé cùng khu (Bò, Đi, Chạy).
+  - Đua với máy ở 3 mức Dễ, Vừa, Khó; phòng riêng có mã để mời bạn.
+  - Danh sách cuộc đua đang chờ, hiện còn thiếu bao nhiêu người.
+  - Chờ 40 giây chưa đủ người thì máy vào chơi cùng; sau 8 giây các bé có thể bấm "Đua luôn".
+  - Máy chủ giữ đồng hồ và tự tính thời gian về đích, chặn tốc độ vô lý (trên khoảng 300 WPM).
+  - Đua đội: về đích càng sớm, đội càng được nhiều điểm.
+- - **Trang Chính sách quyền riêng tư** (`/privacy`): đây là **bản nháp**, cần điền thông tin công ty và nhờ luật sư rà soát.
 
 ## Chạy thử trên máy
 

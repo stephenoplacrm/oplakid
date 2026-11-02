@@ -27,6 +27,12 @@
       <h1>Mỗi ngón tay có một việc riêng</h1>
       <p class="lede">Đặt hai ngón trỏ lên phím F và J. Sờ thấy gờ nhỏ là đúng chỗ. Bấm thử một phím bất kỳ để xem ngón nào phụ trách phím đó.</p>
       <button class="btn primary cont" id="cont" type="button">Học tiếp <kbd>Enter</kbd></button>
+      <div class="onstrip" id="onstrip" hidden>
+        <span class="dotg" aria-hidden="true"></span><b><span id="os-n"></span> bạn đang online</b>
+        <span class="oszones" id="os-zones"></span>
+        <span class="osavs" id="os-avs" aria-hidden="true"></span>
+        <button class="chip" id="os-world" type="button">Xem sân vận động</button>
+      </div>
       <p class="tip" id="ime-tip">Nhớ tắt bộ gõ tiếng Việt (Unikey, EVKey) trước khi chơi.</p>
     </section>
 
@@ -89,12 +95,17 @@
       <div id="tab-race" hidden>
         <ol class="lessons">
           <li class="lesson">
-            <span class="num race-icon" aria-hidden="true">🤝</span>
-            <h2>Đua với bạn</h2>
-            <p>Tạo phòng rồi gửi link hoặc mã phòng cho bạn. Ai vào cùng phòng sẽ đua cùng một câu, cùng lúc.</p>
-            <div class="acts" style="flex-direction:column;align-items:flex-start;gap:6px">
-              <div class="acts" style="grid-column:auto;align-items:center">
-                <button class="chip go" id="o-create" type="button">Tạo phòng</button>
+            <span class="num race-icon" aria-hidden="true">🏁</span>
+            <h2 id="rz-title">Đua với các bạn</h2>
+            <p>Em chỉ đua với các bạn cùng khu nên ai cũng ngang sức. Chờ lâu mà chưa đủ người thì máy sẽ vào chơi cùng.</p>
+            <div class="acts racebox">
+              <div class="rrow"><span class="lbl">Đua ngay</span><button class="chip go" type="button" data-quick="1v1">1 đấu 1</button><button class="chip go" type="button" data-quick="3v3">3 đấu 3</button><button class="chip go" type="button" data-quick="5v5">5 đấu 5</button></div>
+              <div class="rrow"><span class="lbl">Đua với máy</span><button class="chip" type="button" data-bot="0">🤖 Dễ</button><button class="chip" type="button" data-bot="1">🤖 Vừa</button><button class="chip" type="button" data-bot="2">🤖 Khó</button></div>
+              <h3 class="pubh">Cuộc đua đang chờ thêm người</h3>
+              <ol class="pubraces" id="pub-races"></ol>
+              <div class="rrow"><span class="lbl">Phòng riêng mời bạn</span>
+                <select id="o-mode" aria-label="Kiểu đua"><option value="1v1">1 đấu 1</option><option value="3v3">3 đấu 3</option><option value="5v5">5 đấu 5</option></select>
+                <button class="chip" id="o-create" type="button">Tạo phòng</button>
                 <input class="textin codein" id="o-join-code" maxlength="5" placeholder="Mã phòng" autocomplete="off" aria-label="Mã phòng">
                 <button class="chip" id="o-join" type="button">Vào phòng</button>
               </div>
@@ -183,27 +194,23 @@
 
     <section id="s-online" hidden>
       <div class="playbar">
-        <button class="pill" id="o-leave" type="button">Rời phòng</button>
-        <span class="stat"><span>Phòng</span><b id="o-code"></b></span>
+        <button class="pill" id="o-leave" type="button">Rời cuộc đua <kbd>Esc</kbd></button>
+        <span class="stat"><b id="o-mode-l"></b><span id="o-stage-l"></span></span>
         <span></span>
       </div>
-      <h1>Đua với bạn</h1>
-      <div class="sharebox">
+      <h1 id="o-title"></h1>
+      <p class="lede" id="o-status" aria-live="polite"></p>
+      <div class="sharebox" id="o-share" hidden>
         <p style="margin:0 0 4px">Mã phòng: <b class="code" id="o-code2"></b></p>
-        <p class="note" style="margin:0 0 8px">Cách mời bạn: bấm nút dưới đây rồi gửi link cho bố mẹ của bạn. Link đã kèm sẵn mã phòng. Hoặc đọc mã phòng để bạn nhập ở mục Đua. Bạn cần có tài khoản Bé Gõ Phím.</p>
+        <p class="note" style="margin:0 0 8px">Gửi link cho bố mẹ của bạn. Link đã kèm sẵn mã phòng. Bạn cần có tài khoản Bé Gõ Phím.</p>
         <button class="chip" id="o-copy" type="button">Sao chép link mời bạn</button>
       </div>
-      <label class="field">Tên của em (đặt biệt danh, đừng dùng tên thật đầy đủ)<input class="textin" id="o-nick" maxlength="12" autocomplete="off" placeholder="Ví dụ: Hổ Con"></label>
-      <div class="avatars" id="o-avatars" style="margin-top:10px">Bạn đồng hành:</div>
-      <p class="note" id="o-conn" hidden>Đang kết nối…</p>
-      <ol class="oplayers" id="o-players"></ol>
-      <div id="o-host" hidden>
-        <p style="margin:0 0 6px;font-weight:700">Chọn đường đua:</p>
-        <div class="acts" id="o-kinds" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"></div>
-        <button class="btn primary" id="o-start" type="button">Bắt đầu đua</button>
-        <p class="note" id="o-alone">Phòng mới có mình em. Chờ bạn vào rồi hãy bắt đầu, hoặc bấm luôn để chạy thử.</p>
+      <div class="teams" id="o-teams"></div>
+      <div class="btns" style="justify-content:flex-start;margin-top:14px">
+        <button class="btn primary" id="o-fill" type="button" hidden>Đua luôn, máy vào chỗ trống <kbd>Enter</kbd></button>
+        <button class="btn primary" id="o-again" type="button" hidden>Đua tiếp <kbd>Enter</kbd></button>
+        <button class="btn" id="o-home" type="button">Về trang chính</button>
       </div>
-      <p class="lede" id="o-wait" hidden></p>
     </section>
 
     <section id="s-results" hidden>
