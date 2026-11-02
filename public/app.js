@@ -1329,7 +1329,7 @@ function renderWorldList(){
 function openWorld(){
   if(!curPid||screen==='login')return;
   stopAll();show('world');renderWorldList();
-  $('#w-note').textContent=room?'Bạn nào đang đua thì chạy ngoài sân, bạn nào đang học thì ngồi trong lớp gõ chữ. Kéo để xoay, chạm vào bạn để chào nhé! Em chỉ thấy biệt danh của các bạn cùng lớp.':'Đang kết nối máy chủ…';
+  $('#w-note').textContent=room?'':'Đang kết nối máy chủ…';
   loadThree().then(T=>{if(!W3)initWorld(T);sizeWorld();syncKids();if(!W3.raf)worldLoop();})
     .catch(()=>{$('#world3d').innerHTML='<p class="note" style="padding:20px">Không tải được hình 3D. Danh sách các bạn vẫn ở bên dưới.</p>';});
 }
