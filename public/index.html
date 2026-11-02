@@ -129,6 +129,7 @@
           </li>
         </ol>
       </div>
+      <p class="note foot"><button class="subbtn" id="to-feedback" type="button">💬 Góp ý cho OplaKid</button></p>
     </section>
 
     <section id="s-auth" hidden>
@@ -245,6 +246,28 @@
           <div class="btns" style="justify-content:flex-start;margin-top:10px"><button class="btn danger" id="ghost-reset-all" type="button">Đặt lại tất cả bóng ma</button></div></div>
         <div class="box wide"><h2>Phím bé hay gõ nhầm</h2><p class="note" id="p-miss-note"></p><div class="kb mini" id="kb-heat"></div></div>
         <div class="box wide"><h2>Các buổi gần nhất</h2><div class="tablewrap"><table><thead><tr><th>Thời gian</th><th>Bài</th><th>Đúng</th><th>WPM</th><th>Thời lượng</th></tr></thead><tbody id="p-hist"></tbody></table></div></div>
+        <div class="box wide" id="fb-box"><h2>Góp ý cho OplaKid</h2>
+          <p class="note">Ba mẹ cho OplaKid biết điều em thích, điều chưa tốt hoặc ý tưởng mới nhé. Xin đừng ghi tên thật, địa chỉ hay số điện thoại của bé.</p>
+          <form id="f-fb" class="set" novalidate>
+            <label class="field">Loại góp ý
+              <select class="textin" name="kind"><option value="idea">💡 Ý tưởng cải tiến</option><option value="bug">🐞 Báo lỗi</option><option value="praise">❤️ Điều em thích</option><option value="other">💬 Khác</option></select>
+            </label>
+            <div class="field">Ba mẹ thấy OplaKid thế nào?
+              <div class="rate" id="fb-rate" role="group" aria-label="Chấm sao"></div>
+            </div>
+            <label class="field">Nội dung
+              <textarea class="textin fbtext" name="message" rows="4" maxlength="1000" placeholder="Ví dụ: Em muốn có thêm trò chơi về động vật…"></textarea>
+            </label>
+            <label class="consent"><input type="checkbox" name="contact"> <span>Ba mẹ đồng ý để OplaKid liên hệ lại qua email của tài khoản này.</span></label>
+            <button class="btn primary" type="submit">Gửi góp ý</button>
+            <p class="note" id="fb-msg" role="status"></p>
+          </form>
+        </div>
+        <div class="box wide" id="fb-admin" hidden><h2>Góp ý đã nhận (quản trị viên)</h2>
+          <p class="note" id="fb-admin-note"></p>
+          <div id="fb-list"></div>
+          <button class="btn" id="fb-reload" type="button">Tải lại</button>
+        </div>
         <div class="box wide"><h2>Tài khoản ba mẹ</h2>
           <p style="margin:0 0 8px">Email: <b id="acct-email"></b></p>
           <form id="f-chpw" class="set" novalidate>

@@ -83,6 +83,8 @@ Trong `.env`, đặt `APP_ORIGIN=https://begophim.vn` (đúng tên miền thật
 | `DATABASE_PATH` | Đường dẫn file SQLite. |
 | `SMTP_URL`, `MAIL_FROM` | Gửi email quên mật khẩu, ví dụ qua Gmail Workspace, Amazon SES hoặc Mailgun. |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Bật nút “Đăng nhập/Đăng ký bằng Google”. Tạo OAuth Client (Web) trong Google Cloud Console, thêm Authorized redirect URI: `<APP_ORIGIN>/auth/google/callback`. Bỏ trống thì nút tự ẩn. |
+| `ADMIN_EMAILS` | Danh sách email (cách nhau bằng dấu phẩy) của quản trị viên. Chỉ họ thấy mục “Góp ý đã nhận” trong Góc phụ huynh. |
+| `FEEDBACK_EMAIL` | (Không bắt buộc) Email nhận thông báo mỗi khi có góp ý mới; cần `SMTP_URL`. |
 | `TRUST_PROXY` | Số lớp proxy đứng trước app. |
 | `COOKIE_SECURE` | Tự bật khi `APP_ORIGIN` là https. |
 
