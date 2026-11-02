@@ -18,7 +18,6 @@
     <div class="hright">
       <button class="pill onpill" id="online-pill" type="button" hidden><span class="dotg" aria-hidden="true"></span><b id="online-n">0</b> đang online</button>
       <button class="pill whobtn" id="who" type="button" hidden title="Đổi người học"><span id="who-av"></span><span id="who-nm"></span></button>
-      <button class="pill kbtoggle" id="kbt" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Bàn phím đầy đủ</button>
       <button class="pill" id="to-parent" type="button">Góc phụ huynh</button>
       <button class="pill" id="logout-top" type="button" hidden>Đăng xuất</button>
     </div>
@@ -74,7 +73,10 @@
     </section>
 
     <div id="deck">
+      <div class="kbwrap">
+        <button class="kbtoggle" id="kbt" type="button" aria-pressed="false" title="Hiện đủ phím (số, dấu)"><span class="switch" aria-hidden="true"></span>Đủ phím</button>
       <div class="kb" id="kb"></div>
+      </div>
       <div class="hands" id="hands"></div>
       <p id="flabel" aria-live="polite"></p>
     </div>
