@@ -1743,7 +1743,7 @@ $('#o-copy').addEventListener('click',async e=>{
   try{await navigator.clipboard.writeText(link);b.textContent='Đã sao chép link';}catch(_){b.textContent=link;}
   setTimeout(()=>{b.textContent='Sao chép link mời bạn';},2500);
 });
-const AUTH_ERRS={nouser:'Gmail này chưa có tài khoản. Bấm “Đăng ký” trước nhé.',consent:'Ba mẹ hãy tick ô đồng ý trước nhé.',many:'Bạn thử quá nhiều lần. Đợi một lát rồi thử lại.',off:'Chưa dùng được Google. Bạn đăng ký bằng email nhé.',google:'Đăng nhập Google chưa được. Bạn thử lại nhé.'};
+const AUTH_ERRS={nouser:'Gmail này chưa có tài khoản. Bấm “Đăng ký” trước nhé.',consent:'Ba mẹ hãy tick ô đồng ý trước nhé.',many:'Bạn thử quá nhiều lần. Đợi một lát rồi thử lại.',off:'Chưa dùng được Google. Bạn đăng ký bằng email nhé.',google:'Đăng nhập Google chưa được. Bạn thử lại nhé.',locked:'Tài khoản này đang bị khoá. Ba mẹ hãy liên hệ OplaKid nhé.'};
 function setupGoogle(){
   const reg=document.querySelector('[data-google=register]'),cb=$('#f-register').consent;
   const sync=()=>{reg.classList.toggle('off',!cb.checked);reg.href='/auth/google/start?mode=register'+(cb.checked?'&consent=1':'');};

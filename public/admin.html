@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quản trị · OplaKid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div class="wrap adm">
+  <header class="top">
+    <a class="brand" href="/"><img class="logo" src="/logo.png" alt="" width="26" height="44">OplaKid · Quản trị</a>
+    <div class="hright"><a class="pill" href="/">← Về OplaKid</a><button class="pill" id="a-reload" type="button" hidden>Tải lại</button></div>
+  </header>
+  <p class="note" id="a-msg" role="status">Đang kiểm tra quyền…</p>
+
+  <main id="a-main" hidden>
+    <h1 style="max-width:none">Tổng quan</h1>
+    <div class="agrid" id="a-cards"></div>
+
+    <div class="pgrid" style="margin-top:18px">
+      <div class="box"><h2>Đăng ký mới 14 ngày qua</h2><div class="bars" id="a-bars"></div><p class="note" id="a-bars-note"></p></div>
+      <div class="box"><h2>Sức khoẻ máy chủ</h2><div id="a-server"></div><p class="note">Thời gian xử lý tính trên 1000 yêu cầu <code>/api</code> gần nhất kể từ lần khởi động.</p></div>
+    </div>
+
+    <div class="box wide" style="margin-top:18px">
+      <h2>Tài khoản ba mẹ</h2>
+      <form id="a-search" class="set" novalidate>
+        <input class="textin" name="q" type="search" placeholder="Tìm theo email…" autocomplete="off" aria-label="Tìm theo email">
+        <button class="btn" type="submit">Tìm</button>
+      </form>
+      <p class="note" id="a-total"></p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Email</th><th>Đăng ký</th><th>Đăng nhập gần nhất</th><th>Học gần nhất</th><th>Số bé</th><th>Góp ý</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+        <tbody id="a-users"></tbody>
+      </table></div>
+      <div class="btns" style="justify-content:flex-start;margin-top:10px">
+        <button class="btn" id="a-prev" type="button">← Trước</button><span class="note" id="a-page" style="margin:0"></span><button class="btn" id="a-next" type="button">Sau →</button>
+      </div>
+      <div class="sharebox" id="a-link-box" hidden>
+        <p style="margin:0 0 4px">Link đặt lại mật khẩu cho <b id="a-link-who"></b> (dùng được 1 lần, hết hạn sau 60 phút). Gửi riêng cho ba mẹ đó:</p>
+        <input class="textin" id="a-link" readonly style="width:100%" aria-label="Link đặt lại mật khẩu">
+        <button class="chip" id="a-copy" type="button" style="margin-top:8px">Sao chép link</button>
+      </div>
+    </div>
+
+    <div class="box wide" style="margin-top:18px"><h2>Nhật ký quản trị (20 thao tác gần nhất)</h2><div id="a-log"></div></div>
+  </main>
+</div>
+<script src="/admin.js"></script>
+</body>
+</html>
