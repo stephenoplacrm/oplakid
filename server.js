@@ -645,7 +645,23 @@ const CHAT_GROUPS = [
   { name: 'Lịch sự', items: ['Cảm ơn bạn! 💖', 'Không có gì đâu! 😊', 'Xin lỗi nha! 🙏', 'Bạn dễ thương quá! 🥰'] }
 ];
 const CHAT_LIST = CHAT_GROUPS.flatMap(g => g.items);
+const ROOM_STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10']);
 const chatLog = [];   // 30 câu gần nhất (trong bộ nhớ), gửi cho bạn mới vào
+/* Khi một bạn mở phòng đua riêng, máy chủ tự gửi một lời mời vào khung trò chuyện (không có chữ do bé gõ, không lộ mã phòng).
+ * Bạn nào bấm vào lời mời thì mới vào được phòng. */
+function announceRoom(peerId, room) {
+  const peer = peers.get(peerId);
+  if (!peer || !ROOM_STAGES.has(room.stage)) return;
+  const now = Date.now();
+  peer.roomTimes = (peer.roomTimes || []).filter(t => now - t < 60_000);
+  if (peer.roomTimes.length >= 3) return;
+  peer.roomTimes.push(now);
+  const m = { t: 'chat', kind: 'room', from: peerId, nick: cleanNick(peer.presence.nick || '') || 'Một bạn', av: peer.presence.av || '🙂',
+    rid: room.id, label: String(room.label).slice(0, 20), stage: room.stage, at: now };
+  chatLog.push(m); if (chatLog.length > 30) chatLog.shift();
+  const s = JSON.stringify(m);
+  for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s);
+}
 function handleChat(peer, id, msg, now) {
   const idx = Number.isInteger(msg.id) ? msg.id : -1;
   if (idx < 0 || idx >= CHAT_LIST.length || !peer.presence.stage) return;
@@ -687,7 +703,8 @@ function scheduleBroadcast() {
 }
 const races = new RaceManager(
   (peerId, msg) => { const p = peers.get(peerId); if (p && p.ws.readyState === 1) p.ws.send(JSON.stringify(msg)); },
-  msg => { const s = JSON.stringify(msg); for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s); }
+  msg => { const s = JSON.stringify(msg); for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s); },
+  announceRoom
 );
 function disconnectUser(userId) {
   for (const p of peers.values()) if (p.userId === userId) p.ws.close(4001, 'account deleted');
@@ -700,7 +717,7 @@ wss.on('connection', ws => {
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
   ws.send(JSON.stringify({ t: 'hello', you: id }));
-  ws.send(JSON.stringify({ t: 'chat.init', groups: CHAT_GROUPS, history: chatLog }));
+  ws.send(JSON.stringify({ t: 'chat.init', groups: CHAT_GROUPS, history: chatLog.filter(m => m.kind !== 'room' || races.isOpen(m.rid)) }));
   ws.send(JSON.stringify({ t: 'races', list: races.listFor() }));
   scheduleBroadcast();
   ws.on('message', raw => {

@@ -1226,9 +1226,11 @@ let chatGroups=[],chatList=[],chatLines=[],chatCoolT=0;
 function onChatMsg(m){
   if(m.t==='chat.init'){
     chatGroups=Array.isArray(m.groups)?m.groups.filter(g=>g&&Array.isArray(g.items)):[];chatList=chatGroups.flatMap(g=>g.items);
-    chatLines=(Array.isArray(m.history)?m.history:[]).filter(x=>x&&Number.isInteger(x.id)).slice(-30);buildChatPick();renderChat();return;
+    chatLines=(Array.isArray(m.history)?m.history:[]).filter(x=>x&&(Number.isInteger(x.id)||(x.kind==='room'&&typeof x.rid==='string'))).slice(-30);buildChatPick();renderChat();return;
   }
-  if(m.t!=='chat'||!Number.isInteger(m.id))return;
+  if(m.t!=='chat')return;
+  if(m.kind==='room'){if(typeof m.rid!=='string')return;chatLines.push(m);if(chatLines.length>30)chatLines.shift();renderChat();return;}
+  if(!Number.isInteger(m.id))return;
   chatLines.push(m);if(chatLines.length>30)chatLines.shift();
   renderChat();if(state.chat)chatBubble(m);
 }
@@ -1252,6 +1254,13 @@ function renderChat(){
   if(!chatLines.length){const n=document.createElement('span');n.className='note';n.textContent='Chưa có ai nói gì. Em chọn một câu bên dưới để chào các bạn nhé!';log.appendChild(n);return;}
   chatLines.forEach(m=>{const d=document.createElement('div');d.className='chatline';
     const w=document.createElement('b');w.textContent=String(m.av||'🙂').slice(0,8)+' '+String(m.nick||'Một bạn').slice(0,12)+': ';
+    if(m.kind==='room'){
+      const S=stageById(m.stage);d.classList.add('roomline');
+      d.append(w,document.createTextNode('mở phòng đua '+String(m.label||'').slice(0,20)+(S?' ('+S.name+')':'')+' '));
+      if(room&&m.from===room.me())d.append(document.createTextNode('— em đang chờ các bạn vào'));
+      else{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent='🏁 Bấm để vào chơi';b.addEventListener('click',()=>raceJoinId(m.rid));d.appendChild(b);}
+      log.appendChild(d);return;
+    }
     d.append(w,document.createTextNode(chatList[m.id]||''));log.appendChild(d);});
   log.scrollTop=log.scrollHeight;
 }
@@ -1641,7 +1650,7 @@ function createRoom(){
   return {
     presence(patch){for(const k in patch){if(patch[k]===null)delete mine[k];else mine[k]=patch[k];}
       if(ws&&ws.readyState===1)ws.send(JSON.stringify({t:'presence',patch}));return Promise.resolve();},
-    peers:()=>snap,
+    peers:()=>snap,me:()=>mePeer,
     onPeers(h){peerHs.push(h);setTimeout(()=>h({peers:snap,joined:snap,left:[],updated:[]}),0);return ()=>{const i=peerHs.indexOf(h);if(i>=0)peerHs.splice(i,1);};},
     connected:()=>conn,
     onConnection(h){connHs.push(h);setTimeout(()=>h(conn),0);return ()=>{const i=connHs.indexOf(h);if(i>=0)connHs.splice(i,1);};},

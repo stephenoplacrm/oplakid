@@ -70,7 +70,8 @@ function cleanNick(v) {
 }
 
 class RaceManager {
-  constructor(send, broadcastAll) {
+  constructor(send, broadcastAll, onRoom) {
+    this.onRoom = onRoom || (() => {});   // onRoom(peerId, race): phòng riêng vừa được mở
     this.send = send;                 // send(peerId, msg)
     this.broadcastAll = broadcastAll; // broadcastAll(msg)
     this.races = new Map();
@@ -155,7 +156,9 @@ class RaceManager {
       }
       case 'race.create': {
         const mode = ['1v1', '3v3', '5v5'].includes(msg.mode) ? msg.mode : '1v1';
-        this.addHuman(this.newRace(mode, stage, false), peerId, msg);
+        const room = this.newRace(mode, stage, false);
+        this.addHuman(room, peerId, msg);
+        this.onRoom(peerId, { id: room.id, label: MODES[mode].label, stage });
         return;
       }
       case 'race.bot': {
@@ -305,6 +308,7 @@ class RaceManager {
     this.lastList = s;
     this.broadcastAll({ t: 'races', list });
   }
+  isOpen(id) { const r = this.races.get(id); return !!r && r.status === 'waiting' && r.players.length < r.cap; }
   listFor() {
     const now = Date.now();
     return [...this.races.values()].filter(r => r.isPublic && r.status === 'waiting').map(r => ({

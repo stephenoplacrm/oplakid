@@ -469,6 +469,7 @@ a{color:var(--ink)}
 .chatlog{height:130px;overflow-y:auto;border:2px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--panel);margin-bottom:10px}
 .chatline{font-size:15px;padding:2px 0;overflow-wrap:anywhere}
 .chatline b{color:var(--ink)}
+.roomline .chip{margin-left:4px}
 .chatpick{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
 .chatgrp{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .chatgrp b{min-width:84px;color:var(--ink);font-size:14px}
