@@ -1672,10 +1672,39 @@ function drawBoard(){
   W3.boardTex.needsUpdate=true;
 }
 /* Trường lớn: 3 lớp học (84 chỗ ngồi và đứng), sân chạy rộng, Góc phụ huynh rộng (48 chỗ). Tối đa MAX_KIDS bạn được vẽ để máy không bị nặng. */
-const TZ=14,TRX=3,TRZ=1.5,MAX_KIDS=150;
-const YARD={x0:-26,x1:26,z0:-6.5,z1:2},PARENT={x:30,z:10};
+const TZ=37,TRX=2.4,TRZ=1.2,MAX_KIDS=150;   // Sân đua riêng (có hàng rào và cổng) nằm phía trước sân trường
+const YARD={x0:-26,x1:24,z0:-6.5,z1:0},PARENT={x:30,z:10};   // YARD: chỗ đi dạo tự do ngay trước lớp học
 const ROOMS=[0,-17.5,17.5],ROOM_W=17.5,DESK_COLS=[-5.4,-1.8,1.8,5.4];
 const PSLOTS=Array.from({length:48},(_,i)=>{const ring=Math.min(5,Math.floor(i/8)),a=(i%8)/8*Math.PI*2+ring*.4,r=2.1+ring*.55;return {x:PARENT.x+Math.cos(a)*r,z:PARENT.z+Math.sin(a)*r*.8};});
+/* Các góc chơi trò dân gian trong sân trường; mỗi góc có số chỗ (cap) và dáng chơi riêng cho từng chỗ */
+const GZ=[
+  {id:'jump',name:'Nhảy dây',icon:'🪢',cx:-19,cz:3,cap:6},
+  {id:'quan',name:'Ô ăn quan',icon:'🪨',cx:-5,cz:3,cap:6},
+  {id:'cau',name:'Đá cầu',icon:'🏸',cx:10,cz:3,cap:8},
+  {id:'tug',name:'Kéo co',icon:'💪',cx:-15,cz:12,cap:8},
+  {id:'bao',name:'Nhảy bao bố',icon:'🦘',cx:6,cz:11,cap:6},
+  {id:'rong',name:'Rồng rắn lên mây',icon:'🐉',cx:-1,cz:17,cap:10}
+];
+const GZ_BY=Object.fromEntries(GZ.map(z=>[z.id,z]));
+function gameSlot(z,i,t){
+  const cx=z.cx,cz=z.cz;
+  switch(z.id){
+    case 'jump':
+      if(i===0)return {x:cx-1.9,z:cz,fx:cx,fz:cz,pose:'turn'};
+      if(i===1)return {x:cx+1.9,z:cz,fx:cx,fz:cz,pose:'turn'};
+      if(i===2)return {x:cx,z:cz,fx:cx+3,fz:cz,pose:'jump'};
+      return {x:cx+2.8+(i-3)*.9,z:cz+1.6,fx:cx,fz:cz,pose:'clap'};
+    case 'tug':{const side=i%2?1:-1,rank=i>>1;return {x:cx+side*(1.5+rank*1.15)+Math.sin(t*1.1)*.7,z:cz+(rank%2?.3:-.3),fx:cx,fz:cz,pose:'tug'};}
+    case 'quan':
+      if(i===0)return {x:cx,z:cz-1.5,fx:cx,fz:cz,pose:'sit'};
+      if(i===1)return {x:cx,z:cz+1.5,fx:cx,fz:cz,pose:'sit'};
+      return {x:cx+[-2.8,2.8,-2.8,2.8][(i-2)%4],z:cz+[-.9,-.9,.9,.9][(i-2)%4],fx:cx,fz:cz,pose:'clap'};
+    case 'cau':{const a=i/z.cap*Math.PI*2;return {x:cx+Math.cos(a)*2.3,z:cz+Math.sin(a)*2.3,fx:cx,fz:cz,pose:'kick'};}
+    case 'bao':{const u=t*.06+i*.17,f=u-Math.floor(u),tri=1-Math.abs(1-2*f);return {x:cx-6+12*tri,z:cz+(i-2.5)*1.15,yaw:f<.5?Math.PI/2:-Math.PI/2,pose:'hop'};}
+    case 'rong':{const u=t*.32-i*.2,x=cx+11*Math.sin(u),zz=cz+1.8*Math.sin(2*u),u2=u+.05;return {x,z:zz,yaw:Math.atan2(cx+11*Math.sin(u2)-x,cz+1.8*Math.sin(2*u2)-zz),pose:'snake'};}
+  }
+  return {x:cx,z:cz,pose:'clap'};
+}
 const SEATS=(()=>{const a=[];
   ROOMS.forEach(cx=>{for(let r=0;r<4;r++)DESK_COLS.forEach(dx=>a.push({x:cx+dx,z:-18+r*2.4+1.2}));});      // 48 chỗ ngồi
   ROOMS.forEach(cx=>{for(let i=0;i<12;i++)a.push({x:cx-7.5+i*1.36,z:-8.9,stand:true});});                  // 36 chỗ đứng ở cuối lớp
@@ -1728,9 +1757,51 @@ function initWorld(T){
   const board=new T.Mesh(new T.PlaneGeometry(14.2,4.15),new T.MeshBasicMaterial({map:boardTex}));board.position.set(0,9,-20.97);scene.add(board);
   box(.5,3.8,.5,0x22253d,-6.5,7.1,-21.1);box(.5,3.8,.5,0x22253d,6.5,7.1,-21.1);
   /* Cây, ghế đá, cột cờ */
-  [[-30,-3],[-22,-6.6],[22,-6.6],[-31,8],[-31,20],[-24,26],[24,26],[34,-5],[-12,28],[12,28]].forEach(([x,z])=>tree(x,z));
-  [[-9,-6.9],[9,-6.9],[-24,0]].forEach(([x,z])=>{box(2.6,.15,.7,0x9b6b3a,x,.55,z);box(.12,.5,.12,0x555555,x-.9,.28,z);box(.12,.5,.12,0x555555,x+.9,.28,z);});
-  box(.15,8,.15,0xcccccc,-33,4,-1);box(1.8,1.1,.05,0xe5484d,-32.1,7.3,-1);
+  [[-30,-3],[-22,-6.6],[22,-6.6],[-31,9],[-31,21],[-27,31],[27,31],[-27,45],[27,45],[34,-5],[34,22]].forEach(([x,z])=>tree(x,z));
+  [[-9,-6.9],[9,-6.9],[-14,-6.9],[14,-6.9]].forEach(([x,z])=>{box(2.6,.15,.7,0x9b6b3a,x,.55,z);box(.12,.5,.12,0x555555,x-.9,.28,z);box(.12,.5,.12,0x555555,x+.9,.28,z);});
+  /* Cờ đỏ sao vàng: cột cờ lớn bên trái sân, cờ nhỏ trên mái mỗi lớp học */
+  const flagTex=canvasTex(T,480,320,(g,w,h)=>{g.fillStyle='#da251d';g.fillRect(0,0,w,h);g.fillStyle='#ffff00';g.beginPath();
+    for(let i=0;i<10;i++){const r=i%2?96*.382:96,a=-Math.PI/2+i*Math.PI/5;const x=w/2+Math.cos(a)*r,y=h/2+8+Math.sin(a)*r;if(i)g.lineTo(x,y);else g.moveTo(x,y);}g.closePath();g.fill();});
+  const flagMat=new T.MeshBasicMaterial({map:flagTex,side:T.DoubleSide});
+  box(.2,11.5,.2,0xdddddd,-31,5.75,-2);const knob=new T.Mesh(new T.SphereGeometry(.28,10,8),M(0xf5b700));knob.position.set(-31,11.6,-2);scene.add(knob);
+  const flagGeo=new T.PlaneGeometry(5.4,3.6,18,1);flagGeo.translate(2.7,0,0);const flag=new T.Mesh(flagGeo,flagMat);flag.position.set(-30.9,9.5,-2);scene.add(flag);
+  const flagBase=flagGeo.attributes.position.array.slice();
+  ROOMS.forEach(cx=>{box(.07,2,.07,0xdddddd,cx,7.2,-21.1);const f=new T.Mesh(new T.PlaneGeometry(1.5,1),flagMat);f.position.set(cx+.75,7.9,-21.1);scene.add(f);});
+
+  /* Sân đua riêng: có hàng rào trắng và cổng ở phía trường */
+  for(let i=0;i<60;i++){const a=i/60*Math.PI*2,d=Math.atan2(Math.sin(a+Math.PI/2),Math.cos(a+Math.PI/2));if(Math.abs(d)<.16)continue;
+    box(.18,1,.18,0xffffff,Math.cos(a)*7.4*TRX,.5,TZ+Math.sin(a)*7.4*TRZ);}
+  [-3.6,3.6].forEach(dx=>box(.4,3.8,.4,0xe5484d,dx,1.9,TZ-7.4*TRZ));
+  const gate=new T.Mesh(new T.PlaneGeometry(8,1.6),new T.MeshBasicMaterial({map:canvasTex(T,512,100,(g,w,h)=>{g.fillStyle='#e5484d';g.fillRect(0,0,w,h);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font='800 56px '+FONT;g.fillText('🏁 SÂN ĐUA',w/2,h/2+3,w-30);})}));
+  gate.position.set(0,3.6,TZ-7.4*TRZ);scene.add(gate);
+
+  /* Sân trường: các góc chơi trò dân gian (bảng tên, đồ dùng và chỗ chơi) */
+  const label=(txt,x,y,z)=>{const sp=new T.Sprite(new T.SpriteMaterial({map:canvasTex(T,512,128,(g,w,h)=>{g.fillStyle='rgba(255,255,255,.94)';g.beginPath();if(g.roundRect)g.roundRect(6,10,w-12,h-24,40);else g.rect(6,10,w-12,h-24);g.fill();g.lineWidth=8;g.strokeStyle='#4a2a8a';g.stroke();g.fillStyle='#4a2a8a';g.textAlign='center';g.textBaseline='middle';g.font='800 46px '+FONT;g.fillText(txt,w/2,h/2-2,w-44);}),transparent:true,depthWrite:false}));sp.scale.set(6.6,1.65,1);sp.position.set(x,y,z);scene.add(sp);};
+  GZ.forEach(z=>label(z.icon+' '+z.name,z.cx,z.id==='rong'?3.4:4.2,z.cz));
+  const props={flag,flagBase};
+  {const z=GZ_BY.jump;                                                                // nhảy dây
+    box(.16,1.5,.16,0x8b5a2b,z.cx-1.15,.75,z.cz);box(.16,1.5,.16,0x8b5a2b,z.cx+1.15,.75,z.cz);
+    props.rope=new T.Mesh(new T.TorusGeometry(1.15,.035,6,24,Math.PI),M(0xe5484d));props.rope.position.set(z.cx,1.35,z.cz);scene.add(props.rope);}
+  {const z=GZ_BY.tug;                                                                 // kéo co
+    box(11,.02,.5,dark?0x3a8247:0xa6e49a,z.cx,.015,z.cz);box(.12,.03,3.2,0xffffff,z.cx,.03,z.cz);
+    props.tug=new T.Group();props.tug.position.set(z.cx,0,z.cz);scene.add(props.tug);
+    const rope=new T.Mesh(new T.BoxGeometry(11,.12,.12),M(0xb5842a));rope.position.y=.55;props.tug.add(rope);
+    const mk=new T.Mesh(new T.BoxGeometry(.1,.4,.5),M(0xe5484d));mk.position.y=.55;props.tug.add(mk);}
+  {const z=GZ_BY.quan;                                                                // ô ăn quan
+    const tex=canvasTex(T,512,220,(g,w,h)=>{g.fillStyle='#d9b27a';g.fillRect(0,0,w,h);g.strokeStyle='#6b4a22';g.lineWidth=5;g.strokeRect(6,6,w-12,h-12);
+      g.beginPath();g.moveTo(100,6);g.lineTo(100,h-6);g.moveTo(w-100,6);g.lineTo(w-100,h-6);g.moveTo(100,h/2);g.lineTo(w-100,h/2);
+      for(let i=1;i<5;i++){const x=100+i*(w-200)/5;g.moveTo(x,6);g.lineTo(x,h-6);}g.stroke();
+      g.fillStyle='#fff';[[60,h/2],[w-60,h/2]].forEach(([x,y])=>{g.beginPath();g.arc(x,y,26,0,Math.PI*2);g.fill();});
+      g.fillStyle='#8b5a2b';for(let i=0;i<30;i++){g.beginPath();g.arc(110+Math.random()*(w-220),14+Math.random()*(h-28),7,0,Math.PI*2);g.fill();}});
+    const b=new T.Mesh(new T.PlaneGeometry(4.4,1.9),new T.MeshLambertMaterial({map:tex}));b.rotation.x=-Math.PI/2;b.position.set(z.cx,.06,z.cz);scene.add(b);}
+  {const z=GZ_BY.cau;                                                                 // đá cầu
+    const ring=new T.Mesh(new T.RingGeometry(2.55,2.7,48),new T.MeshBasicMaterial({color:0xffffff,side:T.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.set(z.cx,.03,z.cz);scene.add(ring);
+    props.cau=new T.Group();props.cau.add(new T.Mesh(new T.SphereGeometry(.13,8,6),M(0xffd54f)));const fe=new T.Mesh(new T.ConeGeometry(.14,.3,8),M(0xffffff));fe.position.y=.22;props.cau.add(fe);
+    props.cau.position.set(z.cx,2,z.cz);scene.add(props.cau);}
+  {const z=GZ_BY.bao;                                                                 // nhảy bao bố: vạch xuất phát và đích
+    box(.2,.02,7.2,0xffffff,z.cx-6,.03,z.cz);box(.2,.02,7.2,0xe5484d,z.cx+6,.03,z.cz);
+    box(.1,1.6,.1,0xdddddd,z.cx+6,.8,z.cz-3.6);box(.7,.45,.04,0xe5484d,z.cx+6.35,1.4,z.cz-3.6);}
+
   /* Góc phụ huynh: nhà chờ rộng có bàn nước; các bạn đang ở Góc phụ huynh trong ứng dụng sẽ đứng ở đây */
   {const px=PARENT.x,pz=PARENT.z;
     box(10,.25,8,dark?0x8c7a62:0xe3cfa6,px,.125,pz);
@@ -1743,7 +1814,7 @@ function initWorld(T){
 
   const kids=new T.Group();scene.add(kids);
   const shadowTex=canvasTex(T,64,64,(g,w,h)=>{const gr=g.createRadialGradient(w/2,h/2,2,w/2,h/2,w/2);gr.addColorStop(0,'rgba(0,0,0,.35)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);});
-  W3={T,renderer,scene,cam,kids,host,sprites:new Map(),seatOf:new Map(),pslot:new Map(),pops:[],angle:0,zoom:1,touched:false,drag:null,aspect:2,raf:0,t0:performance.now(),last:performance.now(),dark,shadowTex,shadowGeo:new T.PlaneGeometry(1.8,1.8),shadowMat:new T.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false}),boardCanvas,boardTex,boardKey:'',totalOnline:0,ray:new T.Raycaster()};
+  W3={T,renderer,scene,cam,kids,host,props,sprites:new Map(),seatOf:new Map(),pslot:new Map(),gslot:new Map(),pops:[],angle:0,zoom:1,touched:false,drag:null,aspect:2,raf:0,t0:performance.now(),last:performance.now(),dark,shadowTex,shadowGeo:new T.PlaneGeometry(1.8,1.8),shadowMat:new T.MeshBasicMaterial({map:shadowTex,transparent:true,depthWrite:false}),boardCanvas,boardTex,boardKey:'',totalOnline:0,ray:new T.Raycaster()};
   const el=renderer.domElement;el.style.touchAction='none';
   el.addEventListener('pointerdown',e=>{W3.drag={x:e.clientX,y:e.clientY,a:W3.angle,moved:false};el.setPointerCapture(e.pointerId);});
   el.addEventListener('pointermove',e=>{const d=W3.drag;if(!d)return;if(Math.abs(e.clientX-d.x)+Math.abs(e.clientY-d.y)>6)d.moved=true;if(d.moved){W3.touched=true;W3.angle=Math.max(-1.2,Math.min(1.2,d.a-(e.clientX-d.x)*.008));}});
@@ -1873,16 +1944,22 @@ function syncKids(){
     const look=validLook(p.presence.look)?p.presence.look:null,ls=look?look.join(','):'d';
     const nick=String(p.presence.nick||'Một bạn').slice(0,12)+(p.isMe&&p.sameTab?' (em)':''),av=String(p.presence.av||'🙂').slice(0,8);
     let k=sprites.get(key);
-    if(!k){const h=hashStr(key);k={key,x:-8+h*16,z:32,yaw:Math.PI,ph:h*Math.PI*2,lane:hashStr(key+'l'),wx:0,wz:-3,wt:0,jump:0,sp:null,sig:'',lookSig:'',seated:false,act};setKidMesh(k,key,look);sprites.set(key,k);}
+    if(!k){const h=hashStr(key);k={key,x:-8+h*16,z:23,yaw:Math.PI,ph:h*Math.PI*2,lane:hashStr(key+'l'),wx:0,wz:-3,wt:0,jump:0,sp:null,sig:'',lookSig:'',seated:false,act};setKidMesh(k,key,look);sprites.set(key,k);}
     else if(k.lookSig!==ls)setKidMesh(k,key,look);
     k.act=act;k.z0=z;
     const sig=nick+'|'+av+'|'+z.id;
     if(k.sig!==sig){k.sig=sig;if(k.sp){k.g.remove(k.sp);if(k.sp.material.map)k.sp.material.map.dispose();}k.sp=kidSprite(W3.T,av,nick,hex(z.color),p.isMe&&p.sameTab,W3.dark);k.sp.scale.set(2.5,2.93,1);k.g.add(k.sp);}
   });
-  [...sprites.keys()].forEach(key=>{if(!seen.has(key)){W3.kids.remove(sprites.get(key).g);sprites.delete(key);seatOf.delete(key);W3.pslot.delete(key);}});
+  [...sprites.keys()].forEach(key=>{if(!seen.has(key)){W3.kids.remove(sprites.get(key).g);sprites.delete(key);seatOf.delete(key);W3.pslot.delete(key);W3.gslot.delete(key);}});
   /* chia chỗ: bạn nào đang học thì có một chỗ trong lớp, bạn ở Góc phụ huynh thì có chỗ đứng quanh bàn */
   const usedP=new Set();sprites.forEach((k,key)=>{if(k.act==='parent'&&W3.pslot.has(key))usedP.add(W3.pslot.get(key));else if(k.act!=='parent')W3.pslot.delete(key);});
   sprites.forEach((k,key)=>{if(k.act==='parent'&&!W3.pslot.has(key)){let i=0;while(usedP.has(i)&&i<PSLOTS.length-1)i++;usedP.add(i);W3.pslot.set(key,i);}});
+  const fill={};GZ.forEach(z=>{fill[z.id]=new Set();});
+  sprites.forEach((k,key)=>{const g=W3.gslot.get(key);if(k.act==='yard'&&g)fill[g.zone].add(g.idx);else if(k.act!=='yard')W3.gslot.delete(key);});
+  [...sprites.entries()].sort((a,b)=>a[0]<b[0]?-1:1).forEach(([key,k])=>{
+    if(k.act!=='yard'||W3.gslot.has(key))return;
+    const open=GZ.filter(z=>fill[z.id].size<z.cap).sort((a,b)=>fill[a.id].size/a.cap-fill[b.id].size/b.cap);if(!open.length)return;
+    const z=open[0];let i=0;while(fill[z.id].has(i))i++;fill[z.id].add(i);W3.gslot.set(key,{zone:z.id,idx:i});});
   const used=new Set();sprites.forEach((k,key)=>{if(k.act==='learn'&&seatOf.has(key))used.add(seatOf.get(key));else if(k.act!=='learn')seatOf.delete(key);});
   sprites.forEach((k,key)=>{if(k.act==='learn'&&!seatOf.has(key)){let i=0;while(used.has(i)&&i<SEATS.length-1)i++;used.add(i);seatOf.set(key,i);}});
   drawBoard();
@@ -1900,13 +1977,16 @@ function pokeKid(e){
 function worldLoop(){
   if(!W3||screen!=='world'){if(W3)W3.raf=0;return;}
   const now=performance.now(),t=(now-W3.t0)/1000,dt=Math.min(.05,(now-W3.last)/1000);W3.last=now;
-  const ang=W3.angle+(W3.touched?0:Math.sin(t*.15)*.3),R=46*W3.zoom*Math.max(1,2.1/W3.aspect),H=27*W3.zoom;
-  W3.cam.position.set(Math.sin(ang)*R,H,2+Math.cos(ang)*R);W3.cam.lookAt(0,.5,2);
+  const ang=W3.angle+(W3.touched?0:Math.sin(t*.15)*.3),R=40*W3.zoom*Math.max(1,2.1/W3.aspect),H=34*W3.zoom;
+  W3.cam.position.set(Math.sin(ang)*R,H,12+Math.cos(ang)*R);W3.cam.lookAt(0,.5,12);
+  {const P=W3.props;if(P){P.rope.rotation.x=t*5;P.tug.position.x=GZ_BY.tug.cx+Math.sin(t*1.1)*.7;P.cau.position.y=1.4+Math.abs(Math.sin(t*2.2))*2.3;P.cau.position.x=GZ_BY.cau.cx+Math.sin(t*1.3)*.5;
+    const pa=P.flag.geometry.attributes.position;for(let j=0;j<pa.count;j++){const x=P.flagBase[j*3];pa.array[j*3+2]=Math.sin(x*1.3-t*3.2)*.2*(x/5.4);}pa.needsUpdate=true;}}
   W3.sprites.forEach((k,key)=>{
-    let tx,tz,spd,seat=null;
+    let tx,tz,spd,seat=null,gz=null,gs=null;
     if(k.act==='race'){const th=k.ph+t*(.38+.08*Math.max(0,ZONES.indexOf(k.z0))),r=5.1+k.lane*1;tx=Math.cos(th)*r*TRX;tz=TZ+Math.sin(th)*r*TRZ;spd=16;}
     else if(k.act==='learn'){seat=SEATS[W3.seatOf.get(key)||0];tx=seat.x;tz=seat.z;spd=7;}
     else if(k.act==='parent'){const ps=PSLOTS[W3.pslot.get(key)||0];tx=ps.x;tz=ps.z;spd=3;}
+    else if(k.act==='yard'&&W3.gslot.has(key)){gz=W3.gslot.get(key);gs=gameSlot(GZ_BY[gz.zone],gz.idx,t);tx=gs.x;tz=gs.z;spd=(gs.pose==='hop'||gs.pose==='snake')?(Math.hypot(gs.x-k.x,gs.z-k.z)>4?5:30):4;}
     else{if(now>k.wt||Math.hypot(k.wx-k.x,k.wz-k.z)<.2){k.wx=YARD.x0+Math.random()*(YARD.x1-YARD.x0);k.wz=YARD.z0+Math.random()*(YARD.z1-YARD.z0);k.wt=now+3000+Math.random()*5000;}tx=k.wx;tz=k.wz;spd=1.7;}
     const dx=tx-k.x,dz=tz-k.z,d=Math.hypot(dx,dz),step=Math.min(d,spd*dt);
     if(d>.001){k.x+=dx/d*step;k.z+=dz/d*step;}
@@ -1915,9 +1995,21 @@ function worldLoop(){
     const sitting=k.act==='learn'&&!moving&&seat&&!seat.stand;
     if(sitting){let df=Math.PI-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*10);}
     else if(k.act==='learn'&&!moving&&seat&&seat.stand){let df=Math.PI-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*10);}
+    if(gs&&!moving){const ty=gs.yaw!==undefined?gs.yaw:Math.atan2(gs.fx-k.x,gs.fz-k.z);let df=ty-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*9);}
     if(k.act==='parent'&&!moving){const ty=Math.atan2(PARENT.x-k.x,PARENT.z-k.z);let df=ty-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*8);}
     const w=Math.sin(t*(k.act==='race'?11:7)+k.ph);let by=0,lean=0,la=0,aa=0;
     if(sitting){by=-.1;k.legL.rotation.x=k.legR.rotation.x=-Math.PI/2;k.armL.rotation.x=-1.15+Math.sin(t*15+k.ph)*.14;k.armR.rotation.x=-1.15+Math.cos(t*13+k.ph)*.14;}
+    else if(gs&&!moving){
+      const p=gs.pose,ph=k.ph,ra=t*5;k.legL.rotation.x=k.legR.rotation.x=0;
+      if(p==='turn'){k.armL.rotation.x=k.armR.rotation.x=-1.05+Math.sin(ra)*.5;}
+      else if(p==='jump'){by=.55*Math.pow(Math.max(0,-Math.cos(ra)),2);k.armL.rotation.x=k.armR.rotation.x=-.5+Math.sin(ra)*.4;}
+      else if(p==='clap'){k.armL.rotation.x=k.armR.rotation.x=-1.25+Math.sin(t*10+ph)*.3;by=Math.pow(Math.max(0,Math.sin(t*3+ph)),8)*.15;}
+      else if(p==='tug'){lean=-.4;k.armL.rotation.x=k.armR.rotation.x=-1.5;k.legL.rotation.x=.3;k.legR.rotation.x=-.3;}
+      else if(p==='sit'){by=-.62;k.legL.rotation.x=k.legR.rotation.x=-Math.PI/2;k.armL.rotation.x=-1+Math.sin(t*3+ph)*.25;k.armR.rotation.x=-.8+Math.cos(t*2.4+ph)*.25;}
+      else if(p==='kick'){k.legR.rotation.x=-Math.max(0,Math.sin(t*3+ph))*1.3;k.armL.rotation.x=.3;k.armR.rotation.x=-.3;by=Math.max(0,Math.sin(t*3+ph+1.2))*.12;}
+      else if(p==='hop'){by=Math.abs(Math.sin(t*7+ph))*.55;k.armL.rotation.x=k.armR.rotation.x=-.3;}
+      else if(p==='snake'){const sw=Math.sin(t*7+ph);k.legL.rotation.x=sw*.5;k.legR.rotation.x=-sw*.5;k.armL.rotation.x=k.armR.rotation.x=-1.1;by=Math.abs(sw)*.05;}
+    }
     else if(moving){const f=k.act==='race'?1:.5;la=w*f;aa=-w*f*.9;k.legL.rotation.x=la;k.legR.rotation.x=-la;k.armL.rotation.x=-aa;k.armR.rotation.x=aa;by=Math.abs(w)*(k.act==='race'?.14:.05);lean=k.act==='race'?.2:.04;}
     else if(k.act==='parent'){k.legL.rotation.x=k.legR.rotation.x=0;k.armL.rotation.x=-.5+Math.sin(t*3+k.ph)*.35;k.armR.rotation.x=Math.sin(t*1.7+k.ph*2)*.12;by=Math.max(0,Math.sin(t*2+k.ph*3))**10*.12;}
     else{k.legL.rotation.x=k.legR.rotation.x=0;k.armL.rotation.x=Math.sin(t*2+k.ph)*.08;k.armR.rotation.x=-Math.sin(t*2+k.ph)*.08;by=Math.max(0,Math.sin(t*2.5+k.ph*3))**12*.25;}
