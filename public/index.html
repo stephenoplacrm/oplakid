@@ -105,18 +105,12 @@
           <li class="lesson">
             <span class="num race-icon" aria-hidden="true">🏁</span>
             <h2 id="rz-title">Đua với các bạn</h2>
-            <p>Em chỉ đua với các bạn cùng cấp độ nên ai cũng ngang sức. Chờ lâu mà chưa đủ người thì máy sẽ vào chơi cùng.</p>
+            <p>Đua tối đa 5 bạn cùng cấp độ. Lời mời sẽ hiện trong khung trò chuyện. Chờ 1 phút, nếu chưa đủ bạn thì máy vào chơi cùng, gõ ngang trình của em.</p>
             <div class="acts racebox">
-              <div class="rrow"><span class="lbl">Đua ngay</span><button class="chip go" type="button" data-quick="1v1">1 đấu 1</button><button class="chip go" type="button" data-quick="3v3">3 đấu 3</button><button class="chip go" type="button" data-quick="5v5">5 đấu 5</button></div>
+              <div class="rrow"><button class="btn primary" type="button" data-quick="1">🏁 Đua ngay!</button></div>
               <div class="rrow"><span class="lbl">Đua với máy</span><button class="chip" type="button" data-bot="0">🤖 Dễ</button><button class="chip" type="button" data-bot="1">🤖 Vừa</button><button class="chip" type="button" data-bot="2">🤖 Khó</button></div>
               <h3 class="pubh">Cuộc đua đang chờ thêm người</h3>
               <ol class="pubraces" id="pub-races"></ol>
-              <div class="rrow"><span class="lbl">Phòng riêng mời bạn</span>
-                <select id="o-mode" aria-label="Kiểu đua"><option value="1v1">1 đấu 1</option><option value="3v3">3 đấu 3</option><option value="5v5">5 đấu 5</option></select>
-                <button class="chip" id="o-create" type="button">Tạo phòng</button>
-                <input class="textin codein" id="o-join-code" maxlength="5" placeholder="Mã phòng" autocomplete="off" aria-label="Mã phòng">
-                <button class="chip" id="o-join" type="button">Vào phòng</button>
-              </div>
               <p class="note" id="o-avail"></p>
             </div>
           </li>
