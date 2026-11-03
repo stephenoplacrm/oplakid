@@ -595,11 +595,11 @@ server.on('upgrade', (req, socket, head) => {
   wss.handleUpgrade(req, socket, head, ws => { ws.user = user; wss.emit('connection', ws); });
 });
 
-const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸']);
+const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸', '🐱', '🐶', '🐻', '🐨', '🐵', '🦁', '🐮', '🐷', '🐹', '🐭', '🐔', '🐧', '🐦', '🦉', '🦄', '🐲', '🐙', '🦋', '🐢', '🐬', '🐳', '🦖', '🦒', '🐘', '🦓', '🐝', '🐞', '🦀', '🐥', '🦔']);
 const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5']);
 const PHASES = new Set(['lobby', 'countdown', 'racing', 'done']);
 const KINDS = new Set(['sent', 'long', 'words', 'home', 'keys']);
-const ACTS = new Set(['race', 'learn', 'yard']);
+const ACTS = new Set(['race', 'learn', 'yard', 'parent']);
 const WHERE = new Set(['home', 'play', 'game', 'results', 'parent', 'online', 'login', 'world', 'auth', 'cert']);
 const BAD_CHARS = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g;
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : undefined);
@@ -629,6 +629,28 @@ function cleanPatch(patch) {
     }
   }
   return out;
+}
+
+/* Trò chuyện nhanh trong Trường tiểu học: chỉ chọn câu có sẵn (CHAT_GROUPS), tuyệt đối không có ô gõ chữ.
+ * Máy chủ chỉ nhận số thứ tự câu, tự ghép biệt danh (đã qua cleanNick) và con vật của người gửi rồi phát cho mọi bạn. */
+const CHAT_GROUPS = [
+  { name: 'Chào hỏi', items: ['Xin chào các bạn! 👋', 'Chào buổi sáng nhé! ☀️', 'Mình mới vào trường nè!', 'Tạm biệt nha! 👋'] },
+  { name: 'Khen bạn', items: ['Giỏi quá! 👍', 'Hay quá! ✨', 'Chúc mừng bạn! 🎉', 'Bạn gõ nhanh ghê! ⚡', 'Cố lên nha! 💪'] },
+  { name: 'Rủ chơi', items: ['Cùng chơi nha! 🎮', 'Bạn ơi, đua với mình nhé! 🏁', 'Ai chơi Chuột chũi không? 🐹', 'Mình đang học bài đây ✏️', 'Mình đang nghỉ giải lao 🌳'] },
+  { name: 'Lịch sự', items: ['Cảm ơn bạn! 💖', 'Không có gì đâu! 😊', 'Xin lỗi nha! 🙏', 'Bạn dễ thương quá! 🥰'] }
+];
+const CHAT_LIST = CHAT_GROUPS.flatMap(g => g.items);
+const chatLog = [];   // 30 câu gần nhất (trong bộ nhớ), gửi cho bạn mới vào
+function handleChat(peer, id, msg, now) {
+  const idx = Number.isInteger(msg.id) ? msg.id : -1;
+  if (idx < 0 || idx >= CHAT_LIST.length || !peer.presence.stage) return;
+  peer.chatTimes = (peer.chatTimes || []).filter(t => now - t < 60_000);
+  if (now - (peer.lastChat || 0) < 1500 || peer.chatTimes.length >= 15) return;   // tối đa 1 câu mỗi 1,5 giây và 15 câu mỗi phút
+  peer.lastChat = now; peer.chatTimes.push(now);
+  const m = { t: 'chat', from: id, nick: cleanNick(peer.presence.nick || '') || 'Một bạn', av: peer.presence.av || '🙂', id: idx, at: now };
+  chatLog.push(m); if (chatLog.length > 30) chatLog.shift();
+  const s = JSON.stringify(m);
+  for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s);
 }
 
 /* Mọi bạn đang online thấy con vật, biệt danh (đã qua cleanNick), cấp độ và đang làm gì của nhau.
@@ -673,6 +695,7 @@ wss.on('connection', ws => {
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
   ws.send(JSON.stringify({ t: 'hello', you: id }));
+  ws.send(JSON.stringify({ t: 'chat.init', groups: CHAT_GROUPS, history: chatLog }));
   ws.send(JSON.stringify({ t: 'races', list: races.listFor() }));
   scheduleBroadcast();
   ws.on('message', raw => {
@@ -690,6 +713,8 @@ wss.on('connection', ws => {
       peer.presence = next;
       peer.updatedAt = now;
       scheduleBroadcast();
+    } else if (msg && msg.t === 'chat') {
+      handleChat(peer, id, msg, now);
     } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('race.')) {
       races.handle(id, msg);
     }

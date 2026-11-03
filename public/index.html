@@ -131,7 +131,7 @@
           </li>
         </ol>
       </div>
-      <p class="note foot"><button class="subbtn" id="to-feedback" type="button">💬 Góp ý cho OplaKid</button></p>
+      <p class="note foot"><button class="subbtn" id="to-rename" type="button">✏️ Đổi tên và nhân vật</button> · <button class="subbtn" id="to-feedback" type="button">💬 Góp ý cho OplaKid</button></p>
     </section>
 
     <section id="s-auth" hidden>
@@ -185,7 +185,7 @@
       <p class="tip" id="l-hint">Bấm số trên bàn phím để chọn nhanh, hoặc Enter để vào bằng tên có viền đậm.</p>
       <div class="profiles" id="profiles"></div>
       <div class="box newprof" id="newprof" hidden>
-        <h2>Thêm bạn mới</h2>
+        <h2 id="np-title">Thêm bạn mới</h2>
         <label class="field">Biệt danh (các bạn khác sẽ thấy, đừng dùng tên thật đầy đủ)<input class="textin" id="np-nick" maxlength="12" autocomplete="off" placeholder="Ví dụ: Hổ Con"></label>
         <div class="avatars" id="np-av" style="margin-top:10px">Con vật:</div>
         <p class="note" id="np-err" style="color:var(--bad)"></p>
@@ -199,6 +199,12 @@
       <h1 class="oneline">Trường tiểu học OplaKid</h1>
       <p class="note" id="w-note"></p>
       <div id="world3d"></div>
+      <div class="box chatbox" id="chat-box">
+        <h2>💬 Trò chuyện nhanh</h2>
+        <div class="chatlog" id="chat-log" aria-live="polite"><span class="note">Chưa có ai nói gì. Em chọn một câu bên dưới để chào các bạn nhé!</span></div>
+        <div class="chatpick" id="chat-pick"></div>
+        <p class="note">Em chỉ chọn được câu có sẵn, không gõ chữ để chat. Ba mẹ có thể tắt trong Góc phụ huynh.</p>
+      </div>
       <div class="wzones" id="w-zones"></div>
     </section>
 
@@ -304,6 +310,7 @@
             </label>
             <label><input type="checkbox" id="set-sound"> Âm thanh</label>
             <label><input type="checkbox" id="set-music"> Nhạc nền khi gõ</label>
+            <label><input type="checkbox" id="set-chat"> Cho bé trò chuyện nhanh (câu có sẵn) trong trường</label>
             <label><input type="checkbox" id="set-speak"> Đọc to từ tiếng Anh</label>
             <label><input type="checkbox" id="set-unlock"> Mở khoá tất cả các cấp độ</label>
             <button class="btn danger" id="reset" type="button">Xoá tiến độ của bé này</button>
