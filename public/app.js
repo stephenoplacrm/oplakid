@@ -1253,10 +1253,11 @@ function renderChat(){
   const log=$('#chat-log');log.innerHTML='';
   if(!chatLines.length){const n=document.createElement('span');n.className='note';n.textContent='Chưa có ai nói gì. Em chọn một câu bên dưới để chào các bạn nhé!';log.appendChild(n);return;}
   chatLines.forEach(m=>{const d=document.createElement('div');d.className='chatline';
-    const w=document.createElement('b');w.textContent=String(m.av||'🙂').slice(0,8)+' '+String(m.nick||'Một bạn').slice(0,12)+': ';
+    const w=document.createElement('b');w.textContent=String(m.av||'🙂').slice(0,8)+' '+String(m.nick||'Một bạn').slice(0,12)+(m.kind==='room'?' ':': ');
     if(m.kind==='room'){
       const S=stageById(m.stage);d.classList.add('roomline');
-      d.append(w,document.createTextNode('mở phòng đua '+String(m.label||'').slice(0,20)+(S?' ('+S.name+')':'')+' '));
+      d.append(w,document.createTextNode('mời bạn đấu '+String(m.mode||'1v1').slice(0,3)+(S?' ('+S.name+')':'')+' · mã phòng '));
+      if(m.code){const c=document.createElement('b');c.className='roomcode';c.textContent=String(m.code).slice(0,8).toUpperCase();d.append(c,document.createTextNode(' '));}
       if(room&&m.from===room.me())d.append(document.createTextNode('— em đang chờ các bạn vào'));
       else{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent='🏁 Bấm để vào chơi';b.addEventListener('click',()=>raceJoinId(m.rid));d.appendChild(b);}
       log.appendChild(d);return;
