@@ -567,6 +567,10 @@ app.delete('/api/admin/users/:id', adminOnly, (req, res) => {
   res.json({ ok: true });
 });
 
+app.get('/.well-known/security.txt', (req, res) => {
+  res.type('text/plain; charset=utf-8').send(
+    `Contact: mailto:namnguyen.opla@gmail.com\nExpires: 2027-11-03T00:00:00.000Z\nPreferred-Languages: vi, en\nCanonical: ${APP_ORIGIN}/.well-known/security.txt\nPolicy: ${APP_ORIGIN}/privacy\n`);
+});
 app.use('/api', (req, res) => res.status(404).json({ error: 'Không tìm thấy.' }));
 app.use('/vendor/three.min.js', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');

@@ -8,7 +8,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 - `races.js`: quản lý cuộc đua trên máy chủ (1v1, 3v3, 5v5, đua với máy, phòng riêng, ghép theo Cấp độ 1 đến Cấp độ 10).
 - `public/index.html`, `public/app.css`, `public/app.js`: toàn bộ giao diện, JavaScript thuần, không có bước build.
 - `public/telex.js`, `public/vi.js`: bộ gõ Telex (chuyển chữ tiếng Việt thành dãy phím và ngược lại) và kho chữ tiếng Việt cho Cấp độ 6 đến 10. Ứng dụng tự ghép Telex nên bé tắt bộ gõ tiếng Việt của máy.
-- `public/privacy.html`: chính sách quyền riêng tư (bản nháp).
+- `public/privacy.html`, `public/contact.html`: chính sách quyền riêng tư và trang liên hệ (thông tin người vận hành, email, nơi đặt máy chủ). Chính sách chưa được luật sư rà soát.
 - Dữ liệu: một file SQLite tại `DATABASE_PATH` (đĩa cố định `/data` trên Render).
 
 ## Quy tắc khi sửa
