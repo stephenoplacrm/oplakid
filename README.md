@@ -11,10 +11,10 @@ Web app luyện gõ 10 ngón cho trẻ tiểu học: 262 bài chia 10 cấp đ�
 - **Hồ sơ bé:** mỗi tài khoản có nhiều bé. Bé đăng nhập bằng cách chọn hồ sơ của mình.
 - **Lưu tiến độ trên máy chủ:** học trên máy nào cũng giữ nguyên tiến độ.
 - **Thời gian thực qua WebSocket:** đếm số người online, Trường tiểu học OplaKid 3D và phòng đua với bạn.
-  - Các bạn đang online thấy con vật đại diện, biệt danh và cấp độ học của nhau. Mã phòng chỉ hiện trong lời mời khi bé mở phòng đua riêng; dữ liệu cuộc đua chỉ hiện với người cùng tài khoản hoặc cùng phòng đua.
+  - Các bạn đang online thấy con vật đại diện, biệt danh và cấp độ học của nhau. Dữ liệu cuộc đua chỉ hiện với người cùng tài khoản hoặc cùng phòng đua.
 - **Đua trực tuyến do máy chủ điều khiển:**
-  - Đua công khai 1 đấu 1, 3 đấu 3, 5 đấu 5, chỉ ghép các bé cùng cấp độ (Cấp độ 1 đến Cấp độ 10).
-  - Đua với máy ở 3 mức Dễ, Vừa, Khó; phòng riêng có mã để mời bạn.
+  - Đua với bạn: tối đa 5 bé cùng cấp độ, lời mời hiện trong khung trò chuyện; sau 1 phút máy vào chơi ngang trình nếu còn ít bạn.
+  - Đua với máy ở 3 mức Dễ, Vừa, Khó.
   - Danh sách cuộc đua đang chờ, hiện còn thiếu bao nhiêu người.
   - Chờ 40 giây chưa đủ người thì máy vào chơi cùng; sau 8 giây các bé có thể bấm "Đua luôn".
   - Máy chủ giữ đồng hồ và tự tính thời gian về đích, chặn tốc độ vô lý (trên khoảng 300 WPM).

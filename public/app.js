@@ -1256,15 +1256,10 @@ function renderChat(){
     const w=document.createElement('b');w.textContent=String(m.av||'🙂').slice(0,8)+' '+String(m.nick||'Một bạn').slice(0,12)+(m.kind==='room'?' ':': ');
     if(m.kind==='room'){
       const S=stageById(m.stage);d.classList.add('roomline');
-      d.append(w,document.createTextNode('mời bạn đấu '+String(m.mode||'1v1').slice(0,3)+(S?' ('+S.name+')':'')+' · mã phòng '));
-      const mineRoom=!!(room&&m.from===room.me());
-      if(m.code){
-        const c=document.createElement(mineRoom?'b':'button');c.className='roomcode';c.textContent=String(m.code).slice(0,8).toUpperCase();
-        if(!mineRoom){c.type='button';c.title='Bấm để vào phòng này';c.classList.add('go');c.addEventListener('click',()=>raceJoinId(m.rid));}
-        d.append(c,document.createTextNode(' '));
-      }
-      if(mineRoom)d.append(document.createTextNode('— em đang chờ các bạn vào'));
-      else{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent='🏁 Bấm để vào chơi';b.addEventListener('click',()=>raceJoinId(m.rid));d.appendChild(b);}
+      d.append(w,document.createTextNode('mời bạn cùng đua'+(S?' ('+S.name+')':'')+' '));
+      if(room&&m.from===room.me())d.append(document.createTextNode('— em đang chờ các bạn vào'));
+      else if(!curStage||m.stage===curStage().id){const b=document.createElement('button');b.type='button';b.className='chip go';b.textContent='🏁 Bấm để vào đua';b.addEventListener('click',()=>raceJoinId(m.rid));d.appendChild(b);}
+      else d.append(document.createTextNode('— dành cho các bạn ở '+(S?S.name:'cấp độ khác')));
       log.appendChild(d);return;
     }
     d.append(w,document.createTextNode(chatList[m.id]||''));log.appendChild(d);});
@@ -1452,10 +1447,10 @@ const myNick=()=>(state.nick||'').trim()||'Bạn mới';
 function rsend(m){if(room&&room.send&&room.connected()){room.send(m);return true;}raceNote('Đang kết nối máy chủ, em thử lại sau vài giây nhé.');return false;}
 function raceNote(t){const el=$('#o-avail');if(el)el.textContent=t;const s=$('#o-status');if(screen==='online'&&s&&t)s.textContent=t;}
 const me4=()=>({stage:curStage().id,nick:myNick(),av:state.avatar});
-function raceQuick(mode){guardStart(()=>{if(rsend(Object.assign({t:'race.quick',mode},me4())))raceNote('Đang tìm bạn đua…');});}
+function myWpm(){const v=Object.values(state.bestWpm||{}).filter(x=>x>0).sort((a,b)=>a-b);return v.length?Math.min(120,v[Math.floor(v.length/2)]):0;}   /* tốc độ gõ thường ngày của bé, để máy vào chơi ngang trình */
+function raceQuick(){guardStart(()=>{if(rsend(Object.assign({t:'race.quick',wpm:myWpm()},me4())))raceNote('Đang tìm bạn đua…');});}
 let lastBotLevel=1;
 function raceBot(level){lastBotLevel=level;guardStart(()=>{rsend(Object.assign({t:'race.bot',level},me4()));});}
-function raceCreate(mode){guardStart(()=>{rsend(Object.assign({t:'race.create',mode},me4()));});}
 function raceJoinId(id){guardStart(()=>{rsend(Object.assign({t:'race.join',id},me4()));});}
 function raceJoinCode(code){guardStart(()=>{rsend(Object.assign({t:'race.join',code},me4()));});}
 function setHash(h){try{if(h)location.hash=h;else history.replaceState(null,'',location.pathname+location.search);}catch(e){try{location.hash='';}catch(_){}}}
@@ -1466,7 +1461,6 @@ function clearPresence(){}
 function showOnline(){show('online');renderOnline();clearInterval(lobbyTimer);lobbyTimer=setInterval(()=>{if(screen==='online')renderOnline();else clearInterval(lobbyTimer);},500);}
 function onlineAvailable(){
   const ok=!!(room&&room.connected());
-  ['o-create','o-join','o-join-code','o-mode'].forEach(id=>{const el=$('#'+id);if(el)el.disabled=!ok;});
   $$('[data-quick],[data-bot]').forEach(b=>b.disabled=!ok);
   if(!$('#o-avail').dataset.keep)$('#o-avail').textContent=ok?'':'Đang kết nối máy chủ… Trong lúc chờ, em vẫn đua với bóng ma được.';
 }
@@ -1568,7 +1562,7 @@ function renderOnline(){
   const r=online;if(!r)return;
   const S=STAGE_BY_ID(r.stage),since=(performance.now()-(r.at||0));
   $('#o-mode-l').textContent=r.label;$('#o-stage-l').textContent=S.icon+' '+S.name;
-  $('#o-title').textContent=r.mode==='bot'?'Đua với máy':(r.isPublic?'Đua '+r.label:'Phòng riêng '+r.label);
+  $('#o-title').textContent=r.mode==='bot'?'Đua với máy':'Đua với các bạn';
   $('#o-share').hidden=!r.code;if(r.code){$('#o-code2').textContent=r.code.toUpperCase();}
   const humans=r.players.filter(p=>!p.bot).length,missing=r.cap-r.players.length;
   let st='';
@@ -1596,12 +1590,12 @@ function renderOnline(){
   }
   $('#o-fill').hidden=!(r.status==='waiting'&&(r.age||0)+since>=8000);
   $('#o-again').hidden=r.status!=='done';
-  $('#o-again').innerHTML=(r.mode==='bot'?'Đua với máy lần nữa':'Đua tiếp '+esc(r.label))+' <kbd>Enter</kbd>';
+  $('#o-again').innerHTML=(r.mode==='bot'?'Đua với máy lần nữa':'Đua tiếp')+' <kbd>Enter</kbd>';
 }
 function againRace(){
   const r=online;if(!r)return;
   if(r.mode==='bot'){raceBot(lastBotLevel);return;}
-  if(r.isPublic)raceQuick(r.mode);else raceCreate(r.mode);
+  raceQuick();
 }
 function fillRace(){if(online&&online.status==='waiting')rsend({t:'race.fill'});}
 
@@ -1610,10 +1604,10 @@ function renderPublicRaces(){
   const S=curStage();$('#rz-title').textContent='Đua với các bạn '+S.name+' '+S.icon;
   const since=performance.now()-(publicRaces.at||0);
   const list=publicRaces.filter(r=>r.stage===S.id);box.innerHTML='';
-  if(!list.length){const li=document.createElement('li');li.className='pubrace none';li.textContent='Chưa có cuộc đua nào đang chờ ở '+S.name+'. Bấm 1 đấu 1, 3 đấu 3 hoặc 5 đấu 5 để mở cuộc đua mới, các bạn khác sẽ thấy và vào cùng.';box.appendChild(li);return;}
+  if(!list.length){const li=document.createElement('li');li.className='pubrace none';li.textContent='Chưa có cuộc đua nào đang chờ ở '+S.name+'. Bấm Đua ngay để mở cuộc đua mới, các bạn khác sẽ thấy và vào cùng.';box.appendChild(li);return;}
   list.forEach(r=>{
     const li=document.createElement('li');li.className='pubrace';
-    const mode=document.createElement('b');mode.textContent=r.label;
+    const mode=document.createElement('b');mode.textContent='Đua với bạn';
     const avs=document.createElement('span');avs.className='pavs';
     for(let i=0;i<r.cap;i++){const s=document.createElement('span');s.className='slot'+(i<r.avs.length?' on':'');s.textContent=i<r.avs.length?r.avs[i]:'';avs.appendChild(s);}
     const need=document.createElement('span');need.className='need';need.textContent='Còn thiếu '+(r.cap-r.n)+' người';
@@ -1622,15 +1616,8 @@ function renderPublicRaces(){
   });
 }
 
-$$('[data-quick]').forEach(b=>b.addEventListener('click',()=>raceQuick(b.dataset.quick)));
+$$('[data-quick]').forEach(b=>b.addEventListener('click',()=>raceQuick()));
 $$('[data-bot]').forEach(b=>b.addEventListener('click',()=>raceBot(+b.dataset.bot)));
-$('#o-create').addEventListener('click',()=>raceCreate($('#o-mode').value));
-$('#o-join').addEventListener('click',()=>{
-  const c=$('#o-join-code').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');
-  if(c.length!==5){$('#o-avail').textContent='Mã phòng có 5 ký tự, ví dụ K7M2P.';return;}
-  raceJoinCode(c);
-});
-$('#o-join-code').addEventListener('keydown',e=>{if(e.key==='Enter')$('#o-join').click();});
 $('#o-leave').addEventListener('click',leaveRoom);
 $('#o-home').addEventListener('click',leaveRoom);
 $('#o-fill').addEventListener('click',e=>{e.currentTarget.blur();fillRace();});

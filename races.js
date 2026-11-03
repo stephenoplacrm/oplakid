@@ -1,20 +1,20 @@
 'use strict';
 /*
  * Quản lý cuộc đua trên máy chủ.
- * - Đua công khai theo cấp độ (Cấp độ 1 đua với Cấp độ 1, Cấp độ 2 với Cấp độ 2, ... Cấp độ 5 với Cấp độ 5): 1 đấu 1, 3 đấu 3, 5 đấu 5.
- * - Đua với máy, phòng riêng có mã để mời bạn.
+ * - Đua với bạn cùng cấp độ: tối đa 5 bạn, không chia đội. Mở cuộc đua là máy chủ gửi lời mời vào khung chat.
+ *   Sau 1 phút, ai vào thì đua với nhau; nếu còn ít người thì máy vào chơi cùng, tốc độ ngang các bạn.
+ * - Đua với máy (Dễ, Vừa, Khó).
  * - Máy chủ giữ đồng hồ: tự đếm ngược, tự tính thời gian về đích, tự điền máy vào chỗ trống.
  */
 const crypto = require('crypto');
 
 const MODES = {
-  '1v1': { cap: 2, teams: false, label: '1 đấu 1' },
-  '3v3': { cap: 6, teams: true, label: '3 đấu 3' },
-  '5v5': { cap: 10, teams: true, label: '5 đấu 5' },
+  race: { cap: 5, teams: false, label: 'Đua với bạn' },
   bot: { cap: 2, teams: false, label: 'Đua với máy' }
 };
 const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10']);
-const FILL_AFTER_MS = 40_000;      // chờ quá lâu thì máy vào chơi cùng
+const FILL_AFTER_MS = 60_000;      // sau 1 phút thì bắt đầu đua; còn ít bạn thì máy vào chơi cùng
+const MIN_BOTS_TOTAL = 3;          // cuộc đua có ít nhất 3 tay đua (bạn và máy)
 const MIN_WAIT_TO_FILL_MS = 8_000; // sau 8 giây, các bé có thể bấm "đua luôn"
 const COUNTDOWN_MS = 5_000;
 const MAX_RACE_MS = 180_000;
@@ -98,14 +98,19 @@ class RaceManager {
   addHuman(race, peerId, info) {
     this.leave(peerId, true);
     race.players.push({ pid: peerId, nick: cleanNick(info.nick), av: AVATARS.has(info.av) ? info.av : '🐯', team: this.pickTeam(race),
-      bot: false, pos: 0, done: false, ms: null, errs: 0, left: false });
+      bot: false, hint: Math.max(0, Math.min(120, Number(info.wpm) || 0)), pos: 0, done: false, ms: null, errs: 0, left: false });
     this.byPeer.set(peerId, race.id);
     this.touch(race);
     if (this.humans(race).length + race.players.filter(p => p.bot).length >= race.cap) this.startCountdown(race);
   }
-  addBot(race, level) {
+  /* Tốc độ của máy: theo level (Dễ, Vừa, Khó), hoặc theo tốc độ gõ của các bạn trong cuộc đua ("trình tương đương") */
+  humanWpm(race) {
+    const hs = this.humans(race).map(p => p.hint).filter(x => x > 0);
+    return hs.length ? hs.reduce((a, b) => a + b, 0) / hs.length : null;
+  }
+  addBot(race, level, wpmBase) {
     const speeds = BOT_WPM[race.stage];
-    const base = level != null ? speeds[level] : speeds[1];
+    const base = wpmBase > 0 ? wpmBase : (level != null ? speeds[level] : speeds[1]);
     race.botSeq += 1;
     const used = new Set(race.players.map(p => p.nick));
     const name = BOT_NAMES.find(n => !used.has(n)) || ('Máy ' + race.botSeq);
@@ -145,20 +150,15 @@ class RaceManager {
     const err = text => this.send(peerId, { t: 'race.error', text });
     const stage = STAGES.has(msg.stage) ? msg.stage : 'bo';
     switch (msg.t) {
-      case 'race.quick': {
-        const mode = ['1v1', '3v3', '5v5'].includes(msg.mode) ? msg.mode : '1v1';
+      case 'race.quick':
+      case 'race.create': {   // một cách duy nhất: vào cuộc đua đang chờ cùng cấp độ, chưa có thì mở cuộc đua mới và gửi lời mời vào chat
         const mine = this.raceOf(peerId);
-        let race = [...this.races.values()].find(r => r.isPublic && r.status === 'waiting' && r.mode === mode && r.stage === stage &&
+        let race = [...this.races.values()].find(r => r.isPublic && r.status === 'waiting' && r.stage === stage &&
           r.players.length < r.cap && r !== mine);
-        if (!race) race = this.newRace(mode, stage, true);
+        const fresh = !race;
+        if (fresh) race = this.newRace('race', stage, true);
         this.addHuman(race, peerId, msg);
-        return;
-      }
-      case 'race.create': {
-        const mode = ['1v1', '3v3', '5v5'].includes(msg.mode) ? msg.mode : '1v1';
-        const room = this.newRace(mode, stage, false);
-        this.addHuman(room, peerId, msg);
-        this.onRoom(peerId, { id: room.id, code: room.code, mode, stage });
+        if (fresh) this.onRoom(peerId, { id: race.id, stage });
         return;
       }
       case 'race.bot': {
@@ -218,7 +218,8 @@ class RaceManager {
 
   /* ---------- vòng đời cuộc đua ---------- */
   fillAndStart(race) {
-    while (race.players.length < race.cap) this.addBot(race, null);
+    const base = this.humanWpm(race);
+    while (race.players.length < Math.min(race.cap, MIN_BOTS_TOTAL)) this.addBot(race, null, base);
     this.startCountdown(race);
   }
   startCountdown(race) {

@@ -647,7 +647,7 @@ const CHAT_GROUPS = [
 const CHAT_LIST = CHAT_GROUPS.flatMap(g => g.items);
 const ROOM_STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10']);
 const chatLog = [];   // 30 câu gần nhất (trong bộ nhớ), gửi cho bạn mới vào
-/* Khi một bạn mở phòng đua riêng, máy chủ tự gửi một lời mời vào khung trò chuyện (không có chữ do bé gõ, có kèm mã phòng; chủ dự án đã đồng ý).
+/* Khi một bạn mở phòng đua riêng, máy chủ tự gửi một lời mời vào khung trò chuyện (không có chữ do bé gõ, chỉ có nút bấm để vào).
  * Bạn nào bấm vào lời mời thì mới vào được phòng. */
 function announceRoom(peerId, room) {
   const peer = peers.get(peerId);
@@ -657,7 +657,7 @@ function announceRoom(peerId, room) {
   if (peer.roomTimes.length >= 3) return;
   peer.roomTimes.push(now);
   const m = { t: 'chat', kind: 'room', from: peerId, nick: cleanNick(peer.presence.nick || '') || 'Một bạn', av: peer.presence.av || '🙂',
-    rid: room.id, code: String(room.code || '').slice(0, 8), mode: ['1v1', '3v3', '5v5'].includes(room.mode) ? room.mode : '1v1', stage: room.stage, at: now };
+    rid: room.id, stage: room.stage, at: now };
   chatLog.push(m); if (chatLog.length > 30) chatLog.shift();
   const s = JSON.stringify(m);
   for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s);

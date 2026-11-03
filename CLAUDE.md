@@ -5,7 +5,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 
 ## Cấu trúc
 - `server.js`: Express, tài khoản phụ huynh (scrypt, cookie phiên), API `/api/*`, WebSocket `/ws` (ai đang online).
-- `races.js`: quản lý cuộc đua trên máy chủ (1v1, 3v3, 5v5, đua với máy, phòng riêng, ghép theo Cấp độ 1 đến Cấp độ 10).
+- `races.js`: quản lý cuộc đua trên máy chủ (đua tối đa 5 bạn cùng cấp độ, sau 1 phút máy vào chơi ngang trình nếu còn ít bạn; đua với máy; ghép theo Cấp độ 1 đến Cấp độ 10).
 - `public/index.html`, `public/app.css`, `public/app.js`: toàn bộ giao diện, JavaScript thuần, không có bước build.
 - Cấp độ 6 đến 10 gõ tiếng Việt: bé dùng bộ gõ tiếng Việt có sẵn của máy (ô `#vn-input`); ứng dụng chỉ so chữ, không tự ghép dấu. Kho chữ tiếng Việt nằm trong `app.js` (`VN`). Không thêm file JS riêng cho phần này.
 - `public/privacy.html`, `public/contact.html`: chính sách quyền riêng tư và trang liên hệ (thông tin người vận hành, email, nơi đặt máy chủ). Chính sách chưa được luật sư rà soát.
@@ -18,7 +18,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 - Không đổi tên hay xoá cột trong bảng SQLite đang có. Muốn thêm dữ liệu thì thêm bảng hoặc cột mới, có giá trị mặc định.
 - CSP chỉ cho phép script từ chính trang (`script-src 'self'`): không dùng script inline, không gọi CDN bên ngoài.
 - Thư viện 3D (three.js r128) được phục vụ tại `/vendor/three.min.js` từ `node_modules`.
-- Người dùng là trẻ em: không thêm tính năng nhắn tin tự do; biệt danh phải qua `cleanNick` trong `races.js`; biệt danh hiện cho mọi bạn đang online trong Trường tiểu học OplaKid (chủ dự án đã đồng ý), mã phòng đua riêng chỉ hiện trong lời mời máy chủ tự gửi vào khung chat khi bé mở phòng (chủ dự án đã đồng ý); dữ liệu cuộc đua chỉ hiện với người cùng phòng đua hoặc cùng tài khoản.
+- Người dùng là trẻ em: không thêm tính năng nhắn tin tự do; biệt danh phải qua `cleanNick` trong `races.js`; biệt danh hiện cho mọi bạn đang online trong Trường tiểu học OplaKid (chủ dự án đã đồng ý), lời mời đua do máy chủ tự gửi vào khung chat khi bé mở cuộc đua (không có chữ do bé gõ); dữ liệu cuộc đua chỉ hiện với người cùng phòng đua hoặc cùng tài khoản.
 - Giao diện và thông báo viết bằng tiếng Việt, câu ngắn, dễ hiểu với trẻ lớp 1.
 
 ## Kiểm tra trước khi mở pull request
