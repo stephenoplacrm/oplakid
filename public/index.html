@@ -93,7 +93,7 @@
       <div id="tab-lessons">
         <div class="stages" id="stages"></div>
         <p class="progress" id="progress"></p>
-        <p style="margin:0 0 10px"><button class="chip" id="cert-open" type="button" hidden>🏅 Xem chứng chỉ</button></p>
+        <p style="margin:0 0 10px"><button class="chip" id="cert-open" type="button" hidden></button> <span class="note" id="exam-note"></span></p>
         <ol class="lessons" id="units"></ol>
       </div>
       <div id="tab-games" hidden>
@@ -230,6 +230,7 @@
       <div class="stats" id="r-stats"></div>
       <p id="r-miss"></p>
       <div class="btns">
+        <button class="btn primary" id="r-exam" type="button" hidden>📝 Làm bài kiểm tra</button>
         <button class="btn primary" id="r-cert" type="button" hidden>🏅 Nhận chứng chỉ</button>
         <button class="btn" id="r-again" type="button">Chơi lại</button>
         <button class="btn primary" id="r-next" type="button">Bài tiếp theo</button>
@@ -250,6 +251,7 @@
         <div class="box"><h2>Hôm nay</h2><div class="big" id="p-today"></div><p class="note" id="p-limit-note"></p></div>
         <div class="box"><h2>7 ngày qua</h2><div class="big" id="p-week"></div><p class="note" id="p-week-note"></p></div>
         <div class="box"><h2>Độ chính xác theo cấp độ</h2><div id="p-acc"></div></div>
+        <div class="box"><h2>Bài kiểm tra cấp độ</h2><div id="p-exam"></div><p class="note">Xong hết bài chính của cấp độ thì bé được thi. Gõ đúng từ 90% là qua và nhận chứng chỉ. Thi trượt vẫn học tiếp và thi lại được.</p></div>
         <div class="box"><h2>Tốc độ gần đây</h2><div class="big" id="p-speed"></div><p class="note">Trung bình 5 buổi gần nhất. Nên xem cùng độ chính xác: tốc độ tăng mà độ chính xác giảm thường là bé đang đoán phím.</p><p class="note" id="p-done"></p><p class="note" id="p-sync"></p></div>
         <div class="box wide"><h2>Bóng ma</h2><p class="note">Đặt lại khi bóng ma quá nhanh làm bé nản, hoặc khi đổi người chơi trên cùng máy.</p><div id="p-ghosts"></div>
           <div class="btns" style="justify-content:flex-start;margin-top:10px"><button class="btn danger" id="ghost-reset-all" type="button">Đặt lại tất cả bóng ma</button></div></div>

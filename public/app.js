@@ -341,7 +341,7 @@ function doneBtn(stage,fn){const b=document.createElement('button');b.type='butt
 const GTAG={bubble:v=>v+' bóng',frog:v=>v+' giây',quiz:v=>v+'/10',mole:v=>v+' chú chuột',rocket:v=>v+' từ',scramble:v=>v+'/8'};
 
 /* ================= Storage ================= */
-const DEFAULTS={avatar:'🐯',nick:'',sound:true,music:true,speak:true,limit:45,certs:{},tipHands:false,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{},gdur:{}};
+const DEFAULTS={avatar:'🐯',nick:'',sound:true,music:true,speak:true,limit:45,certs:{},exams:{},tipHands:false,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{},gdur:{}};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function readJSON(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
@@ -554,6 +554,7 @@ function modeName(s){
   if(s.unit==='race'&&s.step==='online')return 'Đua với bạn';
   if(s.unit==='race')return 'Đua: '+(TRACKS[s.step]?TRACKS[s.step].name:'');
   if(s.unit==='game'){const [g,l]=String(s.step).split(':');return GAMES[g]?GAMES[g].name+': '+GAMES[g].levels[l].name:'Trò chơi';}
+  if(s.unit==='exam'){const S=stageById(s.step);return 'Kiểm tra '+(S?S.name:'');}
   const f=findStep(s.unit,s.step);return f&&f.st?f.U.title+': '+f.st.name:'';
 }
 function record(s){s.t=Date.now();state.sessions.push(s);if(state.sessions.length>600)state.sessions.shift();save();}
@@ -587,7 +588,11 @@ function renderHome(){
   const SSlk=!stageUnlocked(SS),prevS=STAGES[STAGES.indexOf(SS)-1];
   if(SSlk){const [pd,pn]=stageDoneFor(state,prevS);$('#progress').textContent=SS.name+' đang khoá. Em cần xong hết '+pn+' bài của '+prevS.name+' (còn '+(pn-pd)+' bài) thì cấp độ này mới mở.';}
   else $('#progress').textContent=SS.name+': em đã xong '+sd+' trên '+sn+' bài.'+(SS.adv?' Cấp độ này có bài dùng bàn phím đầy đủ với phím Shift.':'')+' Mỗi lần chơi là một đề mới.';
-  const cb=$('#cert-open');cb.hidden=!stageComplete(SS);cb.onclick=()=>openCert(SS.id);
+  const cb=$('#cert-open'),en=$('#exam-note'),ex=state.exams[SS.id];
+  if(state.certs[SS.id]){cb.hidden=false;cb.textContent='🏅 Xem chứng chỉ';cb.onclick=()=>openCert(SS.id);en.textContent='';}
+  else if(stageComplete(SS)){cb.hidden=false;cb.textContent=ex&&ex.tries?'📝 Thi lại':'📝 Làm bài kiểm tra';cb.onclick=()=>startExam(SS);
+    en.textContent=ex&&ex.tries?'Lần tốt nhất: '+ex.best+'%. Cần từ '+Math.round(EXAM_PASS*100)+'% để qua.':'Gõ đúng từ '+Math.round(EXAM_PASS*100)+'% là qua và nhận chứng chỉ.';}
+  else{cb.hidden=true;en.textContent='';}
   const ul=$('#units');ul.innerHTML='';
   UNITS.filter(U=>U.steps.some(st=>stageIdOf(U.id,st)===SS.id)).forEach((U,ui)=>{
     const li=document.createElement('li');li.className='lesson';
@@ -629,6 +634,7 @@ function renderHome(){
 /* ================= Lesson engine ================= */
 function startWpm(){clearInterval(wpmTimer);$('#wpm').textContent='0';wpmTimer=setInterval(updateWpm,400);}
 function updateWpm(){if(!game||!game.start)return;if(game.timed&&game.done)return;$('#wpm').textContent=wpmOf(game.chars,(performance.now()-game.start)/1000);}
+const HINT_DEFAULT=document.querySelector('#s-play .hint').textContent;
 function startLesson(uid,sid){guardStart(()=>{
   const f=findStep(uid,sid);if(!f)return;
   const stg=stageOfLesson(uid,sid);if(stg&&!stageUnlocked(stg))return;if(stg)stageSel=stg.id;
@@ -637,6 +643,7 @@ function startLesson(uid,sid){guardStart(()=>{
   const adv=!!f.U.adv||items.some(x=>[...x.t].some(c=>!SIMPLE_SET.has(c)));
   game={kind:'lesson',unit:uid,step:sid,adv,items,i:0,pos:0,errs:0,chars:0,start:0,missLocal:{},locked:false};
   show('play');syncToggles();$('#race').hidden=true;
+  $('#s-play .hint').textContent=HINT_DEFAULT;
   startWpm();renderItem();
   if(uid==='home'&&sid==='fj'&&!state.tipHands){state.tipHands=true;save();openHandTip();}
 });}
@@ -688,6 +695,7 @@ function itemDone(){
   setTimeout(()=>{if(!game||game.kind!=='lesson')return;game.locked=false;game.i++;if(game.i>=game.items.length)finishLesson();else renderItem();},650);
 }
 function finishLesson(){
+  if(game.unit==='exam')return finishExam();
   clearInterval(wpmTimer);
   const secs=(performance.now()-game.start)/1000,acc=game.chars/Math.max(1,game.chars+game.errs),stars=starsOf(acc),wpm=wpmOf(game.chars,secs);
   const key=game.unit+':'+game.step;
@@ -698,13 +706,13 @@ function finishLesson(){
   const titles={3:'Giỏi quá!',2:'Tốt lắm!',1:'Em làm xong rồi!'};
   const subs={3:'Ngón tay nào cũng làm đúng việc của mình.',2:'Còn vài chữ nhầm, chơi lại một lần nữa là thuộc.',1:'Gõ chậm lại một chút, nhìn ngón tay sáng trên màn hình để gõ cho đúng.'};
   let sub=subs[stars];if(newWpm&&prev)sub+=' Kỷ lục tốc độ mới ở bài này: '+wpm+' WPM (lần trước '+prev+').';
-  const stg=stageOfLesson(game.unit,game.step);let cert=null;
+  const stg=stageOfLesson(game.unit,game.step);let exam=null;
   if(firstTime&&stg){const [d,n]=stageDone(stg);if(d===n)sub+=' Em đã hoàn thành '+stg.name+'!';
-    if(stageComplete(stg)&&!state.certs[stg.id]){state.certs=Object.assign({},state.certs,{[stg.id]:Date.now()});save();cert=stg.id;sub+=' Em nhận được chứng chỉ '+stg.name+'!';}}
+    if(stageComplete(stg)&&!state.certs[stg.id]){exam=stg.id;sub+=' Bài kiểm tra '+stg.name+' đang chờ em. Qua bài kiểm tra là nhận chứng chỉ!';}}
   const u=game.unit,s=game.step,i=FLAT.findIndex(x=>x.u===u&&x.s===s),nx0=i>=0&&i<FLAT.length-1?FLAT[i+1]:null,nx=nx0&&stageUnlocked(stageById(nx0.g))?nx0:null;
   showResults({stars,title:titles[stars],sub,acc,miss:game.missLocal,
     stats:[[wpm,'WPM'],[Math.round(acc*100)+'%','gõ đúng'],[game.chars,'chữ cái'],[fmtTime(secs),'thời gian']],
-    again:()=>startLesson(u,s),againLabel:'Chơi lại (đề mới)',next:nx?()=>startLesson(nx.u,nx.s):null,cert});
+    again:()=>startLesson(u,s),againLabel:'Chơi lại (đề mới)',next:nx?()=>startLesson(nx.u,nx.s):null,exam});
 }
 
 /* ================= Race ================= */
@@ -1042,7 +1050,7 @@ function makeScramble(level){
 }
 
 /* ================= Results ================= */
-let resAgain=null,resNext=null,resCert=null;
+let resAgain=null,resNext=null,resCert=null,resExam=null;
 function showResults(r){
   $('#r-stars').innerHTML=[1,2,3].map(n=>'<span class="'+(n<=r.stars?'':'off')+'">⭐</span>').join('');
   $('#r-title').textContent=r.title;$('#r-sub').textContent=r.sub||'';
@@ -1050,7 +1058,7 @@ function showResults(r){
   const miss=Object.entries(r.miss||{}).sort((a,b)=>b[1]-a[1]).slice(0,5);
   $('#r-miss').innerHTML=miss.length?'Chữ hay nhầm: '+miss.map(([k])=>'<span class="k">'+esc(k===' '?'cách':k)+'</span>').join(''):'';
   resAgain=r.again;resNext=r.next||null;$('#r-next').hidden=!resNext;
-  resCert=r.cert||null;$('#r-cert').hidden=!resCert;cheer(r.stars);
+  resCert=r.cert||null;$('#r-cert').hidden=!resCert;resExam=r.exam||null;$('#r-exam').hidden=!resExam;cheer(r.stars);
   $('#r-again').innerHTML=esc(r.againLabel||'Chơi lại')+' <kbd>Space</kbd>';
   $('#r-next').innerHTML='Bài tiếp theo <kbd>Enter</kbd>';
   $('#r-home').innerHTML='Về trang chính <kbd>'+(resNext?'Esc':'Enter')+'</kbd>';
@@ -1061,6 +1069,43 @@ $('#r-again').addEventListener('click',()=>{if(resAgain)resAgain();});
 $('#r-next').addEventListener('click',()=>{if(resNext)resNext();});
 $('#r-home').addEventListener('click',()=>show('home'));
 $('#r-cert').addEventListener('click',()=>{if(resCert)openCert(resCert);});
+$('#r-exam').addEventListener('click',()=>{if(resExam)startExam(stageById(resExam));});
+
+/* ================= Bài kiểm tra cấp độ ================= */
+const EXAM_PASS=.9;   // gõ đúng từ 90% là qua
+function examItems(S){
+  const steps=shuffle(FLAT.filter(x=>x.g===S.id&&!x.b)),out=[];let chars=0;
+  for(const x of steps){
+    const f=findStep(x.u,x.s);if(!f)continue;
+    for(const it of shuffle(f.st.gen()).slice(0,2)){out.push(it);chars+=it.t.length;}
+    if(chars>=45||out.length>=16)break;
+  }
+  return shuffle(out);
+}
+function startExam(S){guardStart(()=>{
+  if(!S||!stageComplete(S))return;
+  stopAll();
+  const items=examItems(S);if(!items.length)return;
+  const adv=!!S.adv||items.some(x=>[...x.t].some(c=>!SIMPLE_SET.has(c)));
+  game={kind:'lesson',unit:'exam',step:S.id,adv,items,i:0,pos:0,errs:0,chars:0,start:0,missLocal:{},locked:false};
+  show('play');syncToggles();$('#race').hidden=true;
+  $('#s-play .hint').textContent='📝 Bài kiểm tra '+S.name+': gõ đúng từ '+Math.round(EXAM_PASS*100)+'% là qua. Chữ gõ sai vẫn tính, em gõ chậm và chắc nhé.';
+  startWpm();renderItem();
+});}
+function finishExam(){
+  clearInterval(wpmTimer);
+  const S=stageById(game.step),secs=(performance.now()-game.start)/1000,acc=game.chars/Math.max(1,game.chars+game.errs),wpm=wpmOf(game.chars,secs),pass=acc>=EXAM_PASS;
+  const prevEx=state.exams[S.id]||{tries:0,best:0},ex={tries:prevEx.tries+1,best:Math.max(prevEx.best,Math.round(acc*100)),passed:prevEx.passed||(pass?Date.now():0)};
+  state.exams=Object.assign({},state.exams,{[S.id]:ex});
+  let cert=null;if(pass&&!state.certs[S.id]){state.certs=Object.assign({},state.certs,{[S.id]:Date.now()});cert=S.id;}
+  record({unit:'exam',step:S.id,acc,chars:game.chars,errs:game.errs,secs,wpm});
+  const pc=Math.round(acc*100),need=Math.round(EXAM_PASS*100);
+  showResults({stars:pass?3:1,acc,miss:game.missLocal,
+    title:pass?'Em đã qua bài kiểm tra '+S.name+'!':'Chưa qua rồi, mình thử lại nhé',
+    sub:pass?(cert?'Em nhận được chứng chỉ '+S.name+'. Giỏi lắm!':'Em đã có chứng chỉ '+S.name+' rồi.'):'Em cần gõ đúng từ '+need+'% mới qua, lần này em gõ đúng '+pc+'%. Em ôn lại các bài rồi thi lại nhé, không sao đâu.',
+    stats:[[pc+'%','gõ đúng'],[wpm,'WPM'],[game.chars,'chữ cái'],[fmtTime(secs),'thời gian']],
+    again:()=>startExam(S),againLabel:pass?'Thi lại':'Thi lại (đề mới)',cert});
+}
 
 /* ================= Gợi ý đặt tay ================= */
 function openHandTip(){$('#ht-hands').innerHTML=handSVG('L')+handSVG('R');$('#handtip').hidden=false;$('#ht-ok').focus();}
@@ -1071,7 +1116,7 @@ $('#ht-ok').addEventListener('click',closeHandTip);
 /* ================= Chứng chỉ hoàn thành cấp độ ================= */
 let certStage=null;
 function certDate(id){if(!state.certs[id]){state.certs=Object.assign({},state.certs,{[id]:Date.now()});save();}return state.certs[id];}
-function openCert(id){const S=stageById(id);if(!S)return;certStage=id;certDate(id);stopAll();show('cert');drawCert(S);}
+function openCert(id){const S=stageById(id);if(!S||!state.certs[id])return;certStage=id;stopAll();show('cert');drawCert(S);}
 async function drawCert(S){
   const cv=$('#cert-canvas'),g=cv.getContext('2d'),W=cv.width,H=cv.height,F='"Baloo 2","Andika",'+FONT;
   try{await Promise.race([document.fonts.load('800 80px "Baloo 2"'),new Promise(r=>setTimeout(r,1500))]);}catch(e){}
@@ -1085,7 +1130,7 @@ async function drawCert(S){
   while(g.measureText(name).width>W-420&&sz>50){sz-=6;g.font='800 '+sz+'px '+F;}
   g.fillStyle='#c2410c';g.fillText(name,W/2,440);const nw=Math.min(W-420,g.measureText(name).width+80);
   g.strokeStyle='#e0a800';g.lineWidth=7;g.beginPath();g.moveTo(W/2-nw/2,505);g.lineTo(W/2+nw/2,505);g.stroke();
-  g.fillStyle='#3b3566';g.font='700 46px '+F;g.fillText('đã hoàn thành xuất sắc',W/2,585);
+  g.fillStyle='#3b3566';g.font='700 46px '+F;g.fillText('đã vượt qua bài kiểm tra',W/2,585);
   g.fillStyle='#4a2a8a';g.font='800 118px '+F;g.fillText(S.icon+' '+S.name.toUpperCase(),W/2,712);
   g.fillStyle='#5a4a8a';g.font='700 38px '+F;g.fillText(S.desc,W/2,792,W-360);
   g.font='58px '+FONT;g.fillStyle='#000';g.fillText('⭐⭐⭐⭐⭐',W/2,855);
@@ -1148,6 +1193,9 @@ function renderParent(){
   $('#p-acc').innerHTML=groups.map(([m,n])=>{const ss=state.sessions.filter(m);
     const v=ss.length?Math.round(ss.reduce((a,s)=>a+s.acc,0)/ss.length*100)+'%':'chưa chơi';
     return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:4px 0"><span>'+esc(n)+'</span><b>'+v+'</b></div>';}).join('');
+  $('#p-exam').innerHTML=STAGES.map(S=>{const ex=state.exams[S.id],has=!!state.certs[S.id];
+    const v=has?'✅ Đã qua'+(ex&&ex.tries?' ('+ex.tries+' lần thi, tốt nhất '+ex.best+'%)':''):stageComplete(S)?(ex&&ex.tries?'Chưa qua ('+ex.tries+' lần thi, tốt nhất '+ex.best+'%)':'Chưa thi'):'Chưa học xong';
+    return '<div style="display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:4px 0"><span>'+esc(S.icon+' '+S.name)+'</span><b style="text-align:right">'+esc(v)+'</b></div>';}).join('');
   const rec=state.sessions.slice(-5);
   $('#p-speed').textContent=rec.length?Math.round(rec.reduce((a,s)=>a+(s.wpm||0),0)/rec.length)+' WPM':'Chưa có dữ liệu';
   $('#p-done').textContent='Đã xong '+FLAT.filter(x=>state.best[x.u+':'+x.s]).length+' trên '+FLAT.length+' bài học.';
