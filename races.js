@@ -158,7 +158,7 @@ class RaceManager {
         const mode = ['1v1', '3v3', '5v5'].includes(msg.mode) ? msg.mode : '1v1';
         const room = this.newRace(mode, stage, false);
         this.addHuman(room, peerId, msg);
-        this.onRoom(peerId, { id: room.id, label: MODES[mode].label, stage });
+        this.onRoom(peerId, { id: room.id, code: room.code, mode, stage });
         return;
       }
       case 'race.bot': {
