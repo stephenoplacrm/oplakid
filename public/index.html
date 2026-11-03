@@ -42,6 +42,7 @@
         <div class="dots" id="dots" aria-hidden="true"></div>
         <div class="toggles">
           <div class="speed"><b id="wpm">0</b><span>WPM</span></div>
+          <button class="tg" id="hands-help" type="button" aria-label="Cách đặt tay" title="Cách đặt tay">🖐️</button>
           <button class="tg tg-sound" type="button" aria-label="Âm thanh" aria-pressed="true">🔊</button>
           <button class="tg tg-music" type="button" aria-label="Nhạc nền" aria-pressed="true">🎵</button>
           <button class="tg tg-speak" type="button" aria-label="Đọc to từ tiếng Anh" aria-pressed="true">🗣️</button>
@@ -92,6 +93,7 @@
       <div id="tab-lessons">
         <div class="stages" id="stages"></div>
         <p class="progress" id="progress"></p>
+        <p style="margin:0 0 10px"><button class="chip" id="cert-open" type="button" hidden>🏅 Xem chứng chỉ</button></p>
         <ol class="lessons" id="units"></ol>
       </div>
       <div id="tab-games" hidden>
@@ -228,10 +230,17 @@
       <div class="stats" id="r-stats"></div>
       <p id="r-miss"></p>
       <div class="btns">
+        <button class="btn primary" id="r-cert" type="button" hidden>🏅 Nhận chứng chỉ</button>
         <button class="btn" id="r-again" type="button">Chơi lại</button>
         <button class="btn primary" id="r-next" type="button">Bài tiếp theo</button>
         <button class="btn" id="r-home" type="button">Về trang chính</button>
       </div>
+    </section>
+
+    <section id="s-cert" hidden>
+      <div class="playbar"><button class="pill" id="cert-back" type="button">Về trang chính <kbd>Esc</kbd></button><span></span><span></span></div>
+      <canvas id="cert-canvas" width="1400" height="990" role="img" aria-label="Chứng chỉ hoàn thành cấp độ"></canvas>
+      <div class="btns"><button class="btn primary" id="cert-dl" type="button">⬇️ Tải ảnh</button><button class="btn" id="cert-print" type="button">🖨️ In</button></div>
     </section>
 
     <section id="s-parent" hidden>
@@ -306,6 +315,25 @@
 </div>
 
 <div id="countdown" hidden></div>
+
+<div id="handtip" hidden role="dialog" aria-modal="true" aria-labelledby="ht-title">
+  <div class="card">
+    <h2 id="ht-title">Cách đặt tay</h2>
+    <div class="ht-hands" id="ht-hands"></div>
+    <div class="ht-keys" aria-hidden="true">
+      <span class="k" style="--kc:var(--c-pinky)">A</span><span class="k" style="--kc:var(--c-ring)">S</span><span class="k" style="--kc:var(--c-middle)">D</span><span class="k" style="--kc:var(--c-index)">F</span>
+      <span class="gap"></span>
+      <span class="k" style="--kc:var(--c-index)">J</span><span class="k" style="--kc:var(--c-middle)">K</span><span class="k" style="--kc:var(--c-ring)">L</span><span class="k" style="--kc:var(--c-pinky)">;</span>
+    </div>
+    <ol class="ht-list">
+      <li>Ngón trỏ trái đặt lên <b>F</b>, ngón trỏ phải đặt lên <b>J</b>. Sờ thấy gờ nhỏ là đúng chỗ.</li>
+      <li>Các ngón còn lại đặt cạnh nhau: <b>A S D</b> bên trái, <b>K L ;</b> bên phải.</li>
+      <li>Hai ngón cái đặt nhẹ lên phím cách.</li>
+    </ol>
+    <p class="note">Bấm nút 🖐️ trên thanh trên cùng để xem lại bất cứ lúc nào.</p>
+    <div class="btns"><button class="btn primary" id="ht-ok" type="button">Em đã hiểu <kbd>Enter</kbd></button></div>
+  </div>
+</div>
 
 <div id="rest" hidden role="dialog" aria-modal="true" aria-labelledby="rest-title">
   <div class="card">
