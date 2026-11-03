@@ -614,6 +614,7 @@ function cleanPatch(patch) {
       case 'av': if (AVATARS.has(v)) out.av = v; break;
       case 'stage': if (STAGES.has(v)) out.stage = v; break;
       case 'where': if (WHERE.has(v)) out.where = v; break;
+      case 'look': if (Array.isArray(v) && v.length === 10 && v.every(n => Number.isInteger(n) && n >= 0 && n <= 15)) out.look = v; break;
       case 'act': if (ACTS.has(v)) out.act = v; break;
       case 'race': if (typeof v === 'string' && /^[a-z0-9]{5}$/.test(v)) out.race = v; break;
       case 'host': if (typeof v === 'boolean') out.host = v; break;
@@ -660,7 +661,7 @@ function visiblePresence(p, viewer) {
   const pr = p.presence;
   if (p === viewer || p.userId === viewer.userId) return pr;
   const sameRace = pr.race && viewer.presence.race && pr.race === viewer.presence.race;
-  const out = { av: pr.av, nick: pr.nick, stage: pr.stage, where: pr.where, act: pr.act };
+  const out = { av: pr.av, nick: pr.nick, stage: pr.stage, where: pr.where, act: pr.act, look: pr.look };
   if (sameRace) { for (const k of RACE_KEYS) if (pr[k] !== undefined) out[k] = pr[k]; }
   return out;
 }

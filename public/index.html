@@ -188,6 +188,12 @@
         <h2 id="np-title">Thêm bạn mới</h2>
         <label class="field">Biệt danh (các bạn khác sẽ thấy, đừng dùng tên thật đầy đủ)<input class="textin" id="np-nick" maxlength="12" autocomplete="off" placeholder="Ví dụ: Hổ Con"></label>
         <div class="avatars" id="np-av" style="margin-top:10px">Con vật:</div>
+        <details class="lookbox" open>
+          <summary>🎨 Trang phục và phụ kiện 3D</summary>
+          <p class="note" style="margin:4px 0 8px">Chọn màu da, tóc, áo, váy hay quần và phụ kiện cho nhân vật của em. Các bạn sẽ thấy em trong Trường tiểu học OplaKid.</p>
+          <div class="lookrow"><canvas id="look-canvas" width="360" height="450" role="img" aria-label="Xem trước nhân vật 3D"></canvas><div class="lookopts" id="look-opts"></div></div>
+          <div class="btns" style="justify-content:flex-start;margin:8px 0 0"><button class="chip" id="look-rand" type="button">🎲 Ngẫu nhiên</button><button class="chip" id="look-reset" type="button">↺ Mặc định</button></div>
+        </details>
         <p class="note" id="np-err" style="color:var(--bad)"></p>
         <div class="btns" style="justify-content:flex-start"><button class="btn primary" id="np-ok" type="button">Tạo và vào học</button><button class="btn" id="np-cancel" type="button">Huỷ</button></div>
       </div>
@@ -198,7 +204,7 @@
       <div class="playbar"><button class="pill" id="w-back" type="button">Về trang chính <kbd>Esc</kbd></button><span class="stat"><b id="w-total"></b></span><span></span></div>
       <h1 class="oneline">Trường tiểu học OplaKid</h1>
       <p class="note" id="w-note"></p>
-      <div id="world3d"></div>
+      <div class="worldwrap"><div id="world3d"></div><div class="zoomctl"><button type="button" id="w-zin" aria-label="Phóng to">＋</button><button type="button" id="w-zout" aria-label="Thu nhỏ">－</button></div></div>
       <div class="box chatbox" id="chat-box">
         <h2>💬 Trò chuyện nhanh</h2>
         <div class="chatlog" id="chat-log" aria-live="polite"><span class="note">Chưa có ai nói gì. Em chọn một câu bên dưới để chào các bạn nhé!</span></div>
