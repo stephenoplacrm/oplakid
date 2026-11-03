@@ -210,6 +210,97 @@ function topicParts(id){
   return [ws.slice(0,mid),ws.slice(mid)];
 }
 
+/* ===== Bài gõ tiếng Việt (Cấp độ 6 đến 10): ứng dụng tự ghép Telex nên bé không cần bật bộ gõ của máy ===== */
+const VN=window.VI,TX=window.Telex;
+const vi=text=>{const f=TX.toInfo(text);return it(f.t,{k:f.k,cum:f.cum});};          // k: dãy phím Telex cần gõ, cum: số phím để mỗi chữ hoàn thành
+const vpick=(list,n)=>shuffle(list).slice(0,Math.min(n,list.length)).map(vi);
+const vflat=o=>Object.values(o).flat();
+const VPOOL=VN?[...new Set([].concat(vflat(VN.topics),VN.extra,VN.words2))]:[];
+const hasL=(w,f)=>TX.letters(w).some(f);
+const vfeat=(f,n,pool)=>{pool=pool||VPOOL;const l=pool.filter(w=>hasL(w,f));return vpick(l.length>=4?l:pool,n);};
+const isA=l=>l.b==='a'&&l.mod==='^',isE=l=>l.b==='e'&&l.mod==='^',isO=l=>l.b==='o'&&l.mod==='^',isAw=l=>l.b==='a'&&l.mod==='(',isOw=l=>l.b==='o'&&l.mod==='+',isUw=l=>l.b==='u'&&l.mod==='+',isD=l=>l.mod==='-';
+const isTone=t=>l=>l.tone===t,T_S='́',T_F='̀',T_R='̉',T_X='̃',T_J='̣';
+const vowelPair=w=>{const a=TX.letters(w);for(let i=0;i<a.length-1;i++){const x=a[i],y=a[i+1];if((x.b==='u'&&x.mod==='+'&&y.b==='o'&&y.mod==='+')||(x.b==='u'&&!x.mod&&y.b==='o'&&y.mod==='^')||(x.b==='i'&&y.b==='e'&&y.mod==='^')||(x.b==='y'&&y.b==='e'&&y.mod==='^'))return true;}return false;};
+const VNUM=['không','một','hai','ba','bốn','năm','sáu','bảy','tám','chín','mười','mười một','mười hai','mười ba','mười bốn','mười lăm','mười sáu','mười bảy','mười tám','mười chín','hai mươi'];
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const vSum=()=>Array.from({length:6},()=>{const a=ri(1,10),b=ri(0,20-a);return vi(cap1(VNUM[a]+' cộng '+VNUM[b]+' bằng '+VNUM[a+b]+'.'));});
+const vSub=()=>Array.from({length:6},()=>{const a=ri(5,20),b=ri(1,a);return vi(cap1(VNUM[a]+' trừ '+VNUM[b]+' bằng '+VNUM[a-b]+'.'));});
+const vDate=()=>Array.from({length:5},()=>vi('Hôm nay là ngày '+ri(1,28)+' tháng '+ri(1,12)+' năm '+ri(2024,2030)+'.'));
+const vTime=()=>Array.from({length:5},()=>{const m=rand([0,15,30,45]);return vi('Bây giờ là '+ri(1,12)+' giờ'+(m?' '+m+' phút.':' đúng.'));});
+const vMoney=()=>Array.from({length:5},()=>vi(rand(['Một ký cam giá ','Một ký xoài giá ','Một quyển vở giá ','Một ly sữa giá '])+ri(5,90)+'.000 đồng.'));
+const vCalc=()=>Array.from({length:6},()=>{const a=ri(1,20),b=ri(1,20);return vi(rand([a+' + '+b+' = '+(a+b),(a+b)+' - '+b+' = '+a,ri(2,9)+' x '+ri(2,9)+' = ?']));});
+const vFullName=()=>Array.from({length:6},()=>vi(rand(VN.surnames)+' '+rand(['Văn','Thị','Minh','Ngọc','Hữu','Thanh'])+' '+rand(VN.givenNames)));
+const vParaPairs=()=>vflat(VN.paras).length?Object.values(VN.paras).filter(a=>a.length>=2).map(a=>a.slice(0,2).join(' ')):[];
+const viUnits=()=>[
+  {id:'v6mod',title:'Chữ có mũ và móc',desc:'Kiểu Telex: aa ra â, ee ra ê, oo ra ô, aw ra ă, ow ra ơ, uw ra ư, dd ra đ. Màn hình hiện chữ em đang gõ.',steps:[
+    {id:'aa',name:'â (aa)',gen:()=>vfeat(isA,8)},{id:'ee',name:'ê (ee)',gen:()=>vfeat(isE,8)},{id:'oo',name:'ô (oo)',gen:()=>vfeat(isO,8)},
+    {id:'aw',name:'ă (aw)',gen:()=>vfeat(isAw,8)},{id:'ow',name:'ơ (ow)',gen:()=>vfeat(isOw,8)},{id:'uw',name:'ư (uw)',gen:()=>vfeat(isUw,8)},
+    {id:'dd',name:'đ (dd)',gen:()=>vfeat(isD,8)},{id:'mix',name:'Ôn chữ có mũ và móc',gen:()=>vfeat(l=>isA(l)||isE(l)||isO(l)||isAw(l)||isOw(l)||isUw(l)||isD(l),10)}]},
+  {id:'v6tone',title:'Năm dấu thanh',desc:'Gõ dấu ở cuối tiếng: s là sắc, f là huyền, r là hỏi, x là ngã, j là nặng.',steps:[
+    {id:'sac',name:'Dấu sắc (s)',gen:()=>vfeat(isTone(T_S),8)},{id:'huyen',name:'Dấu huyền (f)',gen:()=>vfeat(isTone(T_F),8)},{id:'hoi',name:'Dấu hỏi (r)',gen:()=>vfeat(isTone(T_R),8)},
+    {id:'nga',name:'Dấu ngã (x)',gen:()=>vfeat(isTone(T_X),8)},{id:'nang',name:'Dấu nặng (j)',gen:()=>vfeat(isTone(T_J),8)},
+    {id:'ngang',name:'Không dấu',gen:()=>vpick(VPOOL.filter(w=>!hasL(w,l=>l.tone)),8)},
+    {id:'tron',name:'Trộn các dấu',gen:()=>vfeat(l=>l.tone===T_S||l.tone===T_F||l.tone===T_R||l.tone===T_X||l.tone===T_J,10)},
+    {id:'tong',name:'Ôn dấu thanh',gen:()=>vpick(VPOOL,10)}]},
+  {id:'v6topic',title:'Từ vựng theo chủ đề',desc:'Gõ từ tiếng Việt quen thuộc, mỗi bài một chủ đề.',steps:
+    [['family','Gia đình'],['animals','Con vật'],['fruit','Trái cây'],['food','Món ăn'],['school','Trường học'],['body','Cơ thể'],['nature','Thiên nhiên'],['colors','Màu sắc'],['numbers','Số đếm'],['jobs','Nghề nghiệp']]
+      .map(([id,name])=>({id,name,gen:()=>vpick(VN.topics[id],8)}))},
+  {id:'v7two',title:'Từ ghép hai tiếng',desc:'Từ có hai tiếng, từ dễ đến khó.',steps:[
+    {id:'dg',name:'Chỉ có dấu thanh',gen:()=>vpick(VN.words2.filter(w=>!hasL(w,l=>l.mod)),8)},
+    {id:'mu',name:'Có â, ê, ô',gen:()=>vfeat(l=>isA(l)||isE(l)||isO(l),8,VN.words2)},
+    {id:'mo',name:'Có ă, ơ, ư, đ',gen:()=>vfeat(l=>isAw(l)||isOw(l)||isUw(l)||isD(l),8,VN.words2)},
+    {id:'van',name:'Vần khó: ươ, uô, iê',gen:()=>vpick(VN.words2.filter(vowelPair),8)},
+    {id:'cuoi',name:'Cuối ng, nh, ch',gen:()=>vpick(VN.words2.filter(w=>/(ng|nh|ch)(\s|$)/.test(w)),8)},
+    {id:'tron',name:'Trộn từ ghép',gen:()=>vpick(VN.words2,10)}]},
+  {id:'v7phr',title:'Cụm từ ba, bốn tiếng',desc:'Gõ cả cụm từ, nhớ dùng ngón cái bấm phím cách.',steps:[
+    {id:'gd',name:'Gia đình',gen:()=>vpick(VN.phrases.family,6)},{id:'th',name:'Trường học',gen:()=>vpick(VN.phrases.school,6)},{id:'tn',name:'Thiên nhiên',gen:()=>vpick(VN.phrases.nature,6)},
+    {id:'an',name:'Ăn uống',gen:()=>vpick(VN.phrases.food,6)},{id:'ch',name:'Vui chơi',gen:()=>vpick(VN.phrases.play,6)},{id:'tron',name:'Trộn các cụm',gen:()=>vpick(vflat(VN.phrases),8)}]},
+  {id:'v7sen',title:'Câu ngắn',desc:'Câu có chữ hoa đầu câu và dấu chấm.',steps:[
+    {id:'gd',name:'Gia đình',gen:()=>vpick(VN.short.family,6)},{id:'th',name:'Trường học',gen:()=>vpick(VN.short.school,6)},{id:'tn',name:'Thiên nhiên',gen:()=>vpick(VN.short.nature,6)},
+    {id:'an',name:'Ăn uống',gen:()=>vpick(VN.short.food,6)},{id:'ch',name:'Vui chơi',gen:()=>vpick(VN.short.play,6)},{id:'tron',name:'Trộn các câu',gen:()=>vpick(vflat(VN.short),8)}]},
+  {id:'v7name',title:'Tên riêng và chữ hoa',desc:'Chữ cái đầu viết hoa: giữ Shift rồi gõ chữ. Tên người, tên nơi chốn, thứ và tháng.',steps:[
+    {id:'ten',name:'Tên các bạn',gen:()=>vpick(VN.givenNames,8)},{id:'hoten',name:'Họ và tên',gen:vFullName},{id:'tinh',name:'Tên thành phố, tỉnh',gen:()=>vpick(VN.places,8)},
+    {id:'thu',name:'Thứ trong tuần',gen:()=>vpick(VN.days,7)},{id:'thang',name:'Tháng trong năm',gen:()=>vpick(VN.months,8)},
+    {id:'tron',name:'Ôn tên riêng',gen:()=>vpick([].concat(VN.givenNames,VN.places,VN.days,VN.months),10)}]},
+  {id:'v8long',title:'Câu dài',desc:'Câu dài hơn, nhiều tiếng, có dấu phẩy và dấu chấm.',steps:[
+    {id:'gd',name:'Gia đình',gen:()=>vpick(VN.long.family,5)},{id:'th',name:'Trường học',gen:()=>vpick(VN.long.school,5)},{id:'tn',name:'Thiên nhiên',gen:()=>vpick(VN.long.nature,5)},
+    {id:'mua',name:'Mùa và thời tiết',gen:()=>vpick(VN.long.season,5)},{id:'tt',name:'Thể thao',gen:()=>vpick(VN.long.sport,5)},{id:'an',name:'Ăn uống',gen:()=>vpick(VN.long.food,5)},
+    {id:'dv',name:'Con vật',gen:()=>vpick(VN.long.animals,5)},{id:'tron',name:'Trộn các câu dài',gen:()=>vpick(vflat(VN.long),6)}]},
+  {id:'v8punc',title:'Dấu câu tiếng Việt',desc:'Dấu phẩy, hỏi, chấm than, hai chấm, ngoặc kép và gạch đầu dòng. Dấu ? ! : " cần giữ Shift.',steps:[
+    {id:'phay',name:'Dấu phẩy',gen:()=>vpick(VN.punct.comma,6)},{id:'hoi',name:'Dấu hỏi',gen:()=>vpick(VN.punct.question,6)},{id:'than',name:'Dấu chấm than',gen:()=>vpick(VN.punct.exclaim,6)},
+    {id:'haicham',name:'Dấu hai chấm',gen:()=>vpick(VN.punct.colon,6)},{id:'kep',name:'Dấu ngoặc kép',gen:()=>vpick(VN.punct.quote,5)},{id:'gach',name:'Gạch đầu dòng',gen:()=>vpick(VN.punct.dash,4)},
+    {id:'hoidap',name:'Hỏi và đáp',gen:()=>vpick(VN.qa,4)},{id:'tron',name:'Ôn dấu câu',gen:()=>vpick([].concat(vflat(VN.punct),VN.qa),8)}]},
+  {id:'v8num',title:'Số, ngày tháng và giờ',desc:'Số viết bằng chữ, phép tính, ngày tháng, giờ và tiền.',steps:[
+    {id:'cong',name:'Phép cộng bằng chữ',gen:vSum},{id:'tru',name:'Phép trừ bằng chữ',gen:vSub},{id:'ngay',name:'Ngày tháng năm',gen:vDate},
+    {id:'gio',name:'Xem giờ',gen:vTime},{id:'tien',name:'Giá tiền',gen:vMoney},{id:'pt',name:'Phép tính bằng số',gen:vCalc}]},
+  {id:'v9tn',title:'Tục ngữ',desc:'Những câu tục ngữ quen thuộc của ông bà.',steps:[
+    {id:'study',name:'Về học tập',gen:()=>vpick(VN.proverbs.study,4)},{id:'family',name:'Về gia đình',gen:()=>vpick(VN.proverbs.family,4)},{id:'people',name:'Về tình người',gen:()=>vpick(VN.proverbs.people,4)},
+    {id:'work',name:'Về lao động',gen:()=>vpick(VN.proverbs.work,4)},{id:'weather',name:'Về thời tiết',gen:()=>vpick(VN.proverbs.weather,4)},{id:'tron',name:'Trộn tục ngữ',gen:()=>vpick(vflat(VN.proverbs),5)}]},
+  {id:'v9cd',title:'Ca dao',desc:'Những bài ca dao dân gian, mỗi bài hai đến bốn câu.',steps:[
+    {id:'parents',name:'Cha mẹ và thầy cô',gen:()=>vpick(VN.cadao.parents,2)},{id:'home',name:'Quê hương',gen:()=>vpick(VN.cadao.home,2)},
+    {id:'work',name:'Lao động, tình người',gen:()=>vpick(VN.cadao.work,2)},{id:'animals',name:'Con cò, thời tiết',gen:()=>vpick(VN.cadao.animals,2)}]},
+  {id:'v9dd',title:'Đồng dao',desc:'Những bài đồng dao vui của trẻ em.',steps:[
+    {id:'dd1',name:'Đồng dao 1',gen:()=>vpick(VN.dongdao,2)},{id:'dd2',name:'Đồng dao 2',gen:()=>vpick(VN.dongdao,3)},{id:'dd3',name:'Đồng dao 3',gen:()=>vpick(VN.dongdao,4)}]},
+  {id:'v9id',title:'So sánh và thành ngữ',desc:'Những câu nói ngắn, dễ nhớ.',steps:[
+    {id:'s1',name:'So sánh 1',gen:()=>vpick(VN.idioms.similes1,8)},{id:'s2',name:'So sánh 2',gen:()=>vpick(VN.idioms.similes2,8)},
+    {id:'other',name:'Thành ngữ',gen:()=>vpick(VN.idioms.other,8)},{id:'tron',name:'Trộn các câu nói',gen:()=>vpick(vflat(VN.idioms),10)}]},
+  {id:'v9mix',title:'Thử thách dân gian',desc:'Trộn tục ngữ, ca dao, đồng dao và thành ngữ.',steps:[
+    {id:'a',name:'Thử thách 1',gen:()=>vpick([].concat(vflat(VN.proverbs),vflat(VN.idioms)),8)},
+    {id:'b',name:'Thử thách 2',gen:()=>vpick([].concat(vflat(VN.proverbs),vflat(VN.cadao)),5)},
+    {id:'c',name:'Thử thách 3',gen:()=>vpick([].concat(vflat(VN.cadao),VN.dongdao,vflat(VN.proverbs)),5)}]},
+  {id:'v10para',title:'Đoạn văn ngắn',desc:'Mỗi bài là một hai đoạn văn về một chủ đề.',steps:
+    [['family','Gia đình'],['school','Trường học'],['homeland','Quê hương'],['tet','Mùa xuân và Tết'],['friends','Bạn bè'],['animals','Con vật'],['nature','Thiên nhiên và biển'],['habits','Thói quen tốt']]
+      .map(([id,name])=>({id,name,gen:()=>vpick(VN.paras[id],2)}))},
+  {id:'v10long',title:'Đoạn văn dài',desc:'Hai đoạn văn nối nhau, gõ một mạch.',steps:[
+    {id:'l1',name:'Đoạn văn dài 1',gen:()=>vpick(vParaPairs(),1)},{id:'l2',name:'Đoạn văn dài 2',gen:()=>vpick(vParaPairs(),1)},
+    {id:'l3',name:'Đoạn văn dài 3',gen:()=>vpick(vParaPairs(),2)},{id:'l4',name:'Đoạn văn dài 4',gen:()=>vpick(vParaPairs(),2)}]},
+  {id:'v10speed',title:'Thử thách tốc độ',desc:'Nhiều đoạn văn liền nhau. Gõ đều tay và chính xác trước, nhanh sẽ đến sau.',steps:[
+    {id:'c1',name:'Thử thách 1',gen:()=>vpick(vflat(VN.paras),3)},{id:'c2',name:'Thử thách 2',gen:()=>vpick(vflat(VN.paras),3)},
+    {id:'c3',name:'Thử thách 3',gen:()=>vpick(vflat(VN.paras),4)},{id:'c4',name:'Thử thách 4',gen:()=>vpick(vflat(VN.paras),4)}]},
+  {id:'v10final',title:'Tổng ôn tiếng Việt',desc:'Ôn lại tất cả: từ khó, câu dài, tục ngữ và đoạn văn.',steps:[
+    {id:'ton1',name:'Từ khó',gen:()=>vpick(VN.words2.concat(VPOOL).filter(w=>vowelPair(w)||hasL(w,isOw)&&hasL(w,isUw)),12)},
+    {id:'ton2',name:'Câu dài',gen:()=>vpick(vflat(VN.long),6)},{id:'ton3',name:'Tục ngữ',gen:()=>vpick(vflat(VN.proverbs),5)},{id:'ton4',name:'Đoạn văn',gen:()=>vpick(vflat(VN.paras),3)}]}
+];
 const UNITS=[
   {id:'home',title:'Hàng phím giữa',desc:'Chỗ đặt tay của các ngón: hàng có F và J.',steps:[
     {id:'fj',name:'F J',gen:()=>letters('fj','fj',10)},{id:'dk',name:'D K',gen:()=>letters('dkfj','dk',10)},
@@ -288,9 +379,9 @@ const UNITS=[
   {id:'para2',adv:true,bonus:true,title:'Đoạn văn dài hơn',desc:'Mỗi bài là các đoạn văn về một chủ đề mới.',steps:
     [['food','Đồ ăn'],['sport','Thể thao'],['travel','Du lịch'],['garden','Khu vườn'],['story','Truyện ngắn'],['space','Vũ trụ']]
       .map(([id,name])=>({id,name,gen:()=>pick(PARAS2[id],3)}))}
-];
+].concat(VN&&TX?viUnits():[]);
 /* Mỗi bài thuộc một trong 5 cấp độ (g). Bài thêm (b) không bắt buộc để mở cấp độ sau. */
-const UNIT_STAGE={home:'bo',top:'bo',bottom:'bo',mix:'di',fing:'di',rhy:'di',words:'chay',phr:'chay',caps:'l4',punct:'l4',num:'l5',para:'l5',sym:'l5',num2:'l5',para2:'l5'};
+const UNIT_STAGE={home:'bo',top:'bo',bottom:'bo',mix:'di',fing:'di',rhy:'di',words:'chay',phr:'chay',caps:'l4',punct:'l4',num:'l5',para:'l5',sym:'l5',num2:'l5',para2:'l5',v6mod:'l6',v6tone:'l6',v6topic:'l6',v7two:'l7',v7phr:'l7',v7sen:'l7',v7name:'l7',v8long:'l8',v8punc:'l8',v8num:'l8',v9tn:'l9',v9cd:'l9',v9dd:'l9',v9id:'l9',v9mix:'l9',v10para:'l10',v10long:'l10',v10speed:'l10',v10final:'l10'};
 const stageIdOf=(u,st)=>u==='words'?(st.bonus?'l4':/^(animals|house|colors|numbers)\d$/.test(st.id)?'di':'chay'):u==='phr'?(st.bonus?'l4':'chay'):UNIT_STAGE[u];
 const FLAT=UNITS.flatMap(u=>u.steps.map(st=>({u:u.id,s:st.id,b:!!(u.bonus||st.bonus),g:stageIdOf(u.id,st)})));
 const STAGES=[
@@ -298,7 +389,12 @@ const STAGES=[
   {id:'di',name:'Cấp độ 2',icon:'🚶',desc:'Cả bàn phím, từng ngón tay và những từ đầu tiên'},
   {id:'chay',name:'Cấp độ 3',icon:'🏃',desc:'Từ tiếng Anh có hình, cụm từ và câu'},
   {id:'l4',name:'Cấp độ 4',icon:'🚴',adv:true,desc:'Từ mới, câu hay gặp, chữ hoa và dấu câu'},
-  {id:'l5',name:'Cấp độ 5',icon:'🚀',adv:true,desc:'Số, ký hiệu và đoạn văn dài'}
+  {id:'l5',name:'Cấp độ 5',icon:'🚀',adv:true,desc:'Số, ký hiệu và đoạn văn dài'},
+  {id:'l6',name:'Cấp độ 6',icon:'🛴',desc:'Làm quen gõ tiếng Việt kiểu Telex: chữ có mũ, móc và dấu thanh'},
+  {id:'l7',name:'Cấp độ 7',icon:'🚌',adv:true,desc:'Từ ghép, cụm từ, câu ngắn và tên riêng'},
+  {id:'l8',name:'Cấp độ 8',icon:'🚁',adv:true,desc:'Câu dài, dấu câu, số và ngày tháng'},
+  {id:'l9',name:'Cấp độ 9',icon:'🛰️',adv:true,desc:'Tục ngữ, ca dao, đồng dao và thành ngữ'},
+  {id:'l10',name:'Cấp độ 10',icon:'🌟',adv:true,desc:'Đoạn văn dài và thử thách tốc độ'}
 ];
 const stageById=id=>STAGES.find(S=>S.id===id);
 const stageOfLesson=(u,st)=>{const f=FLAT.find(x=>x.u===u&&x.s===st);return f?stageById(f.g):null;};
@@ -640,7 +736,7 @@ function startLesson(uid,sid){guardStart(()=>{
   const stg=stageOfLesson(uid,sid);if(stg&&!stageUnlocked(stg))return;if(stg)stageSel=stg.id;
   stopAll();
   const items=f.st.gen();
-  const adv=!!f.U.adv||items.some(x=>[...x.t].some(c=>!SIMPLE_SET.has(c)));
+  const adv=!!f.U.adv||items.some(x=>[...(x.k||x.t)].some(c=>!SIMPLE_SET.has(c)));
   game={kind:'lesson',unit:uid,step:sid,adv,items,i:0,pos:0,errs:0,chars:0,start:0,missLocal:{},locked:false};
   show('play');syncToggles();$('#race').hidden=true;
   $('#s-play .hint').textContent=HINT_DEFAULT;
@@ -648,31 +744,58 @@ function startLesson(uid,sid){guardStart(()=>{
   if(uid==='home'&&sid==='fj'&&!state.tipHands){state.tipHands=true;save();openHandTip();}
 });}
 function curText(){return game.kind==='race'?game.text:game.items[game.i].t;}
+function curKeys(){if(game.kind==='race')return game.text;const x=game.items[game.i];return x.k||x.t;}   // bài tiếng Việt: dãy phím Telex
 function renderDots(){const d=$('#dots');d.innerHTML='';game.items.forEach((_,k)=>{const s=document.createElement('span');s.className='dot'+(k<game.i?' done':k===game.i?' now':'');d.appendChild(s);});}
-function renderTarget(text,ticker){
+function renderTarget(text,ticker,item){
+  if(item&&item.k)return renderTargetVn(item);
+  $('#target').classList.remove('vn','long');
   const t=$('#target');t.innerHTML='';const line=document.createElement('div');line.className='line';
   [...text].forEach(c=>{const s=document.createElement('span');s.className='ch'+(c===' '?' sp':'');s.textContent=c===' '?'\u00a0':c;line.appendChild(s);});
   t.appendChild(line);t.classList.toggle('ticker',!!ticker);t.classList.toggle('small',!ticker&&text.length>8);updateTarget();
 }
 function updateTarget(){
+  if(game.kind==='lesson'){const xi=game.items[game.i];if(xi&&xi.k)return updateTargetVn(xi);}
   const t=$('#target'),line=t.firstChild;if(!line)return;const spans=line.children,text=curText();
   for(let k=0;k<spans.length;k++){spans[k].classList.toggle('done',k<game.pos);spans[k].classList.toggle('cur',k===game.pos);}
   const cur=spans[game.pos];if(cur){const ch=text[game.pos];cur.style.setProperty('--fc','var(--c-'+FTYPE[FINGER[baseOf(ch)]]+')');}
   if(t.classList.contains('ticker')){const ref=cur||spans[spans.length-1];if(ref)line.style.transform='translateX('+(t.clientWidth*.3-ref.offsetLeft)+'px)';}
   else line.style.transform='';
 }
+/* Hiển thị bài tiếng Việt: chữ đích, các phím Telex của tiếng đang gõ và chữ em đang gõ được */
+const HINT_VN='Em gõ kiểu Telex: aa ra â, aw ra ă, ee ra ê, oo ra ô, ow ra ơ, uw ra ư, dd ra đ. Dấu gõ ở cuối tiếng: s sắc, f huyền, r hỏi, x ngã, j nặng. Nhớ tắt bộ gõ tiếng Việt của máy.';
+function renderTargetVn(item){
+  const t=$('#target');t.innerHTML='';t.classList.remove('ticker');t.classList.add('vn');t.classList.toggle('small',item.t.length>8&&item.t.length<=40);t.classList.toggle('long',item.t.length>40);
+  const line=document.createElement('div');line.className='line';let w=null;
+  [...item.t].forEach(c=>{
+    if(c===' '){w=null;const s=document.createElement('span');s.className='ch sp';s.textContent=' ';line.appendChild(s);return;}
+    if(!w){w=document.createElement('span');w.className='w';line.appendChild(w);}
+    const s=document.createElement('span');s.className='ch';s.textContent=c;w.appendChild(s);
+  });
+  const info=document.createElement('div');info.className='vinfo';info.innerHTML='<div class="vkeys" aria-label="Các phím cần gõ"></div><div class="vtyped" aria-live="polite"></div>';
+  t.append(line,info);updateTargetVn(item);
+}
+function updateTargetVn(item){
+  const t=$('#target'),spans=t.querySelectorAll('.line .ch'),pos=game.pos;let first=-1;
+  spans.forEach((sp,j)=>{const d=pos>=item.cum[j];sp.classList.toggle('done',d);sp.classList.remove('cur');if(!d&&first<0)first=j;});
+  if(first>=0){const sp=spans[first];sp.classList.add('cur');sp.style.setProperty('--fc','var(--c-'+FTYPE[FINGER[baseOf(item.k[pos]||' ')]]+')');}
+  let a=pos;while(a>0&&item.k[a-1]!==' ')a--;let b=pos;while(b<item.k.length&&item.k[b]!==' ')b++;
+  const kk=t.querySelector('.vkeys');kk.innerHTML='';
+  for(let i=a;i<b;i++){const s=document.createElement('span');s.className='vk'+(i<pos?' done':i===pos?' cur':'');s.textContent=item.k[i];kk.appendChild(s);}
+  t.querySelector('.vtyped').textContent=TX.compose(item.k.slice(a,pos))||' ';
+}
 function renderItem(){
   const item=game.items[game.i];game.pos=0;renderDots();
   if(item.pic){$('#pic').hidden=false;$('#pic-emoji').textContent=item.pic;$('#pic-vi').textContent=item.vi||'';}else $('#pic').hidden=true;
   if(item.say)say(item.t);
-  renderTarget(item.t,item.t.length>16);showNext(item.t[0]);
+  const hint=$('#s-play .hint');if(item.k)hint.textContent=HINT_VN;else if(game.unit!=='exam')hint.textContent=HINT_DEFAULT;
+  renderTarget(item.t,!item.k&&item.t.length>16,item);showNext((item.k||item.t)[0]);
 }
 function input(ch){
   if(screen==='home'){flash(ch,true);showNext(ch);clearTimeout(demoT);demoT=setTimeout(()=>showNext(null),1300);beep(660,.05);return;}
   if(screen==='game'&&ag){ag.onChar(ch);return;}
   if(screen!=='play'||!game||game.locked)return;
   if(game.kind==='race'&&!game.go)return;
-  const text=curText(),exp=text[game.pos];
+  const text=curKeys(),exp=text[game.pos];
   if(!game.start)game.start=performance.now();
   if(ch===exp){
     game.chars++;game.pos++;
@@ -683,7 +806,7 @@ function input(ch){
   }else{
     game.errs++;state.miss[exp]=(state.miss[exp]||0)+1;game.missLocal[exp]=(game.missLocal[exp]||0)+1;
     flash(ch,false);beep(200,.12,'triangle',.05);
-    const line=$('#target').firstChild,cur=line&&line.children[game.pos];
+    const xi=game.kind==='lesson'?game.items[game.i]:null,line=$('#target').firstChild,cur=xi&&xi.k?$('#target .line .ch.cur'):(line&&line.children[game.pos]);
     if(cur){cur.classList.remove('shake');void cur.offsetWidth;cur.classList.add('shake','bad');setTimeout(()=>cur.classList.remove('bad'),260);}
   }
 }
@@ -1128,7 +1251,7 @@ function examItems(S){
   for(const x of steps){
     const f=findStep(x.u,x.s);if(!f)continue;
     for(const it of shuffle(f.st.gen()).slice(0,2)){out.push(it);chars+=it.t.length;}
-    if(chars>=45||out.length>=16)break;
+    if((chars>=45&&out.length>=5)||chars>=260||out.length>=16)break;
   }
   return shuffle(out);
 }
@@ -1136,7 +1259,7 @@ function startExam(S){guardStart(()=>{
   if(!S||!stageComplete(S))return;
   stopAll();
   const items=examItems(S);if(!items.length)return;
-  const adv=!!S.adv||items.some(x=>[...x.t].some(c=>!SIMPLE_SET.has(c)));
+  const adv=!!S.adv||items.some(x=>[...(x.k||x.t)].some(c=>!SIMPLE_SET.has(c)));
   game={kind:'lesson',unit:'exam',step:S.id,adv,items,i:0,pos:0,errs:0,chars:0,start:0,missLocal:{},locked:false};
   show('play');syncToggles();$('#race').hidden=true;
   $('#s-play .hint').textContent='📝 Bài kiểm tra '+S.name+': gõ đúng từ '+Math.round(EXAM_PASS*100)+'% là qua. Chữ gõ sai vẫn tính, em gõ chậm và chắc nhé.';
@@ -1629,14 +1752,14 @@ function renderOnlineStrip(ppl){
   const box=$('#onstrip');if(!room||!ppl.length){box.hidden=true;return;}
   box.hidden=false;$('#os-n').textContent=ppl.length;
   const c={};STAGES.forEach(S=>{c[S.id]=0;});ppl.forEach(p=>{const k=p.presence.stage;c[k in c?k:'bo']++;});
-  $('#os-zones').textContent=STAGES.map(S=>S.icon+' '+S.name+': '+c[S.id]).join(' · ');
+  const zs=STAGES.filter(S=>c[S.id]>0);$('#os-zones').textContent=zs.length?zs.map(S=>S.icon+' '+S.name+': '+c[S.id]).join(' · '):'';
   const avs=$('#os-avs');avs.innerHTML='';
   ppl.slice(0,16).forEach(p=>{const s=document.createElement('span');s.className='osav'+(p.isMe&&p.sameTab?' me':'');s.textContent=String(p.presence.av||'🙂').slice(0,8);avs.appendChild(s);});
   if(ppl.length>16){const s=document.createElement('span');s.className='osmore';s.textContent='+'+(ppl.length-16);avs.appendChild(s);}
 }
 
 /* ================= 3D stadium ================= */
-const ZONE_COLORS=[0x36a653,0x2b7fd0,0xee9124,0x8763d1,0xe4508a];
+const ZONE_COLORS=[0x36a653,0x2b7fd0,0xee9124,0x8763d1,0xe4508a,0x14b8a6,0xf5b700,0xe5484d,0x6b4ce6,0x2d3142];
 const ZONES=STAGES.map((S,i)=>({id:S.id,name:S.name,icon:S.icon,color:ZONE_COLORS[i],speed:.12+i*.2,a0:0}));
 let W3=null,threeP=null;
 function loadThree(){
