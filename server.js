@@ -600,7 +600,7 @@ const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5']);
 const PHASES = new Set(['lobby', 'countdown', 'racing', 'done']);
 const KINDS = new Set(['sent', 'long', 'words', 'home', 'keys']);
 const ACTS = new Set(['race', 'learn', 'yard']);
-const WHERE = new Set(['home', 'play', 'game', 'results', 'parent', 'online', 'login', 'world', 'auth']);
+const WHERE = new Set(['home', 'play', 'game', 'results', 'parent', 'online', 'login', 'world', 'auth', 'cert']);
 const BAD_CHARS = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g;
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : undefined);
 
