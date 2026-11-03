@@ -1257,8 +1257,13 @@ function renderChat(){
     if(m.kind==='room'){
       const S=stageById(m.stage);d.classList.add('roomline');
       d.append(w,document.createTextNode('mời bạn đấu '+String(m.mode||'1v1').slice(0,3)+(S?' ('+S.name+')':'')+' · mã phòng '));
-      if(m.code){const c=document.createElement('b');c.className='roomcode';c.textContent=String(m.code).slice(0,8).toUpperCase();d.append(c,document.createTextNode(' '));}
-      if(room&&m.from===room.me())d.append(document.createTextNode('— em đang chờ các bạn vào'));
+      const mineRoom=!!(room&&m.from===room.me());
+      if(m.code){
+        const c=document.createElement(mineRoom?'b':'button');c.className='roomcode';c.textContent=String(m.code).slice(0,8).toUpperCase();
+        if(!mineRoom){c.type='button';c.title='Bấm để vào phòng này';c.classList.add('go');c.addEventListener('click',()=>raceJoinId(m.rid));}
+        d.append(c,document.createTextNode(' '));
+      }
+      if(mineRoom)d.append(document.createTextNode('— em đang chờ các bạn vào'));
       else{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent='🏁 Bấm để vào chơi';b.addEventListener('click',()=>raceJoinId(m.rid));d.appendChild(b);}
       log.appendChild(d);return;
     }

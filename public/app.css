@@ -470,6 +470,8 @@ a{color:var(--ink)}
 .chatline{font-size:15px;padding:2px 0;overflow-wrap:anywhere}
 .chatline b{color:var(--ink)}
 .roomline .chip{margin-left:4px}
+.roomcode.go{cursor:pointer;font:inherit;font-weight:800;color:var(--ink);text-decoration:underline}
+.roomcode.go:hover{background:var(--line)}
 .roomcode{letter-spacing:.12em;background:var(--panel);border:2px dashed var(--line);border-radius:8px;padding:0 6px}
 .chatpick{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
 .chatgrp{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
