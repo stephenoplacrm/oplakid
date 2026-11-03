@@ -21,7 +21,7 @@ const MAX_RACE_MS = 180_000;
 const KEEP_DONE_MS = 120_000;
 const BOT_WPM = { bo: [4, 7, 10], di: [6, 10, 14], chay: [8, 13, 18], l4: [10, 15, 20], l5: [12, 18, 24] };
 const BOT_NAMES = ['Máy Mít', 'Máy Na', 'Máy Cam', 'Máy Bơ', 'Máy Dừa', 'Máy Xoài', 'Máy Ổi', 'Máy Lê', 'Máy Nho', 'Máy Táo'];
-const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸']);
+const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸', '🐱', '🐶', '🐻', '🐨', '🐵', '🦁', '🐮', '🐷', '🐹', '🐭', '🐔', '🐧', '🐦', '🦉', '🦄', '🐲', '🐙', '🦋', '🐢', '🐬', '🐳', '🦖', '🦒', '🐘', '🦓', '🐝', '🐞', '🦀', '🐥', '🦔']);
 const CODE_CH = 'abcdefghjkmnpqrstuvwxyz23456789';
 
 /* Kho chữ cho từng cấp độ */

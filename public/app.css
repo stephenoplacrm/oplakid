@@ -463,3 +463,18 @@ a{color:var(--ink)}
   .top,#s-cert .playbar,#s-cert .btns,#ime-warn,#handtip,#rest,.foot{display:none!important}
   #cert-canvas{max-width:none!important;width:100%!important;box-shadow:none;border-radius:0;margin:0}
 }
+
+/* Trò chuyện nhanh, đổi tên */
+.chatbox{margin:12px 0}
+.chatlog{height:130px;overflow-y:auto;border:2px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--panel);margin-bottom:10px}
+.chatline{font-size:15px;padding:2px 0;overflow-wrap:anywhere}
+.chatline b{color:var(--ink)}
+.chatpick{display:flex;flex-direction:column;gap:8px;margin-bottom:6px}
+.chatgrp{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.chatgrp b{min-width:84px;color:var(--ink);font-size:14px}
+.chatgrp .chip:disabled{opacity:.45}
+.pwrap{position:relative;display:flex}
+.pwrap .profile{width:100%}
+.pedit{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:10px;border:2px solid var(--line);background:var(--panel);font-size:18px;padding:0;line-height:1}
+.pedit:hover{border-color:var(--ink)}
+#np-av{max-height:230px;overflow-y:auto}
