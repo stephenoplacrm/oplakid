@@ -424,3 +424,19 @@ a{color:var(--ink)}
 .fbitem{border-top:1px solid var(--line);padding:10px 0}
 .fbhead{font-weight:700;color:var(--ink);font-size:15px;overflow-wrap:anywhere}
 .fbmsg{margin:4px 0 8px;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Trang quản trị */
+.adm{max-width:1100px}
+.adm a.brand,.adm a.pill{text-decoration:none}
+.agrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.acard .big{font-size:clamp(28px,5vw,40px)}
+.acard span{color:var(--muted);font-weight:700}
+.arow{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:5px 0;font-size:15px}
+.arow span{color:var(--text)}
+.bars{display:flex;align-items:flex-end;gap:5px;height:150px;padding-top:18px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0;position:relative}
+.bar i{display:block;width:100%;min-height:2px;background:var(--c-middle);border-radius:4px 4px 0 0}
+.bar span{font-size:10px;color:var(--muted);margin-top:3px}
+.bar em{font-style:normal;font-size:11px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.aact{display:flex;flex-wrap:wrap;gap:6px}
+.adm table{font-size:14px}

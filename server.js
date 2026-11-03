@@ -52,6 +52,13 @@ CREATE TABLE IF NOT EXISTS resets(
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   expires_at INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS admin_log(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  admin_email TEXT NOT NULL,
+  action TEXT NOT NULL,
+  target_email TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS feedback(
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -71,7 +78,26 @@ CREATE TABLE IF NOT EXISTS docs(
 );
 `);
 
+/* Thêm cột mới cho bảng users (có giá trị mặc định, không đổi hay xoá cột cũ) */
+{
+  const cols = db.prepare('PRAGMA table_info(users)').all().map(c => c.name);
+  if (!cols.includes('disabled')) db.exec('ALTER TABLE users ADD COLUMN disabled INTEGER NOT NULL DEFAULT 0');
+  if (!cols.includes('last_login')) db.exec('ALTER TABLE users ADD COLUMN last_login INTEGER NOT NULL DEFAULT 0');
+}
+
 const q = {
+  userDisabled: db.prepare('SELECT disabled FROM users WHERE id = ?'),
+  userByEmailOrId: db.prepare('SELECT id, email FROM users WHERE id = ?'),
+  touchLogin: db.prepare('UPDATE users SET last_login = ? WHERE id = ?'),
+  setDisabled: db.prepare('UPDATE users SET disabled = ? WHERE id = ?'),
+  insertAdminLog: db.prepare('INSERT INTO admin_log(admin_email, action, target_email, created_at) VALUES(?, ?, ?, ?)'),
+  listAdminLog: db.prepare('SELECT admin_email, action, target_email, created_at FROM admin_log ORDER BY id DESC LIMIT 20'),
+  adminUsers: db.prepare(`SELECT u.id, u.email, u.created_at, u.last_login, u.disabled,
+    (SELECT MAX(updated_at) FROM docs d WHERE d.user_id = u.id) AS last_active,
+    (SELECT data FROM docs d WHERE d.user_id = u.id AND d.name = 'profiles') AS profiles,
+    (SELECT COUNT(*) FROM feedback f WHERE f.user_id = u.id) AS fb
+    FROM users u WHERE u.email LIKE ? ESCAPE '\\' ORDER BY u.created_at DESC LIMIT ? OFFSET ?`),
+  adminUserCount: db.prepare("SELECT COUNT(*) AS n FROM users WHERE email LIKE ? ESCAPE '\\'"),
   userByEmail: db.prepare('SELECT * FROM users WHERE email = ?'),
   userById: db.prepare('SELECT id, email, created_at FROM users WHERE id = ?'),
   userPwById: db.prepare('SELECT pw FROM users WHERE id = ?'),
@@ -82,7 +108,7 @@ const q = {
   listFeedback: db.prepare('SELECT f.id, f.kind, f.rating, f.message, f.contact_ok, f.created_at, u.email FROM feedback f JOIN users u ON u.id = f.user_id ORDER BY f.created_at DESC LIMIT 200'),
   deleteFeedback: db.prepare('DELETE FROM feedback WHERE id = ?'),
   insertSession: db.prepare('INSERT INTO sessions(token_hash, user_id, expires_at) VALUES(?, ?, ?)'),
-  sessionUser: db.prepare('SELECT u.id, u.email FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ?'),
+  sessionUser: db.prepare('SELECT u.id, u.email FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ? AND s.expires_at > ? AND u.disabled = 0'),
   deleteSession: db.prepare('DELETE FROM sessions WHERE token_hash = ?'),
   deleteUserSessions: db.prepare('DELETE FROM sessions WHERE user_id = ?'),
   deleteOtherSessions: db.prepare('DELETE FROM sessions WHERE user_id = ? AND token_hash <> ?'),
@@ -137,6 +163,7 @@ function startSession(res, userId) {
   const token = newToken();
   const expires = Date.now() + SESSION_DAYS * 864e5;
   q.insertSession.run(sha256(token), userId, expires);
+  q.touchLogin.run(Date.now(), userId);
   res.setHeader('Set-Cookie', `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}${COOKIE_SECURE ? '; Secure' : ''}`);
 }
 function clearCookie(res) {
@@ -213,6 +240,18 @@ function sameOrigin(req) {
   const site = req.headers['sec-fetch-site'];
   return !site || site === 'same-origin' || site === 'none';
 }
+/* Thước đo hiệu năng cho trang quản trị: thời gian xử lý /api/* gần nhất, số lỗi 5xx, độ trễ vòng lặp sự kiện */
+const { monitorEventLoopDelay } = require('perf_hooks');
+const eld = monitorEventLoopDelay({ resolution: 20 }); eld.enable();
+const METRICS = { reqs: 0, err5xx: 0, dur: [] };
+app.use('/api', (req, res, next) => {
+  const t0 = process.hrtime.bigint();
+  res.on('finish', () => {
+    METRICS.reqs++; if (res.statusCode >= 500) METRICS.err5xx++;
+    METRICS.dur.push(Number(process.hrtime.bigint() - t0) / 1e6); if (METRICS.dur.length > 1000) METRICS.dur.shift();
+  });
+  next();
+});
 app.use('/api', (req, res, next) => {
   if (req.method !== 'GET' && !sameOrigin(req)) return res.status(403).json({ error: 'Yêu cầu không hợp lệ.' });
   next();
@@ -262,6 +301,7 @@ app.post('/api/auth/login', wrap(async (req, res) => {
   const row = q.userByEmail.get(email);
   const ok = row ? await verifyPassword(password, row.pw) : (DUMMY_HASH && await verifyPassword(password, DUMMY_HASH), false);
   if (!ok) return res.status(401).json({ error: 'Email hoặc mật khẩu chưa đúng.' });
+  if (row.disabled) return res.status(403).json({ error: 'Tài khoản này đang bị khoá. Ba mẹ hãy liên hệ OplaKid nhé.' });
   startSession(res, row.id);
   res.json({ user: publicUser(row) });
 }));
@@ -314,6 +354,7 @@ app.get('/auth/google/callback', wrap(async (req, res) => {
     q.insertUser.run(id, email, await hashPassword(crypto.randomBytes(24).toString('hex')), now, now); // mật khẩu ngẫu nhiên, đăng nhập bằng Google hoặc “Quên mật khẩu”
     row = { id };
   }
+  if (row.disabled) return authFail(res, 'locked');
   startSession(res, row.id);
   res.append('Set-Cookie', `${OAUTH_COOKIE}=; Path=/auth; HttpOnly; SameSite=Lax; Max-Age=0${COOKIE_SECURE ? '; Secure' : ''}`);
   res.redirect('/');
@@ -348,6 +389,7 @@ app.post('/api/auth/reset', wrap(async (req, res) => {
   if (!validPassword(password)) return res.status(400).json({ error: 'Hãy nhập mật khẩu (tối đa 128 ký tự).' });
   const row = token ? q.resetUser.get(sha256(token), Date.now()) : null;
   if (!row) return res.status(400).json({ error: 'Link đặt lại đã hết hạn hoặc đã dùng rồi. Bạn hãy yêu cầu link mới.' });
+  if (q.userDisabled.get(row.user_id)?.disabled) return res.status(403).json({ error: 'Tài khoản này đang bị khoá. Ba mẹ hãy liên hệ OplaKid nhé.' });
   q.updatePw.run(await hashPassword(password), row.user_id);
   q.deleteResets.run(row.user_id);
   q.deleteUserSessions.run(row.user_id);
@@ -435,6 +477,93 @@ app.put('/api/docs/:name', requireUser, (req, res) => {
 app.delete('/api/docs/:name', requireUser, (req, res) => {
   if (!DOC_RE.test(req.params.name) || req.params.name === 'profiles') return res.status(400).json({ error: 'Tên không hợp lệ.' });
   q.deleteDoc.run(req.user.id, req.params.name);
+  res.json({ ok: true });
+});
+
+/* ---------------- Trang quản trị (chỉ email trong ADMIN_EMAILS) ---------------- */
+const requireAdmin = (req, res, next) => isAdmin(req.user) ? next() : res.status(403).json({ error: 'Chỉ quản trị viên được dùng.' });
+const adminOnly = [requireUser, requireAdmin];
+const dayKey = t => new Date(t).toISOString().slice(0, 10);
+const pct = (arr, p) => { if (!arr.length) return 0; const a = arr.slice().sort((x, y) => x - y); return a[Math.min(a.length - 1, Math.floor(a.length * p))]; };
+const countProfiles = data => { try { const l = JSON.parse(data).list; return Array.isArray(l) ? l.length : 0; } catch { return 0; } };
+
+app.get('/api/admin/stats', adminOnly, (req, res) => {
+  const now = Date.now(), DAY = 864e5, n = (sql, ...a) => db.prepare(sql).get(...a).n;
+  const signupRows = db.prepare('SELECT created_at FROM users WHERE created_at >= ?').all(now - 14 * DAY);
+  const signups = []; for (let i = 13; i >= 0; i--) signups.push({ day: dayKey(now - i * DAY), n: 0 });
+  signupRows.forEach(r => { const d = signups.find(x => x.day === dayKey(r.created_at)); if (d) d.n++; });
+  let kids = 0; for (const r of db.prepare("SELECT data FROM docs WHERE name = 'profiles' LIMIT 20000").all()) kids += countProfiles(r.data);
+  const online = new Set(); for (const p of peers.values()) online.add(p.userId);
+  let dbBytes = 0; for (const f of [DB_PATH, DB_PATH + '-wal']) { try { dbBytes += fs.statSync(f).size; } catch {} }
+  const mem = process.memoryUsage();
+  res.json({
+    users: {
+      total: n('SELECT COUNT(*) AS n FROM users'), new24h: n('SELECT COUNT(*) AS n FROM users WHERE created_at >= ?', now - DAY),
+      new7d: n('SELECT COUNT(*) AS n FROM users WHERE created_at >= ?', now - 7 * DAY), new30d: n('SELECT COUNT(*) AS n FROM users WHERE created_at >= ?', now - 30 * DAY),
+      disabled: n('SELECT COUNT(*) AS n FROM users WHERE disabled = 1'),
+      active24h: n('SELECT COUNT(DISTINCT user_id) AS n FROM docs WHERE updated_at >= ?', now - DAY),
+      active7d: n('SELECT COUNT(DISTINCT user_id) AS n FROM docs WHERE updated_at >= ?', now - 7 * DAY),
+      login7d: n('SELECT COUNT(*) AS n FROM users WHERE last_login >= ?', now - 7 * DAY), kids
+    },
+    online: { users: online.size, sockets: peers.size, races: races.races.size },
+    feedback: { total: n('SELECT COUNT(*) AS n FROM feedback'), new7d: n('SELECT COUNT(*) AS n FROM feedback WHERE created_at >= ?', now - 7 * DAY) },
+    signups,
+    server: {
+      uptimeSec: Math.round(process.uptime()), node: process.version, rssMB: Math.round(mem.rss / 1048576), heapMB: Math.round(mem.heapUsed / 1048576), dbMB: Math.round(dbBytes / 1048576 * 10) / 10,
+      reqs: METRICS.reqs, err5xx: METRICS.err5xx, avgMs: Math.round(METRICS.dur.reduce((a, b) => a + b, 0) / Math.max(1, METRICS.dur.length) * 10) / 10,
+      p95Ms: Math.round(pct(METRICS.dur, .95) * 10) / 10, maxMs: Math.round(Math.max(0, ...METRICS.dur) * 10) / 10, loopP99Ms: Math.round(eld.percentile(99) / 1e5) / 10
+    },
+    log: q.listAdminLog.all().map(r => ({ admin: r.admin_email, action: r.action, target: r.target_email, at: r.created_at }))
+  });
+});
+
+app.get('/api/admin/users', adminOnly, (req, res) => {
+  const term = String(req.query.q || '').trim().toLowerCase().slice(0, 100).replace(/[\\%_]/g, c => '\\' + c);
+  const size = 25, page = Math.max(0, Math.min(10000, parseInt(req.query.page, 10) || 0)), like = '%' + term + '%';
+  const rows = q.adminUsers.all(like, size, page * size);
+  res.json({
+    total: q.adminUserCount.get(like).n, page, size,
+    items: rows.map(r => ({ id: r.id, email: r.email, createdAt: r.created_at, lastLogin: r.last_login || null, lastActive: r.last_active || null,
+      disabled: !!r.disabled, kids: r.profiles ? countProfiles(r.profiles) : 0, feedback: r.fb, admin: ADMIN_EMAILS.has(r.email) }))
+  });
+});
+
+function adminTarget(req, res) {
+  const t = q.userByEmailOrId.get(String(req.params.id).slice(0, 64));
+  if (!t) { res.status(404).json({ error: 'Không tìm thấy tài khoản.' }); return null; }
+  if (t.id === req.user.id) { res.status(400).json({ error: 'Không thao tác trên chính tài khoản đang đăng nhập.' }); return null; }
+  if (ADMIN_EMAILS.has(t.email)) { res.status(400).json({ error: 'Không thao tác trên tài khoản quản trị khác.' }); return null; }
+  return t;
+}
+const adminLog = (req, action, target) => q.insertAdminLog.run(req.user.email, action, target.email, Date.now());
+
+app.post('/api/admin/users/:id/disable', adminOnly, (req, res) => {
+  const t = adminTarget(req, res); if (!t) return;
+  const off = req.body && req.body.disabled === true;
+  q.setDisabled.run(off ? 1 : 0, t.id);
+  if (off) { q.deleteUserSessions.run(t.id); disconnectUser(t.id); }
+  adminLog(req, off ? 'khoá tài khoản' : 'mở khoá tài khoản', t);
+  res.json({ ok: true, disabled: off });
+});
+app.post('/api/admin/users/:id/logout', adminOnly, (req, res) => {
+  const t = adminTarget(req, res); if (!t) return;
+  q.deleteUserSessions.run(t.id); disconnectUser(t.id);
+  adminLog(req, 'đăng xuất mọi thiết bị', t);
+  res.json({ ok: true });
+});
+app.post('/api/admin/users/:id/reset-link', adminOnly, (req, res) => {
+  const t = adminTarget(req, res); if (!t) return;
+  if (rateLimited('adminreset:' + req.user.id, 30, 3_600_000)) return res.status(429).json({ error: 'Tạo quá nhiều link.' });
+  const token = newToken();
+  q.insertReset.run(sha256(token), t.id, Date.now() + 3_600_000);
+  adminLog(req, 'tạo link đặt lại mật khẩu', t);
+  res.json({ link: `${APP_ORIGIN}/?reset=${token}`, expiresInMin: 60 });
+});
+app.delete('/api/admin/users/:id', adminOnly, (req, res) => {
+  const t = adminTarget(req, res); if (!t) return;
+  if (!req.body || normEmail(req.body.confirm) !== t.email) return res.status(400).json({ error: 'Email xác nhận chưa đúng.' });
+  adminLog(req, 'xoá tài khoản', t);
+  q.deleteUser.run(t.id); disconnectUser(t.id);
   res.json({ ok: true });
 });
 
