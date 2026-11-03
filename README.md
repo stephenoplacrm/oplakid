@@ -1,6 +1,6 @@
 # OplaKid
 
-Web app luyện gõ 10 ngón cho trẻ tiểu học: 262 bài chia 10 cấp độ (Cấp độ 1 đến Cấp độ 10; 50 bài thêm không bắt buộc để mở cấp độ sau; từ Cấp độ 6 bé gõ tiếng Việt kiểu Telex); 6 trò chơi; nhạc nền thiếu nhi khi gõ; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
+Web app luyện gõ 10 ngón cho trẻ tiểu học: 262 bài chia 10 cấp độ (50 bài thêm không bắt buộc để mở cấp độ sau; từ Cấp độ 6 bé gõ tiếng Việt bằng bộ gõ tiếng Việt có sẵn của máy); 6 trò chơi; nhạc nền thiếu nhi khi gõ; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
 
 ## Có gì trong bản này
 
