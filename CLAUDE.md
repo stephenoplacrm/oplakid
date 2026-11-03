@@ -5,8 +5,9 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 
 ## Cấu trúc
 - `server.js`: Express, tài khoản phụ huynh (scrypt, cookie phiên), API `/api/*`, WebSocket `/ws` (ai đang online).
-- `races.js`: quản lý cuộc đua trên máy chủ (1v1, 3v3, 5v5, đua với máy, phòng riêng, ghép theo Cấp độ 1 đến Cấp độ 5).
+- `races.js`: quản lý cuộc đua trên máy chủ (1v1, 3v3, 5v5, đua với máy, phòng riêng, ghép theo Cấp độ 1 đến Cấp độ 10).
 - `public/index.html`, `public/app.css`, `public/app.js`: toàn bộ giao diện, JavaScript thuần, không có bước build.
+- Cấp độ 6 đến 10 gõ tiếng Việt: bé dùng bộ gõ tiếng Việt có sẵn của máy (ô `#vn-input`); ứng dụng chỉ so chữ, không tự ghép dấu. Kho chữ tiếng Việt nằm trong `app.js` (`VN`). Không thêm file JS riêng cho phần này.
 - `public/privacy.html`, `public/contact.html`: chính sách quyền riêng tư và trang liên hệ (thông tin người vận hành, email, nơi đặt máy chủ). Chính sách chưa được luật sư rà soát.
 - Dữ liệu: một file SQLite tại `DATABASE_PATH` (đĩa cố định `/data` trên Render).
 
