@@ -600,7 +600,7 @@ server.on('upgrade', (req, socket, head) => {
 });
 
 const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸', '🐱', '🐶', '🐻', '🐨', '🐵', '🦁', '🐮', '🐷', '🐹', '🐭', '🐔', '🐧', '🐦', '🦉', '🦄', '🐲', '🐙', '🦋', '🐢', '🐬', '🐳', '🦖', '🦒', '🐘', '🦓', '🐝', '🐞', '🦀', '🐥', '🦔']);
-const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10']);
+const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5']);
 const PHASES = new Set(['lobby', 'countdown', 'racing', 'done']);
 const KINDS = new Set(['sent', 'long', 'words', 'home', 'keys']);
 const ACTS = new Set(['race', 'learn', 'yard', 'parent']);

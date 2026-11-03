@@ -13,13 +13,13 @@ const MODES = {
   '5v5': { cap: 10, teams: true, label: '5 đấu 5' },
   bot: { cap: 2, teams: false, label: 'Đua với máy' }
 };
-const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10']);
+const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5']);
 const FILL_AFTER_MS = 40_000;      // chờ quá lâu thì máy vào chơi cùng
 const MIN_WAIT_TO_FILL_MS = 8_000; // sau 8 giây, các bé có thể bấm "đua luôn"
 const COUNTDOWN_MS = 5_000;
 const MAX_RACE_MS = 180_000;
 const KEEP_DONE_MS = 120_000;
-const BOT_WPM = { bo: [4, 7, 10], di: [6, 10, 14], chay: [8, 13, 18], l4: [10, 15, 20], l5: [12, 18, 24], l6: [14, 20, 26], l7: [16, 22, 28], l8: [18, 25, 32], l9: [20, 28, 36], l10: [22, 30, 40] };
+const BOT_WPM = { bo: [4, 7, 10], di: [6, 10, 14], chay: [8, 13, 18], l4: [10, 15, 20], l5: [12, 18, 24] };
 const BOT_NAMES = ['Máy Mít', 'Máy Na', 'Máy Cam', 'Máy Bơ', 'Máy Dừa', 'Máy Xoài', 'Máy Ổi', 'Máy Lê', 'Máy Nho', 'Máy Táo'];
 const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸', '🐱', '🐶', '🐻', '🐨', '🐵', '🦁', '🐮', '🐷', '🐹', '🐭', '🐔', '🐧', '🐦', '🦉', '🦄', '🐲', '🐙', '🦋', '🐢', '🐬', '🐳', '🦖', '🦒', '🐘', '🦓', '🐝', '🐞', '🦀', '🐥', '🦔']);
 const CODE_CH = 'abcdefghjkmnpqrstuvwxyz23456789';
@@ -54,8 +54,7 @@ function genText(stage) {
   if (stage === 'di') return shuffle(WORDS).slice(0, 6).join(' ');
   if (stage === 'chay') return shuffle(SENTENCES).slice(0, 2).join(' ');
   if (stage === 'l4') return shuffle(SENTENCES).slice(0, 2).map(t => t.charAt(0).toUpperCase() + t.slice(1) + '.').join(' ');
-  if (stage === 'l5') return shuffle(PARAS).slice(0, 2).join(' ');
-  return shuffle(PARAS).slice(0, stage === 'l6' || stage === 'l7' ? 3 : 4).join(' ');   // cấp độ 6 trở lên: đua bằng đoạn văn tiếng Anh dài hơn (gõ tiếng Việt chưa dùng cho đua)
+  return shuffle(PARAS).slice(0, 2).join(' ');
 }
 
 /* Biệt danh: bỏ ký tự lạ, chặn vài từ không phù hợp */

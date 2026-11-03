@@ -5,9 +5,8 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 
 ## Cấu trúc
 - `server.js`: Express, tài khoản phụ huynh (scrypt, cookie phiên), API `/api/*`, WebSocket `/ws` (ai đang online).
-- `races.js`: quản lý cuộc đua trên máy chủ (1v1, 3v3, 5v5, đua với máy, phòng riêng, ghép theo Cấp độ 1 đến Cấp độ 10).
+- `races.js`: quản lý cuộc đua trên máy chủ (1v1, 3v3, 5v5, đua với máy, phòng riêng, ghép theo Cấp độ 1 đến Cấp độ 5).
 - `public/index.html`, `public/app.css`, `public/app.js`: toàn bộ giao diện, JavaScript thuần, không có bước build.
-- `public/telex.js`, `public/vi.js`: bộ gõ Telex (chuyển chữ tiếng Việt thành dãy phím và ngược lại) và kho chữ tiếng Việt cho Cấp độ 6 đến 10. Ứng dụng tự ghép Telex nên bé tắt bộ gõ tiếng Việt của máy.
 - `public/privacy.html`, `public/contact.html`: chính sách quyền riêng tư và trang liên hệ (thông tin người vận hành, email, nơi đặt máy chủ). Chính sách chưa được luật sư rà soát.
 - Dữ liệu: một file SQLite tại `DATABASE_PATH` (đĩa cố định `/data` trên Render).
 
@@ -25,6 +24,5 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 ```bash
 npm ci
 node --check server.js && node --check races.js && node --check public/app.js
-node tests/viet.test.js   # kho chữ tiếng Việt phải gõ đúng bằng Telex
 APP_ORIGIN=http://localhost:3000 node server.js   # mở http://localhost:3000, đăng ký, học 1 bài, đua với máy
 ```
