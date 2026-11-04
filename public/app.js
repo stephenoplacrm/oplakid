@@ -429,7 +429,9 @@ const GAMES={
   rocket:{icon:'🚀',name:'Tên lửa lên trăng',desc:'Gõ thật nhiều từ để tên lửa bay lên cao. Mỗi từ gõ xong là tên lửa lên một nấc. Em chọn thời gian chơi ở bên dưới.',
     levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},phr:{name:'Cụm 2 từ'}}},
   scramble:{icon:'🧩',name:'Xếp chữ',desc:'Nhìn hình, các chữ cái bị xáo trộn. Gõ các chữ theo đúng thứ tự để ghép thành từ. Gõ sai thì chữ đúng sẽ sáng lên.',
-    levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},all:{name:'Trộn tất cả'}}}
+    levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},all:{name:'Trộn tất cả'}}},
+  dragon:{icon:'🐉',name:'Rồng rắn lên mây',desc:'Em là đầu rồng. Gõ câu hát để cả đoàn chạy, thầy thuốc đuổi theo bắt đuôi. Hát xong 8 câu mà còn bạn trong đoàn là thắng. Chọn "Không dấu" thì tắt bộ gõ tiếng Việt, chọn "Có dấu" thì bật bộ gõ tiếng Việt.',
+    levels:{a1:{name:'Không dấu, chậm'},a2:{name:'Không dấu, vừa'},a3:{name:'Không dấu, nhanh'},v1:{name:'Có dấu, chậm'},v2:{name:'Có dấu, vừa'},v3:{name:'Có dấu, nhanh'}}}
 };
 const TIMED={bubble:60,mole:60,rocket:45};                 // thời gian mặc định (giây) của các game tính giờ
 const DURS=[30,45,60,90,120,180,300,0];                      // 0 = không giới hạn
@@ -437,7 +439,7 @@ const durOf=gid=>{const v=(state.gdur||{})[gid];return v===0||DURS.includes(v)?v
 const gkey=(gid,lvl)=>gid+':'+lvl+(TIMED[gid]&&durOf(gid)!==TIMED[gid]?':'+durOf(gid):'');   // kỷ lục tách riêng theo thời gian chơi
 const durLabel=d=>!d?'Không giới hạn':d>=120&&d%60===0?d/60+' phút':d+' giây';
 function doneBtn(stage,fn){const b=document.createElement('button');b.type='button';b.className='chip gdone';b.textContent='Xong, xem kết quả';b.addEventListener('click',e=>{e.currentTarget.blur();fn();});stage.appendChild(b);}
-const GTAG={bubble:v=>v+' bóng',frog:v=>v+' giây',quiz:v=>v+'/10',mole:v=>v+' chú chuột',rocket:v=>v+' từ',scramble:v=>v+'/8'};
+const GTAG={bubble:v=>v+' bóng',frog:v=>v+' giây',quiz:v=>v+'/10',mole:v=>v+' chú chuột',rocket:v=>v+' từ',scramble:v=>v+'/8',dragon:v=>'còn '+v+' bạn'};
 
 /* ================= Storage ================= */
 const DEFAULTS={avatar:'🐯',nick:'',sound:true,music:true,speak:true,chat:true,look:null,limit:45,certs:{},exams:{},tipHands:false,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{},gdur:{}};
@@ -949,7 +951,7 @@ function startGame(gid,lid){guardStart(()=>{
   stopAll();show('game');syncToggles();
   $('#g-title').textContent=GAMES[gid].name+': '+GAMES[gid].levels[lid].name;
   const st=$('#stage');st.className='stage';st.innerHTML='';hud('');
-  ag=({bubble:makeBubble,frog:makeFrog,quiz:makeQuiz,mole:makeMole,rocket:makeRocket,scramble:makeScramble}[gid])(lid);
+  ag=({bubble:makeBubble,frog:makeFrog,quiz:makeQuiz,mole:makeMole,rocket:makeRocket,scramble:makeScramble,dragon:makeDragon}[gid])(lid);
 });}
 function gameMiss(g,exp,ch){g.errs++;if(exp){g.missLocal[exp]=(g.missLocal[exp]||0)+1;state.miss[exp]=(state.miss[exp]||0)+1;}flash(ch,false);beep(200,.1,'triangle',.05);}
 function endGame(g,r){
@@ -1196,6 +1198,182 @@ function makeScramble(level){
       stats:[[g.clean+'/'+n,'không cần gợi ý'],[Math.round(acc*100)+'%','gõ đúng'],[fmtTime(secs),'thời gian']]});
   }
   round();
+  return g;
+}
+
+/* Rồng rắn lên mây: gõ câu hát để cả đoàn chạy quanh nhà thầy thuốc; thầy thuốc đuổi theo, gõ chậm hay sai thì bị bắt đuôi.
+ * Chế độ "a": gõ không dấu bằng bàn phím trên màn hình (như Cấp độ 1 đến 5). Chế độ "v": gõ có dấu bằng bộ gõ của máy vào ô nhập (như Cấp độ 6 đến 10). */
+const DRAGON_LINES=[
+  {t:'Rồng rắn lên mây',w:'Cả đoàn',r:'Lên mây! Lên mây!'},
+  {t:'Có cây lúc lắc',w:'Cả đoàn',r:'Lúc la lúc lắc!'},
+  {t:'Thầy thuốc có nhà hay không',w:'Thầy thuốc',r:'Thầy thuốc đi chợ vắng.'},
+  {t:'Thầy thuốc đi đâu',w:'Thầy thuốc',r:'Thầy đi kiếm thuốc cho con.'},
+  {t:'Thuốc để làm gì',w:'Thầy thuốc',r:'Để chữa bệnh cho các con.'},
+  {t:'Cho xin khúc đầu',w:'Thầy thuốc',r:'Khúc đầu thì xương xương.'},
+  {t:'Cho xin khúc giữa',w:'Thầy thuốc',r:'Khúc giữa thì máu me.'},
+  {t:'Cho xin khúc đuôi',w:'Thầy thuốc',r:'Khúc đuôi thì tha hồ mà đuổi!'}
+];
+const DRAGON_KIDS=['🐲','🐯','🐰','🐼','🦊','🐸'];
+const DRAGON_SPEED=[[.35,.07],[.6,.12],[1,.18]];   // số chữ mỗi giây thầy thuốc đuổi kịp: câu đầu, mỗi câu thêm
+function makeDragon(level){
+  const stage=$('#stage'),vmode=level[0]==='v',spd=DRAGON_SPEED[+level[1]-1]||DRAGON_SPEED[0];
+  const SP=.36,DELTA=.2,GAP0=1.8,GAPMAX=2.6,REPLY_MS=1700,N0=DRAGON_KIDS.length;
+  stage.classList.add('dragon');
+  stage.innerHTML='<canvas class="drcv" role="img" aria-label="Đoàn rồng rắn chạy vòng quanh nhà thầy thuốc trên mây"></canvas><div class="drsay" hidden></div>'+
+    '<div class="drcard"><span class="drwho"></span><div class="drlyric"></div>'+
+    (vmode?'<input class="drin" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" lang="vi" aria-label="Gõ câu hát vào đây" placeholder="Gõ câu hát ở đây">':'')+
+    '<p class="hint drhint"></p></div>';
+  const cv=stage.querySelector('.drcv'),ctx=cv.getContext('2d'),sayEl=stage.querySelector('.drsay'),lyric=stage.querySelector('.drlyric'),
+    who=stage.querySelector('.drwho'),inp=stage.querySelector('.drin');
+  stage.querySelector('.drhint').textContent=vmode?'Bật bộ gõ tiếng Việt rồi gõ có dấu. Chữ hoa hay thường đều được.':'Gõ không dấu, tắt bộ gõ tiếng Việt. Chữ hoa hay thường đều được.';
+  if(vmode)$('#deck').hidden=true;
+  const g={gid:'dragon',level,line:0,status:'play',pos:0,errs:0,chars:0,t0:0,missLocal:{},over:false,n:N0,headTh:.9,headTarget:.9,doctorTh:0,
+    pops:[],flash:0,bad:false,maxExact:0,spans:[],replyUntil:0,last:performance.now(),clouds:[]};
+  g.doctorTh=g.headTarget-(N0-1)*SP-GAP0;
+  for(let i=0;i<6;i++)g.clouds.push({x:Math.random(),y:.08+Math.random()*.7,s:.6+Math.random()*.8,v:.006+Math.random()*.012});
+  const tailT=()=>g.headTarget-(g.n-1)*SP;
+  const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lower=t=>t.normalize('NFC').toLowerCase();
+  const target=()=>lower(DRAGON_LINES[g.line].t);
+  const wpmNow=()=>g.t0&&g.chars>=3?wpmOf(g.chars,Math.max(.05*60,(performance.now()-g.t0)/1000)):0;
+  function hudUpd(){hud(stat((Math.min(g.line+1,DRAGON_LINES.length))+'/'+DRAGON_LINES.length,'câu hát')+stat(DRAGON_KIDS.slice(0,g.n).join('')||'0','đoàn rồng')+stat(wpmNow(),'WPM'));}
+  function paint(exact,bad){g.spans.forEach((sp,i)=>{sp.className=i<exact?'d':(i===exact?(bad?'x':'c'):'');});}
+  function setLine(){
+    const L=DRAGON_LINES[g.line];g.maxExact=0;g.pos=0;g.bad=false;g.spans=[];lyric.textContent='';
+    for(const ch of L.t.normalize('NFC')){const sp=document.createElement('span');sp.textContent=ch;lyric.appendChild(sp);g.spans.push(sp);}
+    who.textContent='Rồng rắn hát:';
+    if(inp){inp.value='';inp.disabled=false;inp.classList.remove('bad');inp.focus();}
+    paint(0,false);hudUpd();
+    if(!vmode)showNext(foldVn(target())[0]);
+  }
+  function advance(d){if(!g.t0)g.t0=performance.now();g.chars+=d;g.headTarget+=d*DELTA;beep(560+Math.random()*120,.04,'triangle',.05);}
+  function miss(exp,ch){
+    g.errs++;g.doctorTh+=.15;
+    if(exp){g.missLocal[exp]=(g.missLocal[exp]||0)+1;state.miss[exp]=(state.miss[exp]||0)+1;}
+    if(ch)flash(ch,false);beep(200,.1,'triangle',.05);
+    const el=vmode?inp:lyric;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');
+  }
+  /* chế độ không dấu: nhận từng phím */
+  g.onChar=ch=>{
+    if(g.over||g.status!=='play'||vmode)return;
+    const t=foldVn(target()),exp=t[g.pos];
+    if(ch.toLowerCase()===exp){flash(ch,true);g.pos++;advance(1);paint(g.pos,false);
+      if(g.pos>=t.length){lineDone();return;}
+      showNext(t[g.pos]);
+    }else miss(exp,ch);
+    hudUpd();
+  };
+  /* chế độ có dấu: bộ gõ của máy ghép chữ trong ô nhập, ứng dụng chỉ so chữ */
+  function analyze(v,t){
+    const a=lower(v),b=t,e=commonLen(a,b);
+    if(e===a.length)return {exact:e,state:'ok'};
+    const fa=foldVn(a),fb=foldVn(b);
+    return {exact:e,state:commonLen(fa,fb)===fa.length?'pend':'bad'};   // đúng chữ cái nhưng chưa ra dấu: chưa tính lỗi
+  }
+  function onType(composing){
+    if(g.over||g.status!=='play'||!vmode)return;
+    const t=target();let v=inp.value;let a=analyze(v,t);
+    if(!composing&&v.endsWith(' ')&&a.exact<v.length){   // bấm cách khi chữ chưa đúng: tính một lỗi, xoá chữ đó để gõ lại
+      const ws=v.lastIndexOf(' ',v.length-2)+1;miss(t[a.exact]||t[0]);
+      v=v.slice(0,ws);inp.value=v;a=analyze(v,t);g.bad=false;
+    }
+    if(a.exact>g.maxExact){advance(a.exact-g.maxExact);g.maxExact=a.exact;}
+    if(a.state==='bad'&&!composing){if(!g.bad){g.bad=true;miss(t[a.exact]||t[0]);}}
+    else if(a.state!=='bad')g.bad=false;
+    inp.classList.toggle('bad',g.bad&&!composing);
+    paint(a.exact,g.bad&&!composing);hudUpd();
+    if(a.exact>=t.length)lineDone();
+  }
+  if(inp){
+    inp.addEventListener('input',e=>onType(!!e.isComposing));
+    inp.addEventListener('compositionend',()=>onType(false));
+    ['paste','drop'].forEach(ev=>inp.addEventListener(ev,e=>e.preventDefault()));
+    stage.addEventListener('click',()=>{if(!g.over&&g.status==='play')inp.focus();});
+  }
+  function lineDone(){
+    g.status='reply';if(inp)inp.disabled=true;showNext(null);
+    beep(660,.1,'sine',.06);setTimeout(()=>beep(880,.14,'sine',.06),100);
+    const L=DRAGON_LINES[g.line];sayEl.textContent='';
+    const sm=document.createElement('small');sm.textContent=L.w;sayEl.append(sm,document.createTextNode(L.r));sayEl.hidden=false;
+    who.textContent=L.w+' đáp:';g.replyUntil=performance.now()+REPLY_MS;
+  }
+  function afterReply(){
+    sayEl.hidden=true;
+    if(g.line>=DRAGON_LINES.length-1){finish(true);return;}
+    g.line++;g.status='play';setLine();
+  }
+  function catchTail(){
+    const emo=DRAGON_KIDS[g.n-1],th=tailT();
+    g.n--;g.flash=1;beep(180,.3,'sawtooth',.06);setTimeout(()=>beep(110,.3,'sawtooth',.05),120);
+    g.pops.push({th,t:0,text:'Bị bắt! '+emo});
+    if(g.n<=0){hudUpd();finish(false);return;}
+    g.doctorTh=tailT()-1.5;hudUpd();
+  }
+  function finish(won){
+    if(g.over)return;g.status='over';if(inp)inp.disabled=true;sayEl.hidden=true;showNext(null);
+    const secs=Math.max(1,(performance.now()-(g.t0||performance.now()))/1000),acc=g.chars/Math.max(1,g.chars+g.errs),alive=g.n,key=gkey('dragon',level),prev=state.gbest[key];
+    const rec=won&&(prev==null||alive>prev);if(rec)state.gbest[key]=alive;
+    if(won){beep(880,.1);setTimeout(()=>beep(1175,.1),110);setTimeout(()=>beep(1568,.18),220);}
+    endGame(g,{stars:won?(alive>=5?3:alive>=3?2:1):0,acc,secs,wpm:wpmOf(g.chars,secs),miss:g.missLocal,
+      title:won?'Cả đoàn thoát lên mây rồi!':'Thầy thuốc bắt hết rồi!',
+      sub:won?'Em cứu được '+alive+'/'+N0+' bạn trong đoàn.'+(rec&&prev!=null?' Kỷ lục mới (lần trước còn '+prev+' bạn).':''):'Em hát được '+Math.min(g.line+1,DRAGON_LINES.length)+'/'+DRAGON_LINES.length+' câu. Gõ nhanh và đúng hơn thì đuôi rồng chạy thoát.',
+      stats:[[won?alive+'/'+N0:g.line+'/'+DRAGON_LINES.length,won?'bạn còn lại':'câu hát'],[wpmOf(g.chars,secs),'WPM'],[Math.round(acc*100)+'%','gõ đúng']]});
+  }
+  /* ---- vẽ ---- */
+  let W=0,H=0,T={},tokT=-9;
+  function resize(){const r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);W=r.width;H=r.height;cv.width=Math.max(1,Math.round(W*d));cv.height=Math.max(1,Math.round(H*d));ctx.setTransform(d,0,0,d,0,0);}
+  const ro=window.ResizeObserver?new ResizeObserver(resize):null;if(ro)ro.observe(cv);
+  const EMO='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif',FONT='"Baloo 2",system-ui,sans-serif';
+  function readTokens(){const cs=getComputedStyle(document.documentElement);['sky','water','ink','panel','text','bad','gold','c-ring'].forEach(k=>T[k]=cs.getPropertyValue('--'+k).trim()||'#888');}
+  function draw(now){
+    if(!W||!H)return;if(now-tokT>1){readTokens();tokT=now;}
+    const cx=W/2,cy=H*.52,rx=W*.37,ry=H*.31,kr=Math.max(12,Math.min(24,W*.03));
+    const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,T.sky);sky.addColorStop(1,T.water);ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=T.gold;ctx.globalAlpha=.85;ctx.beginPath();ctx.arc(W*.9,H*.17,Math.max(14,W*.04),0,7);ctx.fill();
+    ctx.fillStyle=T.panel;ctx.globalAlpha=.6;
+    for(const c of g.clouds){const x=((c.x*W*1.3)%(W*1.3))-W*.15,y=c.y*H,sz=c.s*kr*1.6;ctx.beginPath();ctx.arc(x,y,sz,0,7);ctx.arc(x+sz*1.1,y+sz*.2,sz*.8,0,7);ctx.arc(x-sz*1.1,y+sz*.25,sz*.7,0,7);ctx.fill();}
+    const pt=(th,k)=>[cx+Math.cos(th)*rx*k,cy+Math.sin(th)*ry*k];
+    ctx.globalAlpha=.7;for(let a=0;a<Math.PI*2;a+=.14){const [x,y]=pt(a,1);ctx.beginPath();ctx.arc(x,y,kr*.95,0,7);ctx.fill();}
+    ctx.globalAlpha=1;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font=(kr*2.3)+'px '+EMO;ctx.fillStyle=T.ink;ctx.fillText('🏠',cx,cy-kr*.2);
+    ctx.font='800 '+Math.max(11,kr*.7)+'px '+FONT;ctx.fillText('Nhà thầy thuốc',cx,cy+kr*1.6);
+    const n=g.n,tailE=g.headTh-(n-1)*SP;
+    if(n>0){ctx.strokeStyle=T['c-ring'];ctx.lineWidth=kr*.8;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+      for(let a=tailE;a<=g.headTh+.001;a+=.04){const [x,y]=pt(a,1);a===tailE?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+      const [hx,hy]=pt(g.headTh,1);ctx.lineTo(hx,hy);ctx.stroke();}
+    const moving=Math.abs(g.headTarget-g.headTh)>.01,items=[];
+    for(let i=0;i<n;i++){const [x,y]=pt(g.headTh-i*SP,1);items.push({y,kid:i,x});}
+    const gap=tailT()-g.doctorTh,[dx0,dy0]=pt(g.doctorTh,.52),near=g.status==='play'&&gap<1;
+    items.push({y:dy0,doc:true,x:dx0+(near&&!reduce?Math.sin(now*40)*2:0)});
+    items.sort((a,b)=>a.y-b.y);
+    for(const it of items){
+      if(it.doc){ctx.font=(kr*2)+'px '+EMO;ctx.fillStyle=T.ink;ctx.fillText('🧑‍⚕️',it.x,it.y);
+        if(near){ctx.font='800 '+kr*1.1+'px '+FONT;ctx.fillStyle=T.bad;ctx.fillText('!',it.x+kr*1.1,it.y-kr*1.2);}continue;}
+      const bob=moving&&!reduce?Math.sin(now*14+it.kid*1.3)*2:0,r=it.kid===0?kr*1.15:kr;
+      ctx.fillStyle=T.panel;ctx.strokeStyle=T.ink;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(it.x,it.y+bob,r,0,7);ctx.fill();ctx.stroke();
+      ctx.font=(r*1.25)+'px '+EMO;ctx.fillStyle=T.ink;ctx.fillText(DRAGON_KIDS[it.kid],it.x,it.y+bob+1);
+    }
+    for(const p of g.pops){const [x,y]=pt(p.th,1);ctx.globalAlpha=Math.max(0,1-p.t);ctx.font='800 '+Math.max(14,kr*.95)+'px '+FONT;ctx.fillStyle=T.bad;ctx.fillText(p.text,x,y-kr*1.5-p.t*kr);}
+    ctx.globalAlpha=1;
+    if(g.flash>0){ctx.fillStyle=T.bad;ctx.globalAlpha=g.flash*.25;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
+  }
+  function frame(ts){
+    if(g.over)return;
+    const dt=Math.min(.05,(ts-g.last)/1000);g.last=ts;
+    if(!reduce)for(const c of g.clouds)c.x=(c.x+c.v*dt)%1;
+    g.headTh+=(g.headTarget-g.headTh)*Math.min(1,dt*8);g.flash=Math.max(0,g.flash-dt*2.5);
+    g.pops.forEach(p=>p.t+=dt);g.pops=g.pops.filter(p=>p.t<1);
+    if(g.status==='play'){
+      g.doctorTh+=(spd[0]+spd[1]*g.line)*DELTA*dt;
+      const tt=tailT();if(g.doctorTh<tt-GAPMAX)g.doctorTh=tt-GAPMAX;   // thầy thuốc không tụt quá xa
+      if(tt-g.doctorTh<=.06)catchTail();
+      if(!g.over&&g.t0&&Math.floor(ts/500)!==Math.floor((ts-dt*1000)/500))hudUpd();
+    }else if(g.status==='reply'&&performance.now()>=g.replyUntil)afterReply();
+    if(!g.over)draw(ts/1000);
+    g.raf=requestAnimationFrame(frame);
+  }
+  g.stop=()=>{g.over=true;cancelAnimationFrame(g.raf);if(ro)ro.disconnect();$('#deck').hidden=false;};
+  resize();setLine();hudUpd();g.raf=requestAnimationFrame(frame);
   return g;
 }
 
