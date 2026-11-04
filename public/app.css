@@ -530,3 +530,4 @@ a{color:var(--ink)}
 .drhint{margin:0}
 @media (prefers-reduced-motion:reduce){.drlyric.shake,.drin.shake{animation:none}}
 .drhint{text-align:left}
+.lesson .gdur{grid-column:2}
