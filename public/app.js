@@ -430,7 +430,7 @@ const GAMES={
     levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},phr:{name:'Cụm 2 từ'}}},
   scramble:{icon:'🧩',name:'Xếp chữ',desc:'Nhìn hình, các chữ cái bị xáo trộn. Gõ các chữ theo đúng thứ tự để ghép thành từ. Gõ sai thì chữ đúng sẽ sáng lên.',
     levels:{w3:{name:'Từ 3 chữ'},w45:{name:'Từ 4–5 chữ'},all:{name:'Trộn tất cả'}}},
-  dragon:{icon:'🐉',name:'Rồng rắn lên mây',desc:'Em là đầu rồng. Gõ câu hát để cả đoàn chạy, thầy thuốc đuổi theo bắt đuôi. Hát xong 8 câu mà còn bạn trong đoàn là thắng. Chọn "Không dấu" thì tắt bộ gõ tiếng Việt, chọn "Có dấu" thì bật bộ gõ tiếng Việt.',
+  dragon:{icon:'🐉',name:'Rồng rắn lên mây',desc:'Em là đầu rồng. Gõ câu hát để cả đoàn chạy, đừng để thầy thuốc bắt đuôi. "Không dấu" thì tắt bộ gõ tiếng Việt, "Có dấu" thì bật bộ gõ tiếng Việt.',
     levels:{a1:{name:'Không dấu, chậm'},a2:{name:'Không dấu, vừa'},a3:{name:'Không dấu, nhanh'},v1:{name:'Có dấu, chậm'},v2:{name:'Có dấu, vừa'},v3:{name:'Có dấu, nhanh'}}}
 };
 const TIMED={bubble:60,mole:60,rocket:45};                 // thời gian mặc định (giây) của các game tính giờ
