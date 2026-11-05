@@ -59,4 +59,14 @@ assert.strictEqual(play(['g1f3', 'g8f6', 'f3g1', 'f6g8', 'g1f3', 'g8f6', 'f3g1',
   for (let i = 0; i < 6; i++) { const mv = bestMove(s, 3); assert(mv); s.make(mv); const mv2 = bestMove(s, 1); assert(mv2); s.make(mv2); }
   console.log('máy chơi 12 nước hết', Date.now() - t0, 'ms');
 }
+/* điểm Elo: người thắng cộng bao nhiêu thì người thua trừ bấy nhiêu (khi cùng hệ số), thắng người mạnh hơn được nhiều hơn */
+{
+  const { ELO } = require('../public/chess.js');
+  assert.strictEqual(ELO.delta(500, 500, 1, 99), -ELO.delta(500, 500, 0, 99));
+  assert(ELO.delta(500, 1200, 1, 99) > ELO.delta(500, 500, 1, 99), 'thắng người mạnh hơn được nhiều điểm hơn');
+  assert.strictEqual(ELO.delta(800, 800, 0.5, 99), 0, 'hoà cùng điểm thì không đổi');
+  assert(ELO.delta(500, 500, 1, 0) > ELO.delta(500, 500, 1, 99), 'mới chơi thì điểm đổi nhanh hơn');
+  assert.strictEqual(ELO.tier(500).name, 'Tân binh'); assert.strictEqual(ELO.tier(1800).name, 'Kiện tướng'); assert.strictEqual(ELO.tier(3000).name, 'Đại kiện tướng');
+  assert.strictEqual(ELO.nextTier(500).min, 600); assert.strictEqual(ELO.nextTier(2300), null);
+}
 console.log('chess OK');

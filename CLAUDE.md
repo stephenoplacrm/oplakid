@@ -6,7 +6,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 ## Cấu trúc
 - `server.js`: Express, tài khoản phụ huynh (scrypt, cookie phiên), API `/api/*`, WebSocket `/ws` (ai đang online).
 - `races.js`: quản lý cuộc đua trên máy chủ (đua tối đa 5 bạn cùng cấp độ, sau 1 phút máy vào chơi ngang trình nếu còn ít bạn; đua với máy; ghép theo Cấp độ 1 đến Cấp độ 10).
-- `chessgames.js`: cờ vua online giữa hai bạn (máy chủ giữ bàn cờ, tự kiểm tra từng nước đi, giữ đồng hồ, xử lý đầu hàng, xin hoà). Ván cờ chỉ lưu trong bộ nhớ, không ghi vào SQLite.
+- `chessgames.js`: cờ vua online giữa hai bạn (máy chủ giữ bàn cờ, tự kiểm tra từng nước đi, giữ đồng hồ, xử lý đầu hàng, xin hoà, tính điểm Elo, câu nói nhanh có sẵn trong ván). Ván cờ chỉ lưu trong bộ nhớ, không ghi vào SQLite. Điểm Elo của bé nằm trong hồ sơ bé (`state.chess.elo`, đồng bộ như tiến độ gõ phím); máy chủ nhận điểm do trình duyệt báo lên nên chưa chống gian lận điểm.
 - `public/chess.js`: luật cờ vua và máy chơi cờ (3 mức), dùng chung cho trình duyệt (`window.OplaChess`) và máy chủ (`require`). Kiểm tra bằng `node tests/chess.test.js` (perft trên các thế cờ chuẩn).
 - Trang chính (sau khi chọn bé) là Trường tiểu học OplaKid 3D (`#s-world`, `openWorld()` trong `app.js`): hai lớp Gõ phím, một lớp Cờ vua, sân đua, Góc phụ huynh. Có nút và biển bấm được để vào game. Bé đang ở màn nào thì ngồi ở chỗ đó (`presence.act`: learn, chess, race, parent; còn lại đi dạo sân trường).
 - `public/index.html`, `public/app.css`, `public/app.js`: toàn bộ giao diện, JavaScript thuần, không có bước build.
@@ -21,7 +21,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 - Không đổi tên hay xoá cột trong bảng SQLite đang có. Muốn thêm dữ liệu thì thêm bảng hoặc cột mới, có giá trị mặc định.
 - CSP chỉ cho phép script từ chính trang (`script-src 'self'`): không dùng script inline, không gọi CDN bên ngoài.
 - Thư viện 3D (three.js r128) được phục vụ tại `/vendor/three.min.js` từ `node_modules`.
-- Người dùng là trẻ em: không thêm tính năng nhắn tin tự do; biệt danh phải qua `cleanNick` trong `races.js`; biệt danh hiện cho mọi bạn đang online trong Trường tiểu học OplaKid (chủ dự án đã đồng ý), lời mời đua do máy chủ tự gửi vào khung chat khi bé mở cuộc đua (không có chữ do bé gõ); dữ liệu cuộc đua chỉ hiện với người cùng phòng đua hoặc cùng tài khoản.
+- Người dùng là trẻ em: không thêm tính năng nhắn tin tự do; biệt danh phải qua `cleanNick` trong `races.js`; biệt danh hiện cho mọi bạn đang online trong Trường tiểu học OplaKid (chủ dự án đã đồng ý), lời mời đua và lời mời chơi cờ do máy chủ tự gửi vào khung chat; trong ván cờ bé chỉ chọn câu có sẵn (`CHESS_SAYS`), không gõ chữ; dữ liệu cuộc đua chỉ hiện với người cùng phòng đua hoặc cùng tài khoản.
 - Giao diện và thông báo viết bằng tiếng Việt, câu ngắn, dễ hiểu với trẻ lớp 1.
 
 ## Kiểm tra trước khi mở pull request

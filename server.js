@@ -621,6 +621,7 @@ function cleanPatch(patch) {
       case 'where': if (WHERE.has(v)) out.where = v; break;
       case 'look': if (Array.isArray(v) && v.length === 10 && v.every(n => Number.isInteger(n) && n >= 0 && n <= 15)) out.look = v; break;
       case 'act': if (ACTS.has(v)) out.act = v; break;
+      case 'elo': { const n = num(v, 100, 3500); if (n !== undefined) out.elo = Math.round(n); break; }
       case 'race': if (typeof v === 'string' && /^[a-z0-9]{5}$/.test(v)) out.race = v; break;
       case 'host': if (typeof v === 'boolean') out.host = v; break;
       case 'phase': if (PHASES.has(v)) out.phase = v; break;
@@ -658,7 +659,7 @@ function announceRoom(peerId, room) {
   if (peer.roomTimes.length >= 3) return;
   peer.roomTimes.push(now);
   const m = { t: 'chat', kind: 'room', from: peerId, nick: cleanNick(peer.presence.nick || '') || 'Một bạn', av: peer.presence.av || '🙂',
-    rid: room.id, ...(room.game === 'chess' ? { game: 'chess', tc: room.tc } : { stage: room.stage }), at: now };
+    rid: room.id, ...(room.game === 'chess' ? { game: 'chess', tc: room.tc, elo: Number.isInteger(room.elo) ? room.elo : undefined } : { stage: room.stage }), at: now };
   chatLog.push(m); if (chatLog.length > 30) chatLog.shift();
   const s = JSON.stringify(m);
   for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s);
@@ -682,7 +683,7 @@ function visiblePresence(p, viewer) {
   const pr = p.presence;
   if (p === viewer || p.userId === viewer.userId) return pr;
   const sameRace = pr.race && viewer.presence.race && pr.race === viewer.presence.race;
-  const out = { av: pr.av, nick: pr.nick, stage: pr.stage, where: pr.where, act: pr.act, look: pr.look };
+  const out = { av: pr.av, nick: pr.nick, stage: pr.stage, where: pr.where, act: pr.act, look: pr.look, elo: pr.elo };
   if (sameRace) { for (const k of RACE_KEYS) if (pr[k] !== undefined) out[k] = pr[k]; }
   return out;
 }

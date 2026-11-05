@@ -4,12 +4,17 @@
  * trong public/chess.js), giữ đồng hồ và quyết định kết quả. Không có trò chuyện tự do, chỉ có lời mời trong khung chat nhanh.
  */
 const crypto = require('crypto');
-const { Pos } = require('./public/chess.js');
+const { Pos, ELO } = require('./public/chess.js');
 
 const TCS = new Set([0, 5, 10, 15]);       // số phút mỗi bên; 0 là không tính giờ
 const WAIT_MAX_MS = 5 * 60_000;            // chờ bạn quá 5 phút thì huỷ
 const KEEP_DONE_MS = 60_000;
 const MAX_MOVES = 600;
+/* Câu nói nhanh trong ván cờ: chỉ chọn câu có sẵn, không gõ chữ */
+const CHESS_SAYS = ['Chào bạn! 👋', 'Chúc bạn chơi vui nhé! 🎮', 'Bạn chơi giỏi quá! 👍', 'Hay quá! ✨', 'Mình sắp thua rồi 😅', 'Chờ mình nghĩ một chút nhé 🤔',
+  'Xin lỗi, mình đi nhầm! 🙏', 'Cố lên nào! 💪', 'Cảm ơn bạn! 💖', 'Ván sau chơi nữa nhé! 🎉'];
+const clampInt = (v, lo, hi, d) => (Number.isFinite(v) ? Math.min(hi, Math.max(lo, Math.round(v))) : d);
+const infoOf = msg => ({ elo: clampInt(msg.elo, ELO.MIN, 3000, ELO.START), n: clampInt(msg.n, 0, 9999, 0) });
 
 class ChessManager {
   /* send(peerId, msg); onRoom(peerId, info) gửi lời mời vào chat; who(peerId) trả về {nick, av} đã được lọc */
@@ -27,20 +32,21 @@ class ChessManager {
   }
   gameOf(peerId) { const id = this.byPeer.get(peerId); return id ? this.games.get(id) : null; }
   isOpen(id) { const g = this.games.get(id); return !!g && g.status === 'waiting'; }
-  newGame(peerId, tc) {
+  newGame(peerId, tc, info) {
     const id = crypto.randomBytes(6).toString('hex');
-    const g = { id, status: 'waiting', tc, base: tc * 60_000, host: peerId, white: null, black: null, pos: Pos.start(), moves: [], sans: [],
+    const g = { id, status: 'waiting', tc, base: tc * 60_000, host: peerId, hostInfo: info, sayAt: { w: 0, b: 0 }, says: 0, white: null, black: null, pos: Pos.start(), moves: [], sans: [],
       clock: { w: tc * 60_000, b: tc * 60_000 }, turnStart: 0, drawOffer: null, result: null, lastMove: null, createdAt: Date.now(), doneAt: 0 };
     this.games.set(id, g);
     this.byPeer.set(peerId, id);
     this.listDirty = true;
     return g;
   }
-  start(g, a, b) {
+  start(g, a, ai, b, bi) {
     const whiteFirst = crypto.randomInt(2) === 0;
     const w = whiteFirst ? a : b, k = whiteFirst ? b : a;
-    g.white = { pid: w, ...this.who(w) };
-    g.black = { pid: k, ...this.who(k) };
+    const wi = whiteFirst ? ai : bi, ki = whiteFirst ? bi : ai;
+    g.white = { pid: w, ...this.who(w), elo: wi.elo, n: wi.n };
+    g.black = { pid: k, ...this.who(k), elo: ki.elo, n: ki.n };
     g.status = 'playing';
     this.listDirty = true;
     g.turnStart = Date.now();
@@ -59,7 +65,12 @@ class ChessManager {
     const now = Date.now();
     g.clock = this.clocks(g, now);
     g.status = 'over'; g.doneAt = now; g.drawOffer = null;
-    g.result = { winner, reason };
+    if (g.moves.length < 2) g.result = { winner: 'd', reason: 'aborted', ratings: null };   // chưa đi đủ nước thì huỷ ván, không tính điểm
+    else {
+      const sw = winner === 'w' ? 1 : winner === 'b' ? 0 : 0.5, w = g.white, b = g.black;
+      const dw = ELO.delta(w.elo, b.elo, sw, w.n), db = ELO.delta(b.elo, w.elo, 1 - sw, b.n);
+      g.result = { winner, reason, ratings: { w: { before: w.elo, after: Math.max(ELO.MIN, w.elo + dw) }, b: { before: b.elo, after: Math.max(ELO.MIN, b.elo + db) } } };
+    }
     this.touch(g);
   }
   leave(peerId) {
@@ -77,10 +88,10 @@ class ChessManager {
     this.games.delete(g.id);
     for (const p of [g.host, g.white && g.white.pid, g.black && g.black.pid]) if (p && this.byPeer.get(p) === g.id) this.byPeer.delete(p);
   }
-  join(g, peerId) {
+  join(g, peerId, info) {
     if (!g || g.status !== 'waiting') return 'Ván cờ này đã bắt đầu hoặc đã kết thúc rồi.';
     if (g.host === peerId) return null;
-    this.start(g, g.host, peerId);
+    this.start(g, g.host, g.hostInfo, peerId, info);
     return null;
   }
 
@@ -93,11 +104,15 @@ class ChessManager {
         const mine = this.gameOf(peerId);
         if (mine && mine.status === 'playing') return err('Em đang chơi một ván cờ rồi.');
         if (mine && mine.status === 'waiting') { this.touch(mine); return; }
-        const open = [...this.games.values()].find(g => g.status === 'waiting' && g.tc === tc && g.host !== peerId);
-        if (open) { const e = this.join(open, peerId); if (e) err(e); return; }
-        const g = this.newGame(peerId, tc);
+        const info = infoOf(msg), now = Date.now();
+        // ghép với bạn có điểm gần mình nhất; nếu chênh quá 400 điểm thì chờ 20 giây rồi mới ghép
+        const open = [...this.games.values()].filter(g => g.status === 'waiting' && g.tc === tc && g.host !== peerId)
+          .sort((x, y) => Math.abs(x.hostInfo.elo - info.elo) - Math.abs(y.hostInfo.elo - info.elo))
+          .find(g => Math.abs(g.hostInfo.elo - info.elo) <= 400 || now - g.createdAt > 20_000);
+        if (open) { const e = this.join(open, peerId, info); if (e) err(e); return; }
+        const g = this.newGame(peerId, tc, info);
         this.touch(g);
-        this.onRoom(peerId, { game: 'chess', id: g.id, tc });
+        this.onRoom(peerId, { game: 'chess', id: g.id, tc, elo: info.elo });
         return;
       }
       case 'chess.join': {
@@ -106,7 +121,16 @@ class ChessManager {
         const g = typeof msg.id === 'string' ? this.games.get(msg.id) : null;
         if (!g || g.status !== 'waiting') return err('Ván cờ này đã bắt đầu hoặc đã kết thúc rồi.');
         if (mine && mine.status === 'waiting' && mine !== g) this.leave(peerId);
-        const e = this.join(g, peerId); if (e) err(e);
+        const e = this.join(g, peerId, infoOf(msg)); if (e) err(e);
+        return;
+      }
+      case 'chess.say': {
+        const g = this.gameOf(peerId), side = g && this.sideOf(g, peerId);
+        const id = Number.isInteger(msg.id) ? msg.id : -1, now = Date.now();
+        if (!g || !side || g.status === 'waiting' || id < 0 || id >= CHESS_SAYS.length) return;
+        if (now - g.sayAt[side] < 1000 || g.says >= 60) return;
+        g.sayAt[side] = now; g.says++;
+        for (const pid of [g.white.pid, g.black.pid]) if (this.byPeer.get(pid) === g.id) this.send(pid, { t: 'chess.say', side, id });
         return;
       }
       case 'chess.cancel': case 'chess.leave': this.leave(peerId); this.send(peerId, { t: 'chess.left' }); return;
@@ -165,7 +189,7 @@ class ChessManager {
     if (this.listDirty) { this.listDirty = false; this.broadcastAll({ t: 'chess.open', list: this.openList() }); }
   }
   openList() {
-    return [...this.games.values()].filter(g => g.status === 'waiting').slice(0, 20).map(g => ({ id: g.id, tc: g.tc, ...this.who(g.host) }));
+    return [...this.games.values()].filter(g => g.status === 'waiting').slice(0, 20).map(g => ({ id: g.id, tc: g.tc, elo: g.hostInfo.elo, ...this.who(g.host) }));
   }
   push(g) {
     const now = Date.now();
@@ -173,13 +197,13 @@ class ChessManager {
     for (const pid of pids) if (this.byPeer.get(pid) === g.id) this.send(pid, { t: 'chess', g: this.view(g, pid, now) });
   }
   view(g, pid, now) {
-    const pub = p => (p ? { nick: p.nick, av: p.av } : null);
+    const pub = p => (p ? { nick: p.nick, av: p.av, elo: p.elo } : null);
     return {
       id: g.id, status: g.status, tc: g.tc, you: this.sideOf(g, pid), host: g.host === pid,
-      white: pub(g.white), black: pub(g.black), moves: g.moves, sans: g.sans,
+      white: pub(g.white), black: pub(g.black), says: CHESS_SAYS, moves: g.moves, sans: g.sans,
       turn: g.pos.turn === 1 ? 'w' : 'b', clocks: this.clocks(g, now), drawOffer: g.drawOffer, result: g.result, lastMove: g.lastMove
     };
   }
 }
 
-module.exports = { ChessManager, TCS };
+module.exports = { ChessManager, TCS, CHESS_SAYS };

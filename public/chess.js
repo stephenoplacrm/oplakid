@@ -331,9 +331,20 @@
     return scored[0][0];
   }
 
+  /* ---------- điểm Elo và hạng ---------- */
+  const ELO_START = 500;
+  const TIERS = [[0, 'Tân binh', '🥚'], [600, 'Tập sự', '🐣'], [800, 'Học trò', '🐥'], [1000, 'Chiến sĩ', '⚔️'], [1200, 'Hiệp sĩ', '🛡️'],
+    [1400, 'Đại hiệp', '🦅'], [1600, 'Cao thủ', '🐉'], [1800, 'Kiện tướng', '👑'], [2200, 'Đại kiện tướng', '🏆']];
+  const tier = r => { let t = TIERS[0]; for (const x of TIERS) if (r >= x[0]) t = x; return { min: t[0], name: t[1], icon: t[2] }; };
+  const nextTier = r => { const t = TIERS.find(x => x[0] > r); return t ? { min: t[0], name: t[1], icon: t[2] } : null; };
+  const kFactor = games => (games < 15 ? 48 : games < 40 ? 32 : 24);   // mới chơi thì điểm lên xuống nhanh hơn
+  /* điểm cộng hoặc trừ của người có điểm r khi gặp người điểm opp; score: 1 thắng, 0.5 hoà, 0 thua */
+  const eloDelta = (r, opp, score, games, k) => Math.round((k || kFactor(games)) * (score - 1 / (1 + Math.pow(10, (opp - r) / 400))));
+  const ELO = { START: ELO_START, MIN: 100, tier, nextTier, delta: eloDelta, BOT: { 1: 400, 2: 800, 3: 1200 }, TIERS: TIERS.map(x => ({ min: x[0], name: x[1], icon: x[2] })) };
+
   const REASONS = {
     checkmate: 'chiếu hết', stalemate: 'hết nước đi (hoà cờ)', insufficient: 'không đủ quân để chiếu hết',
-    fifty: 'luật 50 nước', repetition: 'lặp lại 3 lần', timeout: 'hết giờ', resign: 'đầu hàng', agreed: 'hai bên đồng ý hoà', abandoned: 'bạn kia đã rời ván'
+    fifty: 'luật 50 nước', repetition: 'lặp lại 3 lần', aborted: 'ván bị huỷ vì chưa đi đủ nước', timeout: 'hết giờ', resign: 'đầu hàng', agreed: 'hai bên đồng ý hoà', abandoned: 'bạn kia đã rời ván'
   };
-  return { Pos, bestMove, evaluate, sqName, sqIdx, START_FEN, REASONS, PIECES: { P, N, B, R, Q, K } };
+  return { Pos, bestMove, evaluate, sqName, sqIdx, START_FEN, REASONS, ELO, PIECES: { P, N, B, R, Q, K } };
 });
