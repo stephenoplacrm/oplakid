@@ -1,6 +1,6 @@
 # OplaKid
 
-Trang game cho trẻ em, hiện có hai game: **Cờ vua** (chơi với máy ở 3 mức hoặc với bạn online, có đồng hồ, gợi ý và đi lại khi chơi với máy) và **Gõ phím** (luyện gõ 10 ngón cho trẻ tiểu học): 262 bài chia 10 cấp độ (50 bài thêm không bắt buộc để mở cấp độ sau; từ Cấp độ 6 bé gõ tiếng Việt bằng bộ gõ tiếng Việt có sẵn của máy); 6 trò chơi; nhạc nền thiếu nhi khi gõ; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
+Trang game cho trẻ em, hiện có hai game: **Cờ vua** (chơi với máy ở 3 mức hoặc với bạn online, có đồng hồ, điểm Elo và hạng từ Tân binh đến Đại kiện tướng, chọn câu nói nhanh trong ván, gợi ý và đi lại khi chơi với máy) và **Gõ phím** (luyện gõ 10 ngón cho trẻ tiểu học): 262 bài chia 10 cấp độ (50 bài thêm không bắt buộc để mở cấp độ sau; từ Cấp độ 6 bé gõ tiếng Việt bằng bộ gõ tiếng Việt có sẵn của máy); 6 trò chơi; nhạc nền thiếu nhi khi gõ; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
 
 ## Có gì trong bản này
 

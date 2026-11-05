@@ -590,3 +590,19 @@ a{color:var(--ink)}
 .classbtn .cico{grid-row:span 2;font-size:clamp(40px,8vw,56px);line-height:1}
 .classbtn b{font-size:clamp(22px,4.5vw,30px);color:var(--ink);line-height:1.1}
 .classbtn .crec{font-weight:800;color:var(--muted);font-size:15px}
+
+/* Cờ vua: điểm Elo, hạng, nói chuyện nhanh; trang chính chia theo hoạt động */
+.celo{margin:0 0 4px;color:var(--text);font-size:17px}
+.celo b{color:var(--ink)}
+.celobar{height:10px;max-width:420px;border-radius:5px;background:var(--line);overflow:hidden;margin:0 0 10px}
+.celobar i{display:block;height:100%;background:var(--c-middle);transition:width .4s}
+.celoline{font-weight:800;color:var(--ink)}
+.cplayer .celo2{font-size:14px;font-weight:700;color:var(--muted);white-space:nowrap}
+.csay{display:flex;flex-direction:column;gap:6px;background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:8px 10px}
+.saylog{min-height:2.6em;max-height:7.5em;overflow:auto;font-size:15px;display:flex;flex-direction:column;gap:2px}
+.saymsg b{color:var(--ink)}.saymsg.me{color:var(--muted)}
+.saypick{display:flex;flex-wrap:wrap;gap:5px}
+.saypick .chip{font-size:14px;padding:3px 10px}
+.wlvs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}
+.wlv{font-size:13px;font-weight:800;border:2px solid var(--zc);border-radius:999px;padding:0 8px;color:var(--ink)}
+.wbadge{margin-left:6px;font-size:12px;font-weight:800;color:var(--muted)}
