@@ -14,6 +14,7 @@ const express = require('express');
 const { WebSocketServer } = require('ws');
 const Database = require('better-sqlite3');
 const { RaceManager, cleanNick } = require('./races');
+const { ChessManager } = require('./chessgames');
 
 const scrypt = promisify(crypto.scrypt);
 
@@ -603,8 +604,8 @@ const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸', '🐱', '🐶',
 const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10']);
 const PHASES = new Set(['lobby', 'countdown', 'racing', 'done']);
 const KINDS = new Set(['sent', 'long', 'words', 'home', 'keys']);
-const ACTS = new Set(['race', 'learn', 'yard', 'parent']);
-const WHERE = new Set(['home', 'play', 'game', 'results', 'parent', 'online', 'login', 'world', 'auth', 'cert']);
+const ACTS = new Set(['race', 'learn', 'yard', 'parent', 'chess']);
+const WHERE = new Set(['home', 'hub', 'chess', 'play', 'game', 'results', 'parent', 'online', 'login', 'world', 'auth', 'cert']);
 const BAD_CHARS = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g;
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : undefined);
 
@@ -651,13 +652,13 @@ const chatLog = [];   // 30 câu gần nhất (trong bộ nhớ), gửi cho bạ
  * Bạn nào bấm vào lời mời thì mới vào được phòng. */
 function announceRoom(peerId, room) {
   const peer = peers.get(peerId);
-  if (!peer || !ROOM_STAGES.has(room.stage)) return;
+  if (!peer || (room.game !== 'chess' && !ROOM_STAGES.has(room.stage))) return;
   const now = Date.now();
   peer.roomTimes = (peer.roomTimes || []).filter(t => now - t < 60_000);
   if (peer.roomTimes.length >= 3) return;
   peer.roomTimes.push(now);
   const m = { t: 'chat', kind: 'room', from: peerId, nick: cleanNick(peer.presence.nick || '') || 'Một bạn', av: peer.presence.av || '🙂',
-    rid: room.id, stage: room.stage, at: now };
+    rid: room.id, ...(room.game === 'chess' ? { game: 'chess', tc: room.tc } : { stage: room.stage }), at: now };
   chatLog.push(m); if (chatLog.length > 30) chatLog.shift();
   const s = JSON.stringify(m);
   for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s);
@@ -706,6 +707,12 @@ const races = new RaceManager(
   msg => { const s = JSON.stringify(msg); for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s); },
   announceRoom
 );
+const chess = new ChessManager(
+  (peerId, msg) => { const p = peers.get(peerId); if (p && p.ws.readyState === 1) p.ws.send(JSON.stringify(msg)); },
+  announceRoom,
+  peerId => { const p = peers.get(peerId); return { nick: cleanNick((p && p.presence.nick) || ''), av: (p && AVATARS.has(p.presence.av)) ? p.presence.av : '🐯' }; },
+  msg => { const s = JSON.stringify(msg); for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s); }
+);
 function disconnectUser(userId) {
   for (const p of peers.values()) if (p.userId === userId) p.ws.close(4001, 'account deleted');
 }
@@ -717,8 +724,9 @@ wss.on('connection', ws => {
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
   ws.send(JSON.stringify({ t: 'hello', you: id }));
-  ws.send(JSON.stringify({ t: 'chat.init', groups: CHAT_GROUPS, history: chatLog.filter(m => m.kind !== 'room' || races.isOpen(m.rid)) }));
+  ws.send(JSON.stringify({ t: 'chat.init', groups: CHAT_GROUPS, history: chatLog.filter(m => m.kind !== 'room' || (m.game === 'chess' ? chess.isOpen(m.rid) : races.isOpen(m.rid))) }));
   ws.send(JSON.stringify({ t: 'races', list: races.listFor() }));
+  ws.send(JSON.stringify({ t: 'chess.open', list: chess.openList() }));
   scheduleBroadcast();
   ws.on('message', raw => {
     const now = Date.now();
@@ -739,9 +747,11 @@ wss.on('connection', ws => {
       handleChat(peer, id, msg, now);
     } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('race.')) {
       races.handle(id, msg);
+    } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('chess.')) {
+      chess.handle(id, msg);
     }
   });
-  ws.on('close', () => { races.leave(id, true); peers.delete(id); scheduleBroadcast(); });
+  ws.on('close', () => { races.leave(id, true); chess.leave(id); peers.delete(id); scheduleBroadcast(); });
   ws.on('error', () => {});
 });
 setInterval(() => {

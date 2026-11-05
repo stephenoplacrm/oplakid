@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8">
-<meta name="description" content="OplaKid: luyện gõ 10 ngón cho trẻ tiểu học, tiếng Anh và tiếng Việt.">
+<meta name="description" content="OplaKid: trang game cho trẻ em. Chơi cờ vua với máy hoặc với bạn, luyện gõ 10 ngón tiếng Anh và tiếng Việt.">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>OplaKid</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +25,65 @@
   <p class="imewarn" id="ime-warn" role="alert" hidden>Nhớ tắt bộ gõ tiếng Việt (Unikey, EVKey) nhé!</p>
 
   <main>
+    <section id="s-hub" hidden>
+      <h1>Hôm nay em muốn chơi gì?</h1>
+      <div class="hubgrid">
+        <button class="hubcard" id="hub-chess" type="button"><span class="hico" aria-hidden="true">♞</span><b>Cờ vua</b><span class="hds">Chơi với máy hoặc với bạn online.</span><span class="hrec" id="hub-chess-rec"></span></button>
+        <button class="hubcard" id="hub-typing" type="button"><span class="hico" aria-hidden="true">⌨️</span><b>Gõ phím</b><span class="hds">Luyện gõ 10 ngón, trò chơi và đua với bạn.</span><span class="hrec" id="hub-typing-rec"></span></button>
+      </div>
+    </section>
+
+    <section id="s-chess" hidden>
+      <div class="playbar">
+        <button class="pill" id="c-back" type="button">Chọn game khác <kbd>Esc</kbd></button>
+        <span></span>
+        <div class="toggles"><button class="tg tg-sound" type="button" aria-label="Âm thanh" aria-pressed="true">🔊</button></div>
+      </div>
+      <div id="c-lobby">
+        <h1 class="oneline">♞ Cờ vua</h1>
+        <p class="note" id="c-rec"></p>
+        <div class="clobby">
+          <div class="crow"><span class="lbl">Chơi với</span><button class="chip" type="button" data-cvs="bot">🤖 Máy</button><button class="chip" type="button" data-cvs="net">👫 Bạn online</button></div>
+          <div class="crow" data-only="bot"><span class="lbl">Máy chơi</span><button class="chip" type="button" data-clevel="1">🐢 Dễ</button><button class="chip" type="button" data-clevel="2">🐇 Vừa</button><button class="chip" type="button" data-clevel="3">🐆 Khó</button></div>
+          <div class="crow" data-only="bot"><span class="lbl">Em cầm quân</span><button class="chip" type="button" data-ccolor="w">⚪ Trắng</button><button class="chip" type="button" data-ccolor="b">⚫ Đen</button><button class="chip" type="button" data-ccolor="r">🎲 Ngẫu nhiên</button></div>
+          <div class="crow"><span class="lbl">Thời gian</span><button class="chip" type="button" data-ctc="0">Không tính giờ</button><button class="chip" type="button" data-ctc="5">5 phút</button><button class="chip" type="button" data-ctc="10">10 phút</button><button class="chip" type="button" data-ctc="15">15 phút</button></div>
+          <button class="btn primary" id="c-play" type="button">▶ Chơi với máy</button>
+          <div id="c-wait" hidden>
+            <p class="lede">Đang chờ bạn vào chơi… Lời mời đã hiện trong khung trò chuyện ở Trường tiểu học.</p>
+            <div class="btns" style="justify-content:flex-start"><button class="chip" id="c-wait-bot" type="button">Chơi với máy ngay</button><button class="chip" id="c-wait-cancel" type="button">Huỷ</button></div>
+          </div>
+          <p class="note" id="c-note"></p>
+          <div id="c-openbox" data-only="net"><h3 class="pubh">Các bạn đang chờ chơi cờ</h3><ol class="pubraces" id="c-open"></ol></div>
+        </div>
+      </div>
+      <div id="c-game" hidden>
+        <div class="cwrap">
+          <div class="cmain">
+            <div class="cplayer" id="c-top"></div>
+            <div class="cboard" id="c-board" role="grid" aria-label="Bàn cờ"></div>
+            <div class="cplayer" id="c-bot"></div>
+          </div>
+          <div class="cside">
+            <p class="cstatus" id="c-status" aria-live="polite"></p>
+            <div class="cdraw" id="c-drawbox" hidden>Bạn xin hoà. <button class="chip" id="c-draw-yes" type="button">Đồng ý</button><button class="chip" id="c-draw-no" type="button">Không</button></div>
+            <div class="cbtns">
+              <button class="chip" id="c-flip" type="button">🔄 Lật bàn cờ</button>
+              <button class="chip" id="c-hint" type="button">💡 Gợi ý</button>
+              <button class="chip" id="c-undo" type="button">↩️ Đi lại</button>
+              <button class="chip" id="c-draw" type="button">🤝 Xin hoà</button>
+              <button class="chip" id="c-resign" type="button">🏳️ Đầu hàng</button>
+            </div>
+            <ol class="cmoves" id="c-moves" aria-label="Các nước đã đi"></ol>
+            <div class="cover" id="c-over" hidden>
+              <h2 id="c-over-title"></h2><p id="c-over-sub"></p>
+              <div class="btns" style="justify-content:flex-start"><button class="btn primary" id="c-again" type="button">Chơi ván mới</button><button class="btn" id="c-lobbybtn" type="button">Đổi cách chơi</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="cpromo" id="c-promo" hidden><p>Tốt đã tới cuối bàn cờ! Em muốn đổi thành quân nào?</p><div class="btns" id="c-promo-row" style="justify-content:flex-start"></div></div>
+      </div>
+    </section>
+
     <section id="s-home">
       <button class="btn primary cont" id="cont" type="button">Học tiếp <kbd>Enter</kbd></button>
       <div class="onstrip" id="onstrip" hidden>
@@ -357,6 +416,7 @@
   </div>
 </div>
 
+<script src="/chess.js" defer></script>
 <script src="/app.js" defer></script>
 </body>
 </html>

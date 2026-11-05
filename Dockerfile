@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y python3 make g++ --no-install-recommend
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-COPY server.js races.js ./
+COPY server.js races.js chessgames.js ./
 COPY public ./public
 
 EXPOSE 3000
