@@ -10,7 +10,7 @@ Trang game cho trẻ em, hiện có hai game: **Cờ vua** (chơi với máy ở
   - Giới hạn số lần thử để chống dò mật khẩu.
 - **Hồ sơ bé:** mỗi tài khoản có nhiều bé. Bé đăng nhập bằng cách chọn hồ sơ của mình.
 - **Lưu tiến độ trên máy chủ:** học trên máy nào cũng giữ nguyên tiến độ.
-- **Thời gian thực qua WebSocket:** đếm số người online, Trường tiểu học OplaKid 3D và phòng đua với bạn.
+- **Thời gian thực qua WebSocket:** đếm số người online, phòng đua với bạn, ván cờ vua online và **Trường tiểu học OplaKid 3D, là trang chính**: hai lớp Gõ phím, một lớp Cờ vua (bạn nào đang chơi cờ thì ngồi vào bàn cờ), sân đua và Góc phụ huynh. Bấm vào lớp để vào game.
   - Các bạn đang online thấy con vật đại diện, biệt danh và cấp độ học của nhau. Dữ liệu cuộc đua chỉ hiện với người cùng tài khoản hoặc cùng phòng đua.
 - **Đua trực tuyến do máy chủ điều khiển:**
   - Đua với bạn: tối đa 5 bé cùng cấp độ, lời mời hiện trong khung trò chuyện; sau 1 phút máy vào chơi ngang trình nếu còn ít bạn.
