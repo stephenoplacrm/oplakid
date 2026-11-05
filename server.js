@@ -598,7 +598,11 @@ app.use('/vendor/three.min.js', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.sendFile(require.resolve('three/build/three.min.js'));
 });
-app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'], maxAge: '1h' }));
+/* Trang, mã JS và CSS luôn hỏi lại máy chủ (có ETag nên chỉ tải lại khi đã đổi), để bé không bị kẹt bản cũ sau khi cập nhật; ảnh và phông giữ trong bộ nhớ đệm 1 giờ. */
+app.use(express.static(path.join(__dirname, 'public'), {
+  extensions: ['html'], maxAge: '1h',
+  setHeaders: (res, p) => { if (/\.(js|css|html)$/.test(p)) res.setHeader('Cache-Control', 'no-cache'); }
+}));
 app.use((err, req, res, next) => {
   console.error(err);
   if (res.headersSent) return next(err);
@@ -741,6 +745,8 @@ const chess = new ChessManager(
   peerId => { const p = peers.get(peerId); return { nick: cleanNick((p && p.presence.nick) || ''), av: (p && AVATARS.has(p.presence.av)) ? p.presence.av : '🐯' }; },
   msg => { const s = JSON.stringify(msg); for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s); }
 );
+/* Phiên bản của mã giao diện đang chạy: gửi cho trình duyệt khi kết nối, trình duyệt thấy khác bản mình đang chạy thì mời bé tải lại trang. */
+const BUILD_VER = crypto.createHash('sha1').update(['app.js', 'app.css', 'index.html', 'chess.js'].map(f => { try { return fs.readFileSync(path.join(__dirname, 'public', f)); } catch { return ''; } }).join('|')).digest('hex').slice(0, 10);
 /* ---------- hồ sơ công khai của bé ---------- */
 const upsertKid = db.prepare(`INSERT INTO kid_profiles(k,hid,nick,av,elo,lv,done,cw,cl,cd,qb,xb,seen) VALUES(@k,@hid,@nick,@av,@elo,@lv,@done,@cw,@cl,@cd,@qb,@xb,@seen)
   ON CONFLICT(k) DO UPDATE SET nick=@nick,av=@av,elo=@elo,lv=@lv,done=@done,cw=@cw,cl=@cl,cd=@cd,qb=@qb,xb=@xb,seen=@seen`);
@@ -761,7 +767,7 @@ function saveKid(peer, now) {
 }
 function profileMsg(row, online, act) {
   return { t: 'profile', hid: row.hid, nick: row.nick, av: row.av, elo: row.elo, lv: row.lv, done: row.done, cw: row.cw, cl: row.cl, cd: row.cd, qb: row.qb, xb: row.xb,
-    seen: row.seen, online: !!online, act: online ? act || null : null };
+    seen: row.seen, online: !!online, act: online ? act || null : null, noPid: !!row.noPid };
 }
 function handleProfile(peer, msg) {
   const now = Date.now();
@@ -772,7 +778,7 @@ function handleProfile(peer, msg) {
       if (!target || !target.presence.stage) { peer.ws.send(JSON.stringify({ t: 'profile', missing: true })); return; }
       const hid = saveKid(target, now);
       row = hid ? kidByHid.get(hid) : null; online = true; act = target.presence.act;
-      if (!row) row = { hid: '', nick: cleanNick(target.presence.nick || ''), av: target.presence.av || '🐯', elo: Number.isFinite(target.presence.elo) ? target.presence.elo : -1, lv: 1, done: -1, cw: -1, cl: -1, cd: -1, qb: -1, xb: -1, seen: now };
+      if (!row) row = { hid: '', noPid: true, nick: cleanNick(target.presence.nick || ''), av: target.presence.av || '🐯', elo: Number.isFinite(target.presence.elo) ? target.presence.elo : -1, lv: Math.max(1, ['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10'].indexOf(target.presence.stage) + 1), done: -1, cw: -1, cl: -1, cd: -1, qb: -1, xb: -1, seen: now };
     } else if (typeof msg.hid === 'string' && /^[a-f0-9]{12}$/.test(msg.hid)) {
       row = kidByHid.get(msg.hid);
       for (const p of peers.values()) { const pk = kidKey(p); if (pk && hidOf(pk) === msg.hid) { online = true; act = p.presence.act; row = kidByHid.get(msg.hid) || row; } }
@@ -855,7 +861,7 @@ wss.on('connection', ws => {
   peers.set(id, peer);
   ws.isAlive = true;
   ws.on('pong', () => { ws.isAlive = true; });
-  ws.send(JSON.stringify({ t: 'hello', you: id }));
+  ws.send(JSON.stringify({ t: 'hello', you: id, ver: BUILD_VER }));
   ws.send(JSON.stringify({ t: 'chat.init', groups: CHAT_GROUPS, history: chatLog.filter(m => m.kind !== 'room' || (m.game === 'chess' ? chess.isOpen(m.rid) : races.isOpen(m.rid))) }));
   ws.send(JSON.stringify({ t: 'races', list: races.listFor() }));
   ws.send(JSON.stringify({ t: 'chess.open', list: chess.openList() }));

@@ -1821,7 +1821,7 @@ function createRoom(){
     ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws');
     ws.onopen=()=>{conn=true;retry=0;connHs.forEach(h=>h(true));if(Object.keys(mine).length)ws.send(JSON.stringify({t:'presence',patch:mine}));};
     ws.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}
-      if(m.t==='hello')mePeer=m.you;
+      if(m.t==='hello'){mePeer=m.you;if(m.ver){if(!window.__ver)window.__ver=m.ver;else if(window.__ver!==m.ver)window.dispatchEvent(new CustomEvent('oplakid-newver'));}}
       else if(m.t==='peers'&&Array.isArray(m.peers)){
         snap=Object.freeze(m.peers.map(p=>Object.freeze({peer:p.peer,by:null,isMe:p.peer===mePeer,sameTab:p.peer===mePeer,kind:'viewer',guest:false,presence:Object.freeze(p.presence||{}),updatedAt:p.updatedAt})));
         const ch={peers:snap,joined:[],left:[],updated:[]};peerHs.forEach(h=>h(ch));
@@ -3375,7 +3375,7 @@ function pfRow(ico,title,text){const d=document.createElement('div');d.className
 function onProfileMsg(m){
   if(m.t==='profile.recent'){recentKids=Array.isArray(m.list)?m.list.filter(x=>x&&typeof x.hid==='string'):[];if(screen==='world')renderWorldList();return;}
   if(m.t!=='profile'||$('#profile-modal').hidden)return;
-  pfHid=m.missing?'':(m.hid||'');
+  pfHid=m.missing?'':(m.hid||'');pfNoPid=!!m.noPid;
   if(m.missing){$('#pf-av').textContent='🤷';$('#pf-name').textContent='Chưa xem được hồ sơ';$('#pf-status').textContent='Bạn này vừa rời đi hoặc chưa có hồ sơ.';$('#pf-body').innerHTML='';return;}
   $('#pf-av').textContent=String(m.av||'🙂').slice(0,8);$('#pf-name').textContent=String(m.nick||'Một bạn').slice(0,12);
   $('#pf-status').textContent=m.online?'🟢 Đang online · '+(ACT_TXT[m.act]||ACT_TXT.yard):'⚪ Online lần cuối: '+ago((Date.now()-m.seen)/1000);
@@ -3389,7 +3389,7 @@ function onProfileMsg(m){
 
 
 /* ================= Kết bạn và mời chơi ================= */
-let fr={me:'',friends:[],incoming:[],outgoing:[]},pfHid='',pfOnline=false,toastT=0;
+let fr={me:'',friends:[],incoming:[],outgoing:[]},pfHid='',pfNoPid=false,pfOnline=false,toastT=0;
 const frSend=m=>{if(room&&room.connected())room.send(m);};
 function toast(text,btns,ms){
   clearTimeout(toastT);$('#toast-text').textContent=text;const box=$('#toast-btns');box.innerHTML='';
@@ -3402,6 +3402,7 @@ function inviteFriend(hid){guardStart(()=>{
   cprefs.vs='net';cNet={waiting:true,friend:true};show('chess');renderChessLobby();$('#c-note').textContent='';
   room.send({t:'friend.invite',hid,tc:cprefs.tc,elo:chessElo(),n:chessGamesN()});
 });}
+window.addEventListener('oplakid-newver',()=>toast('OplaKid có bản mới! Em bấm Tải lại để dùng tính năng mới nhé.',[['Tải lại',()=>location.reload(),true],['Để sau',()=>{}]],600000));
 function onFriendMsg(m){
   if(m.t==='friend.list'){
     const had=new Set(fr.incoming.map(x=>x.hid));
@@ -3421,7 +3422,9 @@ function onFriendMsg(m){
 }
 function frState(hid){return fr.friends.some(f=>f.hid===hid)?'friend':fr.incoming.some(f=>f.hid===hid)?'incoming':fr.outgoing.includes(hid)?'outgoing':'none';}
 function renderPfActions(){
-  const box=$('#pf-actions');box.innerHTML='';if(!pfHid||pfHid===fr.me)return;
+  const box=$('#pf-actions');box.innerHTML='';
+  if(!pfHid&&pfNoPid){const p=document.createElement('p');p.className='note';p.style.margin='0';p.textContent='Bạn này chưa cập nhật phiên bản mới nên chưa kết bạn được. Nhắc bạn ấy tải lại trang (Ctrl+Shift+R) nhé.';box.appendChild(p);return;}
+  if(!pfHid||pfHid===fr.me)return;
   const add=(label,fn,go)=>{const b=document.createElement('button');b.type='button';b.className='chip'+(go?' go':'');b.textContent=label;b.addEventListener('click',fn);box.appendChild(b);};
   const st=frState(pfHid);
   if(st==='none')add('➕ Kết bạn',()=>frSend({t:'friend.req',hid:pfHid}),true);
