@@ -89,6 +89,12 @@ CREATE TABLE IF NOT EXISTS kid_profiles(
 CREATE INDEX IF NOT EXISTS kid_profiles_seen ON kid_profiles(seen);
 DELETE FROM kid_profiles WHERE seen < ${Date.now() - 60 * 864e5};
 `);
+/* Kết bạn giữa các bé: a gửi lời mời cho b (state 0), b đồng ý thì state 1. Xoá khi ba mẹ xoá tài khoản. */
+db.exec(`
+CREATE TABLE IF NOT EXISTS kid_friends(a TEXT NOT NULL, b TEXT NOT NULL, state INTEGER NOT NULL DEFAULT 0, at INTEGER NOT NULL, PRIMARY KEY(a, b));
+CREATE INDEX IF NOT EXISTS kid_friends_b ON kid_friends(b);
+DELETE FROM kid_friends WHERE a NOT IN (SELECT k FROM kid_profiles) OR b NOT IN (SELECT k FROM kid_profiles);
+`);
 
 /* Thêm cột mới cho bảng users (có giá trị mặc định, không đổi hay xoá cột cũ) */
 {
@@ -116,6 +122,7 @@ const q = {
   insertUser: db.prepare('INSERT INTO users(id, email, pw, created_at, consent_at) VALUES(?, ?, ?, ?, ?)'),
   updatePw: db.prepare('UPDATE users SET pw = ? WHERE id = ?'),
   deleteUser: db.prepare('DELETE FROM users WHERE id = ?'),
+  deleteFriends: db.prepare("DELETE FROM kid_friends WHERE a LIKE ? ESCAPE '\\' OR b LIKE ? ESCAPE '\\'"),
   deleteKids: db.prepare("DELETE FROM kid_profiles WHERE k LIKE ? ESCAPE '\\'"),
   insertFeedback: db.prepare('INSERT INTO feedback(id, user_id, kind, rating, message, contact_ok, created_at) VALUES(?, ?, ?, ?, ?, ?, ?)'),
   listFeedback: db.prepare('SELECT f.id, f.kind, f.rating, f.message, f.contact_ok, f.created_at, u.email FROM feedback f JOIN users u ON u.id = f.user_id ORDER BY f.created_at DESC LIMIT 200'),
@@ -426,6 +433,7 @@ app.post('/api/account/delete', requireUser, wrap(async (req, res) => {
   if (rateLimited('del:' + req.user.id, 5, 900_000)) return res.status(429).json({ error: 'Bạn thử quá nhiều lần.' });
   const row = q.userPwById.get(req.user.id);
   if (!row || !(await verifyPassword(String(req.body.password || ''), row.pw))) return res.status(401).json({ error: 'Mật khẩu chưa đúng.' });
+  q.deleteFriends.run(req.user.id + ':%', req.user.id + ':%');
   q.deleteKids.run(req.user.id + ':%');
   q.deleteUser.run(req.user.id);
   disconnectUser(req.user.id);
@@ -743,9 +751,11 @@ const hidOf = pk => crypto.createHash('sha1').update(pk).digest('hex').slice(0, 
 function saveKid(peer, now) {
   const pk = kidKey(peer), pr = peer.presence;
   if (!pk || !pr.nick || !pr.stage) return null;
-  const st = pr.stats || {}, hid = hidOf(pk);
-  upsertKid.run({ k: pk, hid, nick: cleanNick(pr.nick), av: AVATARS.has(pr.av) ? pr.av : '🐯', elo: Number.isFinite(pr.elo) ? pr.elo : 500,
-    lv: st.lv || 1, done: st.done || 0, cw: st.cw || 0, cl: st.cl || 0, cd: st.cd || 0, qb: st.qb || 0, xb: st.xb || 0, seen: now });
+  // Trình duyệt cũ chưa báo tiến độ lên: ghi -1 (chưa biết) thay vì 0 để không hiện sai "0 bài"; cấp độ tạm lấy theo khu đang ở
+  const st = pr.stats, hid = hidOf(pk), stageLv = Math.max(1, ['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10'].indexOf(pr.stage) + 1);
+  const n = (v, d) => (st && Number.isFinite(v) ? v : d);
+  upsertKid.run({ k: pk, hid, nick: cleanNick(pr.nick), av: AVATARS.has(pr.av) ? pr.av : '🐯', elo: Number.isFinite(pr.elo) ? pr.elo : -1,
+    lv: st ? Math.max(1, n(st.lv, stageLv)) : stageLv, done: n(st && st.done, -1), cw: n(st && st.cw, -1), cl: n(st && st.cl, -1), cd: n(st && st.cd, -1), qb: n(st && st.qb, -1), xb: n(st && st.xb, -1), seen: now });
   peer.savedAt = now;
   return hid;
 }
@@ -762,7 +772,7 @@ function handleProfile(peer, msg) {
       if (!target || !target.presence.stage) { peer.ws.send(JSON.stringify({ t: 'profile', missing: true })); return; }
       const hid = saveKid(target, now);
       row = hid ? kidByHid.get(hid) : null; online = true; act = target.presence.act;
-      if (!row) row = { hid: '', nick: cleanNick(target.presence.nick || ''), av: target.presence.av || '🐯', elo: Number.isFinite(target.presence.elo) ? target.presence.elo : 500, lv: 1, done: 0, cw: 0, cl: 0, cd: 0, qb: 0, xb: 0, seen: now };
+      if (!row) row = { hid: '', nick: cleanNick(target.presence.nick || ''), av: target.presence.av || '🐯', elo: Number.isFinite(target.presence.elo) ? target.presence.elo : -1, lv: 1, done: -1, cw: -1, cl: -1, cd: -1, qb: -1, xb: -1, seen: now };
     } else if (typeof msg.hid === 'string' && /^[a-f0-9]{12}$/.test(msg.hid)) {
       row = kidByHid.get(msg.hid);
       for (const p of peers.values()) { const pk = kidKey(p); if (pk && hidOf(pk) === msg.hid) { online = true; act = p.presence.act; row = kidByHid.get(msg.hid) || row; } }
@@ -774,6 +784,66 @@ function handleProfile(peer, msg) {
     const list = kidsRecent.all(now - 7 * 864e5).filter(r => !onlineHids.has(r.hid)).slice(0, 12);
     peer.ws.send(JSON.stringify({ t: 'profile.recent', list }));
   }
+}
+/* ---------- kết bạn ---------- */
+const fGet = db.prepare('SELECT state FROM kid_friends WHERE a = ? AND b = ?');
+const fSet = db.prepare('INSERT INTO kid_friends(a,b,state,at) VALUES(?,?,?,?) ON CONFLICT(a,b) DO UPDATE SET state=excluded.state, at=excluded.at');
+const fDel = db.prepare('DELETE FROM kid_friends WHERE (a = ? AND b = ?) OR (a = ? AND b = ?)');
+const fFriends = db.prepare('SELECT p.k, p.hid, p.nick, p.av, p.seen FROM kid_friends f JOIN kid_profiles p ON p.k = CASE WHEN f.a = @k THEN f.b ELSE f.a END WHERE f.state = 1 AND (f.a = @k OR f.b = @k) ORDER BY p.seen DESC');
+const fIncoming = db.prepare('SELECT p.hid, p.nick, p.av FROM kid_friends f JOIN kid_profiles p ON p.k = f.a WHERE f.b = ? AND f.state = 0');
+const fOutgoing = db.prepare('SELECT p.hid FROM kid_friends f JOIN kid_profiles p ON p.k = f.b WHERE f.a = ? AND f.state = 0');
+const fCount = db.prepare('SELECT COUNT(*) AS n FROM kid_friends WHERE state = 1 AND (a = ? OR b = ?)');
+const fPending = db.prepare('SELECT COUNT(*) AS n FROM kid_friends WHERE state = 0 AND a = ?');
+const MAX_FRIENDS = 50, MAX_PENDING = 20;
+function peersOfKid(pk) { const out = []; for (const p of peers.values()) if (kidKey(p) === pk) out.push(p); return out; }
+function friendList(pk) {
+  const on = new Map();
+  for (const p of peers.values()) { const k = kidKey(p); if (k) on.set(k, p); }
+  return {
+    me: hidOf(pk),
+    friends: fFriends.all({ k: pk }).map(r => ({ hid: r.hid, nick: r.nick, av: r.av, seen: r.seen, online: on.has(r.k), act: on.has(r.k) ? on.get(r.k).presence.act || null : null })),
+    incoming: fIncoming.all(pk), outgoing: fOutgoing.all(pk).map(r => r.hid)
+  };
+}
+function pushFriends(pk) {
+  const m = JSON.stringify({ t: 'friend.list', ...friendList(pk) });
+  for (const p of peersOfKid(pk)) if (p.ws.readyState === 1) p.ws.send(m);
+}
+function notifyFriendsOf(pk) {   // bạn vào hoặc ra: cập nhật danh sách bạn bè của các bạn đang online
+  for (const r of fFriends.all({ k: pk })) if (peersOfKid(r.k).length) pushFriends(r.k);
+}
+function handleFriend(peer, id, msg) {
+  const pk = kidKey(peer), now = Date.now();
+  if (!pk || !peer.presence.nick || !peer.presence.stage) return;
+  if (!peer.savedAt) saveKid(peer, now);
+  if (msg.t === 'friend.list') { peer.ws.send(JSON.stringify({ t: 'friend.list', ...friendList(pk) })); return; }
+  const target = typeof msg.hid === 'string' && /^[a-f0-9]{12}$/.test(msg.hid) ? kidByHid.get(msg.hid) : null;
+  if (!target || target.k === pk) return;
+  const mine = fGet.get(pk, target.k), theirs = fGet.get(target.k, pk);
+  const friends = (mine && mine.state === 1) || (theirs && theirs.state === 1);
+  if (msg.t === 'friend.req') {
+    if (friends || mine) return;
+    if (theirs && theirs.state === 0) fSet.run(target.k, pk, 1, now);   // hai bên cùng gửi thì thành bạn luôn
+    else {
+      if (fCount.get(pk, pk).n >= MAX_FRIENDS || fPending.get(pk).n >= MAX_PENDING) { peer.ws.send(JSON.stringify({ t: 'friend.error', text: 'Em có quá nhiều bạn hoặc lời mời đang chờ rồi.' })); return; }
+      fSet.run(pk, target.k, 0, now);
+    }
+  } else if (msg.t === 'friend.ok') {
+    if (theirs && theirs.state === 0) { if (fCount.get(pk, pk).n >= MAX_FRIENDS) return; fSet.run(target.k, pk, 1, now); } else return;
+  } else if (msg.t === 'friend.no') {
+    fDel.run(pk, target.k, target.k, pk);
+  } else if (msg.t === 'friend.invite') {
+    if (!friends) return;
+    const targets = peersOfKid(target.k).filter(p => p.ws.readyState === 1);
+    if (!targets.length) { peer.ws.send(JSON.stringify({ t: 'friend.invite.fail', why: 'offline' })); return; }
+    const g = chess.invite(id, msg);
+    if (!g) { peer.ws.send(JSON.stringify({ t: 'friend.error', text: 'Em đang chơi một ván cờ rồi.' })); return; }
+    const from = { hid: hidOf(pk), nick: cleanNick(peer.presence.nick), av: AVATARS.has(peer.presence.av) ? peer.presence.av : '🐯' };
+    const m = JSON.stringify({ t: 'friend.invite', game: 'chess', rid: g.id, tc: g.tc, from });
+    for (const p of targets) p.ws.send(m);
+    return;
+  }
+  pushFriends(pk); pushFriends(target.k);
 }
 function disconnectUser(userId) {
   for (const p of peers.values()) if (p.userId === userId) p.ws.close(4001, 'account deleted');
@@ -804,19 +874,21 @@ wss.on('connection', ws => {
       for (const [k, v] of Object.entries(patch)) { if (v === null) delete next[k]; else next[k] = v; }
       peer.presence = next;
       peer.updatedAt = now;
-      if (!peer.savedAt || now - peer.savedAt > 20_000) saveKid(peer, now);
+      if (!peer.savedAt || now - peer.savedAt > 20_000) { const first = !peer.savedAt; saveKid(peer, now); if (first) { const pk = kidKey(peer); if (pk) notifyFriendsOf(pk); } }
       scheduleBroadcast();
     } else if (msg && msg.t === 'chat') {
       handleChat(peer, id, msg, now);
     } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('race.')) {
       races.handle(id, msg);
+    } else if (msg && typeof msg.t === 'string' && /^friend\.(list|req|ok|no|invite)$/.test(msg.t)) {
+      handleFriend(peer, id, msg);
     } else if (msg && (msg.t === 'profile.get' || msg.t === 'profile.recent')) {
       handleProfile(peer, msg);
     } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('chess.')) {
       chess.handle(id, msg);
     }
   });
-  ws.on('close', () => { saveKid(peer, Date.now()); races.leave(id, true); chess.leave(id); peers.delete(id); scheduleBroadcast(); });
+  ws.on('close', () => { saveKid(peer, Date.now()); races.leave(id, true); chess.leave(id); peers.delete(id); scheduleBroadcast(); const pk = kidKey(peer); if (pk) notifyFriendsOf(pk); });
   ws.on('error', () => {});
 });
 setInterval(() => {
