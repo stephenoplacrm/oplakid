@@ -466,7 +466,7 @@ a{color:var(--ink)}
 
 /* Trò chuyện nhanh, đổi tên */
 .chatbox{margin:12px 0}
-.chatlog{height:130px;overflow-y:auto;border:2px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--panel);margin-bottom:10px}
+.chatlog{height:84px;overflow-y:auto;border:2px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--panel);margin-bottom:10px}
 .chatline{font-size:15px;padding:2px 0;overflow-wrap:anywhere}
 .chatline b{color:var(--ink)}
 .roomline .chip{margin-left:4px}
