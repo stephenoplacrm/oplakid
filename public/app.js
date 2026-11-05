@@ -442,7 +442,7 @@ function doneBtn(stage,fn){const b=document.createElement('button');b.type='butt
 const GTAG={bubble:v=>v+' bóng',frog:v=>v+' giây',quiz:v=>v+'/10',mole:v=>v+' chú chuột',rocket:v=>v+' từ',scramble:v=>v+'/8',dragon:v=>'còn '+v+' bạn'};
 
 /* ================= Storage ================= */
-const DEFAULTS={chess:{w:0,l:0,d:0,elo:500,n:0},avatar:'🐯',nick:'',sound:true,music:true,speak:true,chat:true,look:null,limit:45,certs:{},exams:{},tipHands:false,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{},gdur:{}};
+const DEFAULTS={qbest:{},chess:{w:0,l:0,d:0,elo:500,n:0},avatar:'🐯',nick:'',sound:true,music:true,speak:true,chat:true,look:null,limit:45,certs:{},exams:{},tipHands:false,kbFull:false,unlockAll:false,updatedAt:0,sessions:[],miss:{},ghosts:{},best:{},bestWpm:{},gbest:{},gdur:{}};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function readJSON(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
@@ -624,7 +624,7 @@ function needFull(){
 }
 function show(name){
   screen=name;
-  ['chess','home','play','game','results','parent','online','login','world','auth','cert'].forEach(s=>$('#s-'+s).hidden=s!==name);
+  ['quiz','chess','home','play','game','results','parent','online','login','world','auth','cert'].forEach(s=>$('#s-'+s).hidden=s!==name);
   $('#deck').hidden=!(name==='home'||name==='play'||name==='game');
   $('#home-bottom').hidden=name!=='home';
   ensureKB(needFull());
@@ -655,6 +655,7 @@ function fmtTime(s){s=Math.round(s);const m=Math.floor(s/60),r=s%60;return m?m+'
 function fmtClock(s){s=Math.ceil(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
 function todayMin(){const d=new Date().toDateString();return state.sessions.filter(s=>new Date(s.t).toDateString()===d).reduce((a,s)=>a+s.secs/60,0);}
 function modeName(s){
+  if(s.unit==='quiz')return s.step;
   if(s.unit==='chess')return 'Cờ vua: '+s.step;
   if(s.unit==='race'&&s.step==='online')return 'Đua với bạn';
   if(s.unit==='race')return 'Đua: '+(TRACKS[s.step]?TRACKS[s.step].name:'');
@@ -1403,7 +1404,7 @@ $('#r-home').addEventListener('click',()=>show('home'));
 $('#r-cert').addEventListener('click',()=>{if(resCert)openCert(resCert);});
 $('#r-exam').addEventListener('click',()=>{if(resExam)startExam(stageById(resExam));});
 
-/* ================= Trò chuyện nhanh trong trường (chỉ chọn câu có sẵn, không gõ chữ) ================= */
+/* ================= Trò chuyện nhanh trong khu vui chơi (chỉ chọn câu có sẵn, không gõ chữ) ================= */
 let chatGroups=[],chatList=[],chatLines=[],chatCoolT=0;
 function onChatMsg(m){
   if(m.t==='chat.init'){
@@ -1529,7 +1530,7 @@ async function drawCert(S){
   g.textAlign='center';g.textBaseline='middle';
   g.font='56px '+FONT;[[100,110],[W-100,110],[100,H-110],[W-100,H-110]].forEach(([x,y])=>g.fillText('⭐',x,y));
   g.fillStyle='#4a2a8a';g.font='800 112px '+F;g.fillText('CHỨNG NHẬN',W/2,190);
-  g.fillStyle='#5a4a8a';g.font='700 40px '+F;g.fillText('Trường tiểu học OplaKid trân trọng trao cho bé',W/2,278);
+  g.fillStyle='#5a4a8a';g.font='700 40px '+F;g.fillText('Khu vui chơi OplaKid trân trọng trao cho bé',W/2,278);
   const name=(state.nick||'Bé OplaKid').slice(0,24);let sz=150;g.font='800 '+sz+'px '+F;
   while(g.measureText(name).width>W-420&&sz>50){sz-=6;g.font='800 '+sz+'px '+F;}
   g.fillStyle='#c2410c';g.fillText(name,W/2,440);const nw=Math.min(W-420,g.measureText(name).width+80);
@@ -1613,7 +1614,7 @@ function renderParent(){
   $('#p-miss-note').textContent=top.length?'Nhầm nhiều nhất: '+top.map(([k,c])=>(k===' '?'phím cách':k)+' ('+c+')').join(', ')+'. Phím càng đỏ, bé càng hay nhầm.':'Chưa có lần gõ nhầm nào được ghi lại.';
   const h=state.sessions.slice(-10).reverse();
   $('#p-hist').innerHTML=h.length?h.map(s=>{const d=new Date(s.t);
-    return '<tr><td>'+d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})+'</td><td>'+esc(modeName(s))+'</td><td>'+(s.unit==='chess'?'–':Math.round(s.acc*100)+'%')+'</td><td>'+(s.unit==='chess'?'–':(s.wpm||0))+'</td><td>'+fmtTime(s.secs)+'</td></tr>';}).join(''):'<tr><td colspan="5">Chưa có buổi nào.</td></tr>';
+    return '<tr><td>'+d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})+'</td><td>'+esc(modeName(s))+'</td><td>'+(s.unit==='chess'?'–':Math.round(s.acc*100)+'%')+'</td><td>'+(s.unit==='chess'||s.unit==='quiz'?'–':(s.wpm||0))+'</td><td>'+fmtTime(s.secs)+'</td></tr>';}).join(''):'<tr><td colspan="5">Chưa có buổi nào.</td></tr>';
   $('#set-unlock').checked=!!state.unlockAll;setSync(syncMsg);
   $('#set-limit').value=String(state.limit);$('#set-sound').checked=state.sound;$('#set-music').checked=state.music;$('#set-chat').checked=state.chat;$('#set-speak').checked=state.speak;
 }
@@ -1957,7 +1958,7 @@ let lastPresKey='';
 function updateLobbyPresence(){
   if(!room||!curPid)return;
   const gS=game&&game.kind==='lesson'?stageOfLesson(game.unit,game.step):null,vS=screen==='home'&&stageSel?STAGES.find(x=>x.id===stageSel):null;
-  const S=gS||(vS&&stageUnlocked(vS)?vS:curStage()),act=screen==='parent'?'parent':screen==='chess'?'chess':screen==='online'||((screen==='play'||screen==='game')&&game&&game.online)?'race':(screen==='play'||screen==='game'||screen==='results')?'learn':'yard',p={nick:myNick(),av:state.avatar,stage:S?S.id:'bo',where:screen,act,elo:chessElo(),look:validLook(state.look)?state.look:null};
+  const S=gS||(vS&&stageUnlocked(vS)?vS:curStage()),act=screen==='parent'?'parent':screen==='chess'?'chess':screen==='quiz'?'quiz':screen==='online'||((screen==='play'||screen==='game')&&game&&game.online)?'race':(screen==='play'||screen==='game'||screen==='results')?'learn':'yard',p={nick:myNick(),av:state.avatar,stage:S?S.id:'bo',where:screen,act,elo:chessElo(),look:validLook(state.look)?state.look:null};
   const k=JSON.stringify(p);if(k===lastPresKey)return;lastPresKey=k;
   room.presence(p).catch(()=>{});
 }
@@ -2009,23 +2010,27 @@ function kidSprite(T,av,nick,ring,isMe,dark){
   const sp=new T.Sprite(new T.SpriteMaterial({map:tex,transparent:true,depthWrite:false}));sp.scale.set(4.2,4.9,1);return sp;
 }
 function drawBoard(){
-  if(!W3)return;const c=actCounts(),n=c.race+c.learn+c.yard+c.parent+c.chess,key=n+'|'+c.race+'|'+c.learn+'|'+c.chess+'|'+c.yard+'|'+c.parent;if(W3.boardKey===key)return;W3.boardKey=key;
+  if(!W3)return;const c=actCounts(),n=c.race+c.learn+c.yard+c.parent+c.chess+c.quiz,key=n+'|'+c.race+'|'+c.learn+'|'+c.chess+'|'+c.quiz+'|'+c.yard+'|'+c.parent;if(W3.boardKey===key)return;W3.boardKey=key;
   const cv=W3.boardCanvas,g=cv.getContext('2d'),w=cv.width,h=cv.height;
   const grd=g.createLinearGradient(0,0,0,h);grd.addColorStop(0,'#2b2a6b');grd.addColorStop(1,'#4a3f9a');g.fillStyle=grd;g.fillRect(0,0,w,h);
-  g.textAlign='center';g.textBaseline='middle';g.fillStyle='#ffe066';g.font='800 66px '+FONT;g.fillText('TRƯỜNG TIỂU HỌC OPLAKID',w/2,84);
+  g.textAlign='center';g.textBaseline='middle';g.fillStyle='#ffe066';g.font='800 66px '+FONT;g.fillText('KHU VUI CHƠI OPLAKID',w/2,84);
   g.fillStyle='#ffffff';g.font='700 56px '+FONT;g.fillText('🟢 '+n+' bạn đang online',w/2,170);
-  g.font='700 40px '+FONT;g.fillText('⌨️ '+c.learn+' gõ phím  ♞ '+c.chess+' cờ vua  🏃 '+c.race+' đua  🌳 '+c.yard+' dạo chơi',w/2,244);
+  g.font='700 40px '+FONT;g.fillText('⌨️ '+c.learn+' gõ phím  ♞ '+c.chess+' cờ  🧩 '+c.quiz+' đố vui  🏃 '+c.race+' đua  🌳 '+c.yard+' dạo',w/2,244);
   W3.boardTex.needsUpdate=true;
 }
 /* Trường lớn: 3 lớp học (84 chỗ ngồi và đứng), sân chạy rộng, Góc phụ huynh rộng (48 chỗ). Tối đa MAX_KIDS bạn được vẽ để máy không bị nặng. */
 const TZ=37,TRX=2.4,TRZ=1.2,MAX_KIDS=150;   // Sân đua riêng (có hàng rào và cổng) nằm phía trước sân trường
 const YARD={x0:-26,x1:24,z0:-6.5,z1:20},PARENT={x:30,z:10};   // YARD: sân trường, nơi các bạn đang ở trang chính đi dạo
-const TYPING_ROOMS=[-17.5,0],CHESS_X=17.5,ROOMS=[-17.5,0,17.5],ROOM_W=17.5,DESK_COLS=[-5.4,-1.8,1.8,5.4];
+const TYPING_ROOMS=[-17.5],QUIZ_X=0,CHESS_X=17.5,ROOMS=[-17.5,0,17.5],ROOM_W=17.5,DESK_COLS=[-5.4,-1.8,1.8,5.4];
 const PSLOTS=Array.from({length:48},(_,i)=>{const ring=Math.min(5,Math.floor(i/8)),a=(i%8)/8*Math.PI*2+ring*.4,r=2.1+ring*.55;return {x:PARENT.x+Math.cos(a)*r,z:PARENT.z+Math.sin(a)*r*.8};});
 const CHESS_TABLES=(()=>{const a=[];for(let r=0;r<2;r++)DESK_COLS.forEach(dx=>a.push({x:CHESS_X+dx,z:-17.4+r*4.6}));return a;})();   // 8 bàn cờ
 const SEATS=(()=>{const a=[];
   TYPING_ROOMS.forEach(cx=>{for(let r=0;r<4;r++)DESK_COLS.forEach(dx=>a.push({x:cx+dx,z:-18+r*2.4+1.2}));});      // 32 chỗ ngồi gõ phím
   TYPING_ROOMS.forEach(cx=>{for(let i=0;i<12;i++)a.push({x:cx-7.5+i*1.36,z:-8.9,stand:true});});                  // 24 chỗ đứng ở cuối lớp
+  return a;})();
+const QSEATS=(()=>{const a=[];
+  for(let r=0;r<4;r++)DESK_COLS.forEach(dx=>a.push({x:QUIZ_X+dx,z:-18+r*2.4+1.2,yaw:Math.PI}));                       // 16 chỗ ngồi đố vui
+  for(let i=0;i<12;i++)a.push({x:QUIZ_X-7.5+i*1.36,z:-8.9,stand:true,yaw:Math.PI});
   return a;})();
 const CSEATS=(()=>{const a=[];
   CHESS_TABLES.forEach(t=>{a.push({x:t.x,z:t.z-1.35,yaw:0});a.push({x:t.x,z:t.z+1.35,yaw:Math.PI});});            // 16 chỗ ngồi, hai bạn đối diện nhau
@@ -2058,6 +2063,7 @@ function initWorld(T){
   /* Toà nhà trường: hai lớp Gõ phím (16 bàn học mỗi lớp) và một lớp Cờ vua (8 bàn cờ), mở mặt trước */
   const wall=dark?0xb9a98c:0xffe9b8,roofC=0xd9534f,deskTop=0xe7b66b,deskLeg=0x8a6a3a,chairC=[0x2b7fd0,0xe4508a,0x36a653,0x8763d1,0xee9124];
   const chalkTex=canvasTex(T,512,154,(g,w,h)=>{g.fillStyle='#1f5a43';g.fillRect(0,0,w,h);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font='700 36px '+FONT;g.fillText('Hôm nay mình tập gõ phím!',w/2,48);g.font='700 44px '+FONT;g.fillText('A S D F   J K L ;',w/2,108);});
+  const quizChalk=canvasTex(T,512,154,(g,w,h)=>{g.fillStyle='#5a3a1f';g.fillRect(0,0,w,h);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font='700 40px '+FONT;g.fillText('Đố vui và ô chữ!',w/2,48);g.font='700 52px '+FONT;g.fillText('❓ 🔤 🧠 ⭐',w/2,106);});
   const chessChalk=canvasTex(T,512,154,(g,w,h)=>{g.fillStyle='#1f4a5a';g.fillRect(0,0,w,h);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';g.font='700 38px '+FONT;g.fillText('Đi một nước, nghĩ thật kỹ!',w/2,48);g.font='700 56px '+FONT;g.fillText('♜ ♞ ♝ ♛ ♚ ♟',w/2,106);});
   const boardTop=canvasTex(T,256,256,(g,w)=>{for(let r=0;r<8;r++)for(let c=0;c<8;c++){g.fillStyle=(r+c)%2?'#7aa75b':'#f1e3c3';g.fillRect(c*w/8,r*w/8,w/8,w/8);}g.strokeStyle='#3a2a1a';g.lineWidth=6;g.strokeRect(3,3,w-6,w-6);});
   ROOMS.forEach((cx,ri)=>{
@@ -2066,7 +2072,7 @@ function initWorld(T){
     box(ROOM_W,5,.4,wall,cx,2.5,-21.2);box(ROOM_W+.4,.5,1.2,roofC,cx,5.25,-21.1);   // tường sau và mái hiên
     box(.4,5,13.4,wall,cx+ROOM_W/2,2.5,-14.6);if(ri===0)box(.4,5,13.4,wall,cx-ROOM_W/2,2.5,-14.6);
     box(8.4,2.8,.2,0x8b5a2b,cx,3.2,-20.9);
-    const chalk=new T.Mesh(new T.PlaneGeometry(8,2.4),new T.MeshBasicMaterial({map:chess?chessChalk:chalkTex}));chalk.position.set(cx,3.2,-20.78);scene.add(chalk);
+    const chalk=new T.Mesh(new T.PlaneGeometry(8,2.4),new T.MeshBasicMaterial({map:chess?chessChalk:cx===QUIZ_X?quizChalk:chalkTex}));chalk.position.set(cx,3.2,-20.78);scene.add(chalk);
     if(!chess){
       box(3,.9,1.3,0xb5651d,cx,.75,-19.4);box(.2,.9,.2,0xb5651d,cx-1.3,.45,-19.4);box(.2,.9,.2,0xb5651d,cx+1.3,.45,-19.4);   // bàn cô giáo
       for(let r=0;r<4;r++)DESK_COLS.forEach((dx,c)=>{
@@ -2116,9 +2122,10 @@ function initWorld(T){
     m.position.set(x,7,-20.8);m.userData.link=link;scene.add(m);links.push(m);
   };
   const hitBox=(x,w,link)=>{const m=new T.Mesh(new T.BoxGeometry(w,5,12.4),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));m.position.set(x,2.6,-14.6);m.userData.link=link;scene.add(m);links.push(m);};
-  roomSign('⌨️ LỚP GÕ PHÍM',-8.75,15,'typing','#2b7fd0');
+  roomSign('⌨️ LỚP GÕ PHÍM',-17.5,9,'typing','#2b7fd0');
+  roomSign('🧩 LỚP ĐỐ VUI',QUIZ_X,9,'quiz','#ee9124');
   roomSign('♞ LỚP CỜ VUA',CHESS_X,9,'chess','#36a653');
-  hitBox(-8.75,35,'typing');hitBox(CHESS_X,17.4,'chess');
+  hitBox(-17.5,17.4,'typing');hitBox(QUIZ_X,17.4,'quiz');hitBox(CHESS_X,17.4,'chess');
   const props={flag,flagBase};
 
   /* Góc phụ huynh: nhà chờ rộng có bàn nước; các bạn đang ở Góc phụ huynh trong ứng dụng sẽ đứng ở đây */
@@ -2251,9 +2258,9 @@ $('#look-rand').addEventListener('click',()=>{npLook=LOOK_N.map(n=>Math.floor(Ma
 $('#look-reset').addEventListener('click',()=>{npLook=null;refreshLookUI();});
 
 function sizeWorld(){if(!W3)return;const w=W3.host.clientWidth,h=W3.host.clientHeight;W3.renderer.setSize(w,h,false);W3.renderer.domElement.style.width=w+'px';W3.renderer.domElement.style.height=h+'px';W3.aspect=w/Math.max(1,h);W3.cam.aspect=W3.aspect;W3.cam.updateProjectionMatrix();}
-const actOf=p=>['race','learn','parent','chess'].includes(p.presence.act)?p.presence.act:'yard';
-const ACT_ICON={race:'🏃',learn:'⌨️',yard:'🌳',parent:'👪',chess:'♞'};
-function actCounts(){const c={race:0,learn:0,yard:0,parent:0,chess:0};onlinePeople().forEach(p=>{c[actOf(p)]++;});return c;}
+const actOf=p=>['race','learn','parent','chess','quiz'].includes(p.presence.act)?p.presence.act:'yard';
+const ACT_ICON={race:'🏃',learn:'⌨️',yard:'🌳',parent:'👪',chess:'♞',quiz:'🧩'};
+function actCounts(){const c={race:0,learn:0,yard:0,parent:0,chess:0,quiz:0};onlinePeople().forEach(p=>{c[actOf(p)]++;});return c;}
 function syncKids(){
   if(!W3)return;const {sprites,seatOf}=W3;
   const all=onlinePeople(),mine=all.filter(p=>p.isMe&&p.sameTab),others=all.filter(p=>!(p.isMe&&p.sameTab));
@@ -2274,8 +2281,9 @@ function syncKids(){
   /* chia chỗ: bạn nào đang học thì có một chỗ trong lớp, bạn ở Góc phụ huynh thì có chỗ đứng quanh bàn */
   const usedP=new Set();sprites.forEach((k,key)=>{if(k.act==='parent'&&W3.pslot.has(key))usedP.add(W3.pslot.get(key));else if(k.act!=='parent')W3.pslot.delete(key);});
   sprites.forEach((k,key)=>{if(k.act==='parent'&&!W3.pslot.has(key)){let i=0;while(usedP.has(i)&&i<PSLOTS.length-1)i++;usedP.add(i);W3.pslot.set(key,i);}});
-  const usedC=new Set();sprites.forEach((k,key)=>{if(k.act==='chess'&&W3.cslot.has(key))usedC.add(W3.cslot.get(key));else if(k.act!=='chess')W3.cslot.delete(key);});
-  [...sprites.entries()].sort((a,b)=>a[0]<b[0]?-1:1).forEach(([key,k])=>{if(k.act==='chess'&&!W3.cslot.has(key)){let i=0;while(usedC.has(i)&&i<CSEATS.length-1)i++;usedC.add(i);W3.cslot.set(key,i);}});
+  ['chess','quiz'].forEach(a=>{const list=a==='chess'?CSEATS:QSEATS,usedC=new Set();
+    sprites.forEach((k,key)=>{const e=W3.cslot.get(key);if(k.act===a&&e&&e.a===a)usedC.add(e.i);else if(e&&k.act!==e.a)W3.cslot.delete(key);});
+    [...sprites.entries()].sort((x,y)=>x[0]<y[0]?-1:1).forEach(([key,k])=>{const e=W3.cslot.get(key);if(k.act===a&&!(e&&e.a===a)){let i=0;while(usedC.has(i)&&i<list.length-1)i++;usedC.add(i);W3.cslot.set(key,{a,i});}});});
   const used=new Set();sprites.forEach((k,key)=>{if(k.act==='learn'&&seatOf.has(key))used.add(seatOf.get(key));else if(k.act!=='learn')seatOf.delete(key);});
   sprites.forEach((k,key)=>{if(k.act==='learn'&&!seatOf.has(key)){let i=0;while(used.has(i)&&i<SEATS.length-1)i++;used.add(i);seatOf.set(key,i);}});
   drawBoard();
@@ -2293,13 +2301,14 @@ function pokeKid(e){
 }
 function goTyping(){stopAll();show('home');}
 function goChess(){showChess();}
+function goQuiz(){showQuiz();}
 function worldClick(e){
   if(!W3)return;
   if(pokeKid(e))return;
   const r=W3.renderer.domElement.getBoundingClientRect();
   W3.ray.setFromCamera({x:((e.clientX-r.left)/r.width)*2-1,y:-((e.clientY-r.top)/r.height)*2+1},W3.cam);
   const h=W3.ray.intersectObjects(W3.links,false)[0];if(!h)return;
-  if(h.object.userData.link==='chess')goChess();else goTyping();
+  const lk=h.object.userData.link;if(lk==='chess')goChess();else if(lk==='quiz')goQuiz();else goTyping();
 }
 function worldLoop(){
   if(!W3||screen!=='world'){if(W3)W3.raf=0;return;}
@@ -2312,15 +2321,15 @@ function worldLoop(){
     if(k.act==='race'){const th=k.ph+t*(.38+.08*Math.max(0,ZONES.indexOf(k.z0))),r=5.1+k.lane*1;tx=Math.cos(th)*r*TRX;tz=TZ+Math.sin(th)*r*TRZ;spd=16;}
     else if(k.act==='learn'){seat=SEATS[W3.seatOf.get(key)||0];tx=seat.x;tz=seat.z;spd=7;}
     else if(k.act==='parent'){const ps=PSLOTS[W3.pslot.get(key)||0];tx=ps.x;tz=ps.z;spd=3;}
-    else if(k.act==='chess'){cs=CSEATS[W3.cslot.get(key)||0];tx=cs.x;tz=cs.z;spd=7;}
+    else if(k.act==='chess'||k.act==='quiz'){const e=W3.cslot.get(key)||{a:k.act,i:0};cs=(e.a==='quiz'?QSEATS:CSEATS)[e.i]||CSEATS[0];tx=cs.x;tz=cs.z;spd=7;}
     else{if(now>k.wt||Math.hypot(k.wx-k.x,k.wz-k.z)<.2){k.wx=YARD.x0+Math.random()*(YARD.x1-YARD.x0);k.wz=YARD.z0+Math.random()*(YARD.z1-YARD.z0);k.wt=now+3000+Math.random()*5000;}tx=k.wx;tz=k.wz;spd=1.7;}
     const dx=tx-k.x,dz=tz-k.z,d=Math.hypot(dx,dz),step=Math.min(d,spd*dt);
     if(d>.001){k.x+=dx/d*step;k.z+=dz/d*step;}
     const moving=d>.12;
     if(moving){const ty=Math.atan2(dx,dz);let df=ty-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*10);}
-    const csit=k.act==='chess'&&!moving&&cs&&!cs.stand,sitting=(k.act==='learn'&&!moving&&seat&&!seat.stand)||csit;
+    const csk=k.act==='chess'||k.act==='quiz',csit=csk&&!moving&&cs&&!cs.stand,sitting=(k.act==='learn'&&!moving&&seat&&!seat.stand)||csit;
     if(sitting){let df=(csit?cs.yaw:Math.PI)-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*10);}
-    else if(k.act==='chess'&&!moving&&cs&&cs.stand){let df=Math.PI-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*10);}
+    else if(csk&&!moving&&cs&&cs.stand){let df=Math.PI-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*10);}
     else if(k.act==='learn'&&!moving&&seat&&seat.stand){let df=Math.PI-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*10);}
     if(k.act==='parent'&&!moving){const ty=Math.atan2(PARENT.x-k.x,PARENT.z-k.z);let df=ty-k.yaw;df=Math.atan2(Math.sin(df),Math.cos(df));k.yaw+=df*Math.min(1,dt*8);}
     const w=Math.sin(t*(k.act==='race'?11:7)+k.ph);let by=0,lean=0,la=0,aa=0;
@@ -2340,7 +2349,7 @@ function renderWorldList(){
   const people=onlinePeople();
   $('#w-total').textContent=room?(people.length+' bạn đang online'):'Chưa kết nối';
   const box=$('#w-zones');box.innerHTML='';
-  const typing=people.filter(p=>['learn','race'].includes(actOf(p))),chess=people.filter(p=>actOf(p)==='chess'),other=people.filter(p=>!['learn','race','chess'].includes(actOf(p)));
+  const typing=people.filter(p=>['learn','race'].includes(actOf(p))),chess=people.filter(p=>actOf(p)==='chess'),quiz=people.filter(p=>actOf(p)==='quiz'),other=people.filter(p=>!['learn','race','chess','quiz'].includes(actOf(p)));
   const me=p=>p.isMe&&p.sameTab;
   const kid=(p,badge)=>{const s=document.createElement('span');s.className='wkid'+(me(p)?' me':'');
     s.textContent=ACT_ICON[actOf(p)]+' '+String(p.presence.av||'🙂').slice(0,8)+' '+String(p.presence.nick||'Một bạn').slice(0,12)+(me(p)?' (em)':'');
@@ -2358,7 +2367,8 @@ function renderWorldList(){
   ZONES.forEach(z=>{const n=typing.filter(p=>(p.presence.stage||'bo')===z.id).length;if(!n)return;const c=document.createElement('span');c.className='wlv';c.style.setProperty('--zc',hex(z.color));c.textContent=z.name+': '+n;lv.appendChild(c);});
   card('⌨️ Đang gõ phím','#2b7fd0',typing,p=>{const z=ZONES.find(x=>x.id===p.presence.stage)||ZONES[0];return kid(p,z.name);},lv.children.length?lv:null);
   card('♞ Đang chơi cờ','#36a653',chess.slice().sort((a,b)=>(b.presence.elo||0)-(a.presence.elo||0)),p=>{const e=Number.isFinite(p.presence.elo)?p.presence.elo:OC.ELO.START;return kid(p,OC.ELO.tier(e).icon+' '+e);},null);
-  card('🌳 Ở sân trường','#8763d1',other,p=>kid(p,actOf(p)==='parent'?'Góc phụ huynh':''),null);
+  card('🧩 Đang đố vui','#ee9124',quiz,p=>kid(p,''),null);
+  card('🌳 Đi dạo','#8763d1',other,p=>kid(p,actOf(p)==='parent'?'Góc phụ huynh':''),null);
   syncKids();
 }
 function openWorld(){
@@ -2405,6 +2415,7 @@ function handleShortcut(e){
   }
   if(screen==='parent'&&e.key==='Escape'){showHub();return true;}
   if(screen==='chess'&&e.key==='Escape'){$('#c-back').click();return true;}
+  if(screen==='quiz'&&e.key==='Escape'){$('#q-back').click();return true;}
   return false;
 }
 
@@ -2508,7 +2519,7 @@ function renderWorldButtons(){
   $('#w-chess-rec').textContent=eloTxt(chessElo())+((r.w+r.l+r.d)?' · Thắng '+r.w+' · Thua '+r.l:'');
   $('#w-typing-rec').textContent='Đã xong '+done+'/'+FLAT.length+' bài';
 }
-function showHub(){stopAll();if(online)leaveRoomSilently();chessLeaveGame(true);openWorld();}
+function showHub(){stopAll();if(online)leaveRoomSilently();chessLeaveGame(true);qg=null;openWorld();}
 function showChess(){stopAll();show('chess');if(!cg)renderChessLobby();else{$('#c-lobby').hidden=true;$('#c-game').hidden=false;chessRender();}}
 function renderChessLobby(){
   $('#c-lobby').hidden=false;$('#c-game').hidden=true;syncChatWrap();
@@ -2849,6 +2860,472 @@ function renderChessOpen(){
     const go=document.createElement('button');go.type='button';go.className='chip go';go.textContent='Chơi cờ';go.addEventListener('click',()=>chessJoinFromChat(x.id));
     li.append(b,tm,go);ol.appendChild(li);});
 }
+
+/* ================= Đố vui: trắc nghiệm và ô chữ, tiếng Anh và tiếng Việt, ba mức từ dễ tới khó ================= */
+const parseQ=t=>t.trim().split('\n').map(l=>{const a=l.split('|');return {q:a[0],a:a[1],w:[a[2],a[3],a[4]],l:+a[5]};});
+const QE=parseQ(`What color is the sun?|yellow|blue|green|purple|1
+How many legs does a dog have?|four|two|six|eight|1
+A cat says ...|meow|moo|quack|woof|1
+We drink ...|water|chair|book|shoe|1
+Which one is a fruit?|apple|table|pencil|shirt|1
+Which animal can fly?|bird|fish|cow|pig|1
+What is 2 + 3?|five|four|six|seven|1
+The opposite of big is ...|small|tall|fast|hot|1
+I see with my ...|eyes|ears|nose|hands|1
+A ... gives us milk.|cow|duck|frog|bee|1
+We wear ... on our feet.|shoes|a hat|gloves|a scarf|1
+What color is grass?|green|pink|white|gray|1
+Which one is a pet?|dog|lion|tiger|wolf|1
+Ice is ...|cold|hot|warm|dry|1
+The moon comes out at ...|night|noon|morning|lunch|1
+A ... has wheels.|car|egg|leaf|cup|1
+We sleep in a ...|bed|bag|box|bus|1
+Which shape is round?|circle|square|triangle|star|1
+Bees make ...|honey|milk|bread|rice|1
+Hello! How are you?|I am fine.|It is red.|Yes, a cat.|Two apples.|1
+What is your name?|My name is Mai.|I am seven.|It is a dog.|Yes, I do.|1
+How old are you?|I am eight.|I am fine.|It is blue.|My name is Nam.|1
+She ... a book.|reads|read|reading|readings|2
+I ... a student.|am|is|are|be|2
+They ... playing football.|are|is|am|be|2
+There ... three cats.|are|is|am|be|2
+He ... to school by bus.|goes|go|going|gone|2
+Where do fish live?|in water|in a tree|in a car|in a bag|2
+The plural of "child" is ...|children|childs|childes|childen|2
+The day after Monday is ...|Tuesday|Sunday|Friday|Wednesday|2
+How many days are in a week?|seven|five|ten|twelve|2
+Which month comes after March?|April|May|June|February|2
+You use a ... to write.|pen|spoon|plate|shoe|2
+My mother's sister is my ...|aunt|uncle|cousin|brother|2
+I brush my teeth ... the morning.|in|on|at|under|2
+The cat is ... the table.|under|have|and|eat|2
+Which word is a verb?|run|happy|blue|table|2
+Which word is an adjective?|tall|jump|book|quickly|2
+The past of "go" is ...|went|goed|gone|going|2
+A person who teaches is a ...|teacher|doctor|farmer|driver|2
+A ... helps sick people.|doctor|baker|pilot|singer|2
+We use an umbrella when it is ...|rainy|sunny|hot|dry|2
+What is 12 + 8?|twenty|eighteen|fifteen|twenty-two|2
+Which one is a vegetable?|carrot|banana|cake|milk|2
+Which animal is the biggest?|elephant|cat|dog|mouse|2
+If it rains, we ... stay at home.|will|did|are|has|3
+She has lived here ... 2020.|since|for|during|while|3
+He is ... than his brother.|taller|more tall|tallest|most tall|3
+I have ... apples than you.|more|most|many|much|3
+Which sentence is correct?|She doesn't like milk.|She don't like milk.|She not like milk.|She no likes milk.|3
+The book ... by many children.|is read|reads|is reading|has read|3
+The opposite of "ancient" is ...|modern|old|dirty|slow|3
+A synonym of "big" is ...|large|tiny|short|thin|3
+"Beautiful" means ...|very pretty|very small|very cold|very fast|3
+Which word has a silent "k"?|knee|king|kite|key|3
+Which word is a pronoun?|they|run|green|under|3
+Which word rhymes with "light"?|night|lamp|fish|ball|3
+The plural of "mouse" is ...|mice|mouses|mices|mousies|3
+A baby cat is called a ...|kitten|puppy|calf|lamb|3
+What is the capital of England?|London|Paris|Rome|Tokyo|3
+We live on the planet ...|Earth|Mars|Venus|Jupiter|3
+Water freezes at ... degrees Celsius.|0|10|50|100|3
+Which one is a mammal?|whale|shark|trout|crab|3
+A word that describes a verb is an ...|adverb|noun|pronoun|article|3
+"I'm" is short for ...|I am|I will|I have|I do|3
+"Delicious" means very ...|tasty|noisy|heavy|late|3
+The sun rises in the ...|east|west|north|south|3
+Which one is a continent?|Asia|France|Tokyo|Nile|3`);
+const QV=parseQ(`Con vật nào kêu "gâu gâu"?|con chó|con mèo|con gà|con vịt|1
+Quả nào có màu vàng?|quả chuối|quả cà chua|quả nho|quả dâu|1
+Mặt trời mọc ở hướng nào?|hướng đông|hướng tây|hướng nam|hướng bắc|1
+Một tuần có mấy ngày?|bảy ngày|năm ngày|mười ngày|ba ngày|1
+Con gì có cái vòi dài?|con voi|con mèo|con thỏ|con gà|1
+Mùa nào nóng nhất?|mùa hè|mùa đông|mùa xuân|mùa thu|1
+Chữ cái đứng sau chữ "a" trong bảng chữ cái là chữ nào?|ă|b|c|d|1
+Con vật nào sống dưới nước?|con cá|con chó|con gà|con bò|1
+Em dùng gì để viết chữ?|cái bút|cái thìa|đôi đũa|cái bát|1
+Ban đêm trên trời có gì?|trăng và sao|mặt trời|cầu vồng|nắng vàng|1
+Con gà trống gáy vào lúc nào?|sáng sớm|nửa đêm|buổi trưa|buổi tối|1
+Lá cây thường có màu gì?|xanh lá|đỏ|tím|đen|1
+Quả nào có vỏ gai?|quả mít|quả chuối|quả cam|quả nho|1
+Em dùng mắt để làm gì?|nhìn|nghe|ngửi|nếm|1
+Em dùng tai để làm gì?|nghe|nhìn|ngửi|chạy|1
+Con vật nào được gọi là "chúa sơn lâm"?|con hổ|con gà|con ếch|con cua|1
+Bà ngoại là mẹ của ai?|mẹ|ba|chú|anh|1
+Từ trái nghĩa với "to" là gì?|nhỏ|cao|dài|nặng|1
+Con vật nào biết bay?|con chim|con cá|con ốc|con bò|1
+Một năm có mấy mùa?|bốn mùa|hai mùa|ba mùa|năm mùa|1
+Giữa lá cờ Việt Nam có hình gì?|ngôi sao vàng|mặt trăng|con rồng|bông hoa|1
+Đồ chơi nào thường có ở Tết Trung thu?|đèn ông sao|pháo hoa|cây mai|bánh chưng|1
+Con vật nào đẻ trứng?|con gà|con chó|con mèo|con bò|1
+"Có công mài sắt, có ngày nên ___"|kim|dao|cơm|nhà|2
+"Uống nước nhớ ___"|nguồn|sông|bình|ly|2
+"Ăn quả nhớ kẻ trồng ___"|cây|vườn|đất|hoa|2
+"Gần mực thì đen, gần đèn thì ___"|rạng|tối|mờ|xanh|2
+"Ba cây chụm lại nên hòn ___ cao"|núi|đá|cây|nhà|2
+Từ nào chỉ con vật?|con trâu|cái bàn|quả cam|bông hoa|2
+Từ nào chỉ đồ dùng học tập?|thước kẻ|con mèo|cái nồi|quả bóng|2
+Từ đồng nghĩa với "chăm chỉ" là ...|siêng năng|lười biếng|nhút nhát|vội vàng|2
+Từ trái nghĩa với "buồn" là ...|vui|khóc|mệt|giận|2
+Từ trái nghĩa với "nhanh" là ...|chậm|mạnh|cao|xa|2
+Thủ đô của Việt Nam là gì?|Hà Nội|Huế|Đà Nẵng|Cần Thơ|2
+Sông nào chảy qua Hà Nội?|sông Hồng|sông Hương|sông Cửu Long|sông Đồng Nai|2
+Đảo lớn nhất Việt Nam là ...|Phú Quốc|Cát Bà|Côn Đảo|Lý Sơn|2
+Vịnh Hạ Long thuộc tỉnh nào?|Quảng Ninh|Hải Phòng|Nghệ An|Khánh Hòa|2
+7 x 3 = ?|21|24|18|27|2
+36 : 6 = ?|6|5|7|9|2
+Một giờ có bao nhiêu phút?|60 phút|30 phút|100 phút|24 phút|2
+Một ngày có bao nhiêu giờ?|24 giờ|12 giờ|60 giờ|30 giờ|2
+Bộ phận nào của cây hút nước?|rễ|lá|hoa|quả|2
+Nước sôi ở bao nhiêu độ C?|100 độ|50 độ|0 độ|200 độ|2
+Hành tinh chúng ta đang sống tên là gì?|Trái Đất|Sao Hỏa|Mặt Trăng|Sao Kim|2
+Tết Nguyên đán có loại bánh nào?|bánh chưng|bánh trung thu|bánh xèo|bánh mì|2
+"Ếch ngồi đáy giếng" nói về người ...|hiểu biết hạn hẹp|rất giỏi bơi|thích nuôi ếch|sống dưới nước|3
+"Đi một ngày đàng, học một ___ khôn"|sàng|ngày|điều|bài|3
+"Học ăn, học nói, học gói, học ___"|mở|đi|chạy|cười|3
+Từ nào là từ láy?|lấp lánh|bàn ghế|học sinh|quần áo|3
+Từ nào là từ ghép?|bàn ghế|long lanh|xinh xắn|lung linh|3
+Câu nào dùng dấu chấm hỏi đúng?|Bạn tên là gì?|Bạn tên là gì.|Bạn tên là gì!|Bạn tên là gì,|3
+"Xinh đẹp" thuộc loại từ nào?|tính từ|động từ|danh từ|đại từ|3
+"Chạy" thuộc loại từ nào?|động từ|tính từ|danh từ|đại từ|3
+"Học sinh" thuộc loại từ nào?|danh từ|động từ|tính từ|quan hệ từ|3
+Tập truyện thơ "Truyện Kiều" do ai sáng tác?|Nguyễn Du|Nguyễn Trãi|Tố Hữu|Nam Cao|3
+Ngày Quốc khánh của Việt Nam là ngày nào?|2 tháng 9|30 tháng 4|1 tháng 5|20 tháng 11|3
+Đỉnh núi cao nhất Việt Nam là ...|Fansipan|Bà Đen|Ngọc Linh|Yên Tử|3
+Chợ nổi nổi tiếng ở miền nào?|miền Tây|miền Bắc|Tây Nguyên|miền Trung|3
+15 x 4 = ?|60|45|50|64|3
+Hình vuông có cạnh 5 cm. Chu vi là ...|20 cm|10 cm|25 cm|15 cm|3
+Số nào chia hết cho 5?|35|32|41|28|3
+Số lớn nhất có hai chữ số là ...|99|98|100|90|3
+Một nửa của 18 là ...|9|8|6|12|3
+Từ trái nghĩa với "dũng cảm" là ...|nhút nhát|mạnh mẽ|thông minh|vui vẻ|3
+Từ đồng nghĩa với "to lớn" là ...|khổng lồ|nhỏ bé|thấp bé|ngắn ngủi|3
+Con vật nào thuộc loài thú?|con cá voi|con cá mập|con cá rô|con tôm|3`);
+/* ô chữ: đáp án|gợi ý (mức tính theo độ dài đáp án) */
+const parseX=t=>t.trim().split('\n').map(l=>{const a=l.split('|');return {w:a[0],c:a[1]};});
+const XE=parseX(`CAT|A pet that says meow
+DOG|A pet that says woof
+SUN|It shines in the day
+RED|The color of an apple
+PIG|A farm animal that likes mud
+HAT|You wear it on your head
+BED|You sleep on it
+BUS|You ride it to school
+EGG|A hen lays it
+COW|It gives us milk
+EYE|You see with it
+EAR|You hear with it
+MOON|It shines at night
+BLUE|The color of the sky
+FISH|It swims in water
+BIRD|It can fly
+BOOK|You read it
+MILK|A cow gives it
+HAND|You have five fingers on it
+DUCK|It says quack
+BALL|You kick or throw it
+TREE|It has leaves and a trunk
+CAKE|A sweet food for birthdays
+APPLE|A red or green fruit
+HORSE|You can ride this animal
+TIGER|A big orange cat with stripes
+LEMON|A sour yellow fruit
+WATER|You drink it
+GREEN|The color of grass
+SCHOOL|Children learn here
+FLOWER|A rose is one
+MOTHER|Your mom
+FATHER|Your dad
+SISTER|A girl in your family
+ORANGE|A fruit and a color
+YELLOW|The color of a banana
+PENCIL|You write with it
+TEACHER|She helps you learn
+WINTER|The coldest season
+SUMMER|The hottest season
+RABBIT|A fluffy animal with long ears
+MONKEY|It loves bananas
+GARDEN|You grow flowers here
+WINDOW|You look through it
+KITCHEN|You cook in this room
+BANANA|A long yellow fruit
+BROTHER|A boy in your family
+ELEPHANT|The biggest land animal
+BUTTERFLY|An insect with colorful wings
+HOSPITAL|A doctor works here
+LIBRARY|You borrow books here
+MOUNTAIN|A very high hill
+RAINBOW|It has seven colors after rain
+COMPUTER|You type on it
+DINOSAUR|A giant animal from long ago
+TELEPHONE|You call people with it
+UMBRELLA|You open it when it rains
+SANDWICH|Bread with cheese or ham
+CHOCOLATE|A sweet brown treat
+YESTERDAY|The day before today
+TOMORROW|The day after today
+VEGETABLE|A carrot is one
+AIRPLANE|It flies in the sky
+PLAYGROUND|Children play here
+BIRTHDAY|The day you were born
+FOOTBALL|Players kick this ball
+SHOULDER|It is between your neck and arm
+PRINCESS|A king's daughter
+KANGAROO|An animal from Australia that jumps
+CALENDAR|It shows days and months`);
+const XV=parseX(`MEO|Con vật kêu meo meo
+CHO|Con vật trung thành, kêu gâu gâu
+GA|Con vật gáy ò ó o
+CA|Con vật bơi dưới nước
+BAN|Em ngồi học ở cái ... này
+BUT|Em dùng nó để viết
+MAT|Em nhìn bằng cái này
+TAI|Em nghe bằng cái này
+NHA|Nơi em ở cùng ba mẹ
+MUA|Nước rơi từ mây xuống
+SAO|Lấp lánh trên trời đêm
+HOA|Hồng, cúc, lan đều là loài này
+CAY|Có rễ, thân và lá
+BO|Con vật cho sữa
+VIT|Con vật kêu cạp cạp
+XE|Có bánh để đi
+AO|Em mặc nó
+THO|Con vật có đôi tai dài
+KHI|Con vật leo cây, thích ăn chuối
+VOI|Con vật có vòi dài
+HO|Chúa sơn lâm
+CUA|Con vật bò ngang
+ECH|Con vật nhảy trên lá sen
+TOM|Con vật nhỏ sống dưới nước, có râu
+DEN|Màu của than
+DO|Màu của lá cờ Tổ quốc
+TAY|Em có hai cái này để cầm
+CHAN|Em có hai cái này để đi
+MUI|Em ngửi bằng cái này
+SACH|Em đọc cái này để học
+TRANG|Nó sáng vào ban đêm
+NUOC|Em uống nó mỗi ngày
+GAO|Nấu thành cơm
+GIO|Thổi làm lá bay
+MAY|Trắng bồng bềnh trên trời
+TRUONG|Nơi em đến học mỗi ngày
+THUOC|Cái dùng để kẻ đường thẳng
+CHUOI|Quả vàng dài, khỉ rất thích
+XOAI|Quả vàng ngọt, chín vào mùa hè
+CHUOT|Con vật mà mèo hay bắt
+TRAU|Con vật giúp bác nông dân cày ruộng
+BONG|Em đá cái này ở sân
+XANH|Màu của lá cây
+VANG|Màu của ngôi sao trên cờ
+MIENG|Em ăn bằng cái này
+HANOI|Thủ đô của Việt Nam
+SAIGON|Tên cũ của Thành phố Hồ Chí Minh
+DANANG|Thành phố có cầu Rồng bên sông Hàn
+FANSIPAN|Đỉnh núi cao nhất Việt Nam
+HALONG|Vịnh có nhiều đảo đá vôi, di sản thế giới
+PHUQUOC|Đảo ngọc lớn nhất Việt Nam
+TRUNGTHU|Tết của các bạn nhỏ, có đèn ông sao
+BANHCHUNG|Bánh vuông ngày Tết
+THUVIEN|Nơi em mượn sách đọc
+BENHVIEN|Nơi bác sĩ khám bệnh
+CAUVONG|Bảy sắc sau cơn mưa
+NONLA|Chiếc mũ truyền thống của Việt Nam
+AODAI|Trang phục truyền thống của phụ nữ Việt
+HOCSINH|Em là một ...
+GIAOVIEN|Người dạy em học
+BONGDA|Môn thể thao có hai đội, một quả bóng, hai khung thành
+MAYBAY|Phương tiện bay trên trời
+XEDAP|Xe có hai bánh, đạp bằng chân
+TAUHOA|Phương tiện chạy trên đường ray
+KHUNGLONG|Loài vật khổng lồ đã tuyệt chủng
+SUTU|Vua rừng xanh, có bờm`);
+const xLevel=(w,lang)=>lang==='vi'?(w.length<=3?1:w.length<=5?2:3):(w.length<=4?1:w.length<=6?2:3);
+const Q_LANG={en:'Tiếng Anh',vi:'Tiếng Việt'},Q_LEVEL={1:'Dễ',2:'Vừa',3:'Khó'};
+let qprefs={game:'quiz',lang:'en',level:1},qg=null;
+
+function qMath(l){
+  const r=n=>1+Math.floor(Math.random()*n);let a,b,op,ans;
+  if(l===1){a=r(10);b=r(10);op=Math.random()<.5?'+':'-';if(op==='-'&&b>a)[a,b]=[b,a];ans=op==='+'?a+b:a-b;}
+  else if(l===2){a=r(9)+1;b=r(9)+1;op='x';ans=a*b;}
+  else{a=r(30)+10;b=r(40)+10;op=Math.random()<.5?'+':'-';if(op==='-'&&b>a)[a,b]=[b,a];ans=op==='+'?a+b:a-b;}
+  const w=new Set();while(w.size<3){const d=ans+(r(6)*(Math.random()<.5?1:-1));if(d!==ans&&d>=0)w.add(d);}
+  return {q:a+' '+op+' '+b+' = ?',a:String(ans),w:[...w].map(String),l};
+}
+function qEngGen(l){
+  const pool=PICS.filter(w=>l===1?w[0].length<=4:l===2?w[0].length>=4&&w[0].length<=6:w[0].length>=5);
+  const w=rand(pool),other=n=>shuffle(PICS.filter(x=>x[0]!==w[0])).slice(0,3),t=Math.floor(Math.random()*3);
+  if(t===0)return {q:w[1]+'  What is this?',a:w[0],w:other().map(x=>x[0]),l};
+  if(t===1)return {q:'"'+w[0]+'" nghĩa là gì?',a:w[2],w:other().map(x=>x[2]),l};
+  return {q:'"'+w[2]+'" tiếng Anh là gì?',a:w[0],w:other().map(x=>x[0]),l};
+}
+function qBuild(lang,l){
+  const bank=(lang==='en'?QE:QV).filter(x=>x.l===l),out=shuffle(bank).slice(0,lang==='en'?5:7);
+  while(out.length<10)out.push(lang==='en'?qEngGen(l):qMath(l));
+  return shuffle(out).map(x=>({q:x.q,a:x.a,opts:shuffle([x.a].concat(x.w))}));
+}
+function renderQuizLobby(){
+  $('#q-lobby').hidden=false;$('#q-game').hidden=true;$('#q-over').hidden=true;
+  $$('[data-qgame]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.qgame===qprefs.game)));
+  $$('[data-qlang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.qlang===qprefs.lang)));
+  $$('[data-qlevel]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.qlevel===qprefs.level)));
+  const k=qKey(),best=(state.qbest||{})[k];
+  $('#q-best').textContent=best!=null?'Kỷ lục của em ở mục này: '+(qprefs.game==='quiz'?best+'/10 câu đúng':best+' sao')+'.':'Em chưa chơi mục này.';
+  const nB=(qprefs.lang==='en'?QE:QV).filter(x=>x.l===qprefs.level).length,nX=(qprefs.lang==='en'?XE:XV).filter(x=>xLevel(x.w,qprefs.lang)===qprefs.level).length;
+  $('#q-bank').textContent=qprefs.game==='quiz'?'Mỗi lần chơi có 10 câu mới, lấy từ kho '+nB+' câu viết sẵn và nhiều câu tự tạo.':'Mỗi lần có một ô chữ mới ghép từ kho '+nX+' từ ở mức này.';
+}
+const qKey=()=>qprefs.game+':'+qprefs.lang+':'+qprefs.level;
+function showQuiz(){stopAll();show('quiz');if(!qg)renderQuizLobby();}
+function quizEnd(stars,title,sub,score){
+  const g=qg;if(!g)return;g.over=true;
+  const k=qKey();state.qbest=Object.assign({},state.qbest);
+  if(state.qbest[k]==null||score>state.qbest[k])state.qbest[k]=score;
+  record({unit:'quiz',step:(qprefs.game==='quiz'?'Đố vui ':'Ô chữ ')+Q_LANG[qprefs.lang]+' '+Q_LEVEL[qprefs.level].toLowerCase(),acc:g.acc!=null?g.acc:1,wpm:0,chars:0,errs:0,secs:Math.max(5,(performance.now()-g.t0)/1000)});
+  if(stars>=2)cheer(stars);
+  $('#q-game').hidden=true;$('#q-over').hidden=false;
+  $('#q-stars').innerHTML=[1,2,3].map(n=>'<span class="'+(n<=stars?'':'off')+'">⭐</span>').join('');
+  $('#q-over-title').textContent=title;$('#q-over-sub').textContent=sub;
+}
+function quizStart(){guardStart(()=>{
+  stopAll();$('#q-lobby').hidden=true;$('#q-over').hidden=true;$('#q-game').hidden=false;
+  if(qprefs.game==='quiz')quizPlay();else crossPlay();
+});}
+/* ---- đố vui trắc nghiệm ---- */
+function quizPlay(){
+  const g=qg={kind:'quiz',qs:qBuild(qprefs.lang,qprefs.level),i:0,ok:0,t0:performance.now(),locked:false,over:false,streak:0};
+  $('#dv-quiz').hidden=false;$('#dv-cross').hidden=true;
+  const render=()=>{
+    const q=g.qs[g.i];g.locked=false;
+    $('#q-hud').textContent='Câu '+(g.i+1)+'/'+g.qs.length+' · Đúng '+g.ok;
+    $('#dv-q').textContent=q.q;$('#dv-fb').textContent='';
+    const box=$('#dv-opts');box.innerHTML='';
+    q.opts.forEach((o,k)=>{const b=document.createElement('button');b.type='button';b.className='dvopt';b.textContent=(k+1)+'. '+o;b.dataset.v=o;
+      b.addEventListener('click',()=>pick(b));box.appendChild(b);});
+  };
+  const pick=b=>{
+    if(g.locked||g.over)return;g.locked=true;const q=g.qs[g.i],good=b.dataset.v===q.a;
+    $$('#dv-opts .dvopt').forEach(x=>{if(x.dataset.v===q.a)x.classList.add('ok');x.disabled=true;});
+    if(good){g.ok++;g.streak++;beep(780,.08);setTimeout(()=>beep(1040,.1),90);$('#dv-fb').textContent=g.streak>=3?'Đúng rồi! Em đúng liên tiếp '+g.streak+' câu! 🔥':'Đúng rồi! 🎉';}
+    else{g.streak=0;b.classList.add('bad');beep(200,.15,'triangle',.06);$('#dv-fb').textContent='Chưa đúng. Đáp án là: '+q.a;}
+    setTimeout(()=>{if(g.over||qg!==g)return;g.i++;if(g.i>=g.qs.length){g.acc=g.ok/g.qs.length;quizEnd(g.ok>=9?3:g.ok>=6?2:1,'Em trả lời đúng '+g.ok+'/'+g.qs.length+' câu!',g.ok===g.qs.length?'Tuyệt vời! Em đúng hết rồi.':'Thử mức khó hơn hoặc chơi lại để có kết quả tốt hơn nhé.',g.ok);}else render();},good?900:1700);
+  };
+  g.onKey=e=>{const n=+e.key;if(n>=1&&n<=4){const b=$$('#dv-opts .dvopt')[n-1];if(b)pick(b);}};
+  render();
+}
+/* ---- ô chữ ---- */
+function crossGen(lang,level){
+  const bank=(lang==='en'?XE:XV).filter(x=>xLevel(x.w,lang)===level);
+  const want=level===1?5:level===2?7:6;
+  let best=null;
+  for(let attempt=0;attempt<80;attempt++){
+    const ws=shuffle(bank).slice(0,want+4).sort((a,b)=>b.w.length-a.w.length),cells=new Map(),placed=[];
+    const get=(r,c)=>cells.get(r+','+c);
+    const can=(w,r,c,dr,dc)=>{
+      if(get(r-dr,c-dc)||get(r+dr*w.length,c+dc*w.length))return false;
+      let cross=0;
+      for(let i=0;i<w.length;i++){const rr=r+dr*i,cc=c+dc*i,ex=get(rr,cc);
+        if(ex){if(ex!==w[i])return false;cross++;}
+        else if(get(rr+dc,cc+dr)||get(rr-dc,cc-dr))return false;}
+      return placed.length===0||cross>0&&cross<w.length;
+    };
+    const put=(it,r,c,dr,dc)=>{for(let i=0;i<it.w.length;i++)cells.set((r+dr*i)+','+(c+dc*i),it.w[i]);placed.push({w:it.w,c:it.c,r,col:c,dir:dr?'down':'across'});};
+    for(const it of ws){
+      if(placed.length>=want)break;
+      if(!placed.length){put(it,0,0,0,1);continue;}
+      const opts=[];
+      for(const p of placed){const dr=p.dir==='across'?1:0,dc=p.dir==='across'?0:1;
+        for(let i=0;i<p.w.length;i++)for(let j=0;j<it.w.length;j++){if(p.w[i]!==it.w[j])continue;
+          const r=(p.dir==='across'?p.r:p.r+i)-dr*j,c=(p.dir==='across'?p.col+i:p.col)-dc*j;
+          if(can(it.w,r,c,dr,dc))opts.push([r,c,dr,dc]);}}
+      if(opts.length){const o=rand(opts);put(it,...o);}
+    }
+    let mr=0,mc=0;cells.forEach((v,k)=>{const [r,c]=k.split(',').map(Number);mr=Math.max(mr,r);mc=Math.max(mc,c);});
+    const area=(mr+1)*(mc+1);
+    if(!best||placed.length>best.placed.length||(placed.length===best.placed.length&&area<best.area))best={placed,cells,area};
+  }
+  const minR=Math.min(...best.placed.map(p=>p.r)),minC=Math.min(...best.placed.map(p=>p.col));
+  best.placed.forEach(p=>{p.r-=minR;p.col-=minC;});
+  const grid=new Map();best.placed.forEach(p=>{for(let i=0;i<p.w.length;i++)grid.set((p.r+(p.dir==='down'?i:0))+','+(p.col+(p.dir==='across'?i:0)),p.w[i]);});
+  let H=0,W=0;grid.forEach((v,k)=>{const [r,c]=k.split(',').map(Number);H=Math.max(H,r+1);W=Math.max(W,c+1);});
+  const nums=new Map();let n=0;
+  const starts=[...best.placed].sort((a,b)=>a.r-b.r||a.col-b.col);
+  starts.forEach(p=>{const k=p.r+','+p.col;if(!nums.has(k))nums.set(k,++n);p.n=nums.get(k);});
+  return {placed:best.placed,grid,H,W,nums};
+}
+function crossPlay(){
+  const X=crossGen(qprefs.lang,qprefs.level);
+  const g=qg={kind:'cross',X,t0:performance.now(),hints:0,checks:0,vals:new Map(),sel:null,dir:'across',over:false,wrong:new Set()};
+  $('#dv-quiz').hidden=true;$('#dv-cross').hidden=false;
+  const gr=$('#xw-grid');gr.innerHTML='';gr.style.setProperty('--cols',X.W);gr.style.gridTemplateColumns='repeat('+X.W+',var(--cs))';
+  for(let r=0;r<X.H;r++)for(let c=0;c<X.W;c++){
+    const k=r+','+c,el=document.createElement('div');el.dataset.k=k;
+    if(X.grid.has(k)){el.className='xc';if(X.nums.has(k)){const nn=document.createElement('i');nn.textContent=X.nums.get(k);el.appendChild(nn);}
+      const sp=document.createElement('b');el.appendChild(sp);el.addEventListener('click',()=>xSelect(k));}
+    else el.className='xe';
+    gr.appendChild(el);
+  }
+  const cl=$('#xw-clues');cl.innerHTML='';
+  [['across','Hàng ngang'],['down','Hàng dọc']].forEach(([d,t])=>{
+    const h=document.createElement('h3');h.textContent=t;cl.appendChild(h);
+    const ol=document.createElement('ol');ol.className='xclue';
+    X.placed.filter(p=>p.dir===d).sort((a,b)=>a.n-b.n).forEach(p=>{const li=document.createElement('li');li.value=p.n;li.dataset.n=p.n+d;
+      li.textContent=p.c+' ('+p.w.length+' chữ)';li.addEventListener('click',()=>{g.dir=d;xSelect(p.r+','+p.col,true);});ol.appendChild(li);});
+    cl.appendChild(ol);
+  });
+  xSelect(X.placed[0].r+','+X.placed[0].col,true);xPaint();
+  $('#xw-in').value='';
+}
+const xWordAt=(g,k,dir)=>{const [r,c]=k.split(',').map(Number);return g.X.placed.find(p=>p.dir===dir&&(dir==='across'?p.r===r&&c>=p.col&&c<p.col+p.w.length:p.col===c&&r>=p.r&&r<p.r+p.w.length));};
+function xSelect(k,keepDir){
+  const g=qg;if(!g||g.over)return;
+  if(!keepDir&&g.sel===k){const o=g.dir==='across'?'down':'across';if(xWordAt(g,k,o))g.dir=o;}
+  else if(!xWordAt(g,k,g.dir)){const o=g.dir==='across'?'down':'across';if(xWordAt(g,k,o))g.dir=o;}
+  g.sel=k;xPaint();$('#xw-in').focus({preventScroll:true});
+}
+function xPaint(){
+  const g=qg;if(!g||g.kind!=='cross')return;
+  const cur=g.sel?xWordAt(g,g.sel,g.dir):null,inW=new Set();
+  if(cur)for(let i=0;i<cur.w.length;i++)inW.add((cur.r+(cur.dir==='down'?i:0))+','+(cur.col+(cur.dir==='across'?i:0)));
+  $$('#xw-grid .xc').forEach(el=>{const k=el.dataset.k;el.querySelector('b').textContent=g.vals.get(k)||'';
+    el.classList.toggle('inw',inW.has(k));el.classList.toggle('sel',k===g.sel);el.classList.toggle('wrong',g.wrong.has(k));});
+  $$('#xw-clues li').forEach(li=>li.classList.toggle('cur',!!cur&&li.dataset.n===cur.n+cur.dir));
+  $('#q-hud').textContent='Đã điền '+[...g.vals.values()].filter(Boolean).length+'/'+g.X.grid.size+' ô';
+}
+function xMove(step){
+  const g=qg;if(!g||!g.sel)return;const cur=xWordAt(g,g.sel,g.dir);if(!cur)return;
+  const [r,c]=g.sel.split(',').map(Number),nr=r+(g.dir==='down'?step:0),nc=c+(g.dir==='across'?step:0),k=nr+','+nc;
+  if(g.X.grid.has(k)&&xWordAt(g,k,g.dir)===cur)g.sel=k;
+}
+function xType(ch){
+  const g=qg;if(!g||g.over||!g.sel)return;
+  const L=foldVn(ch).toUpperCase();if(!/^[A-Z]$/.test(L))return;
+  g.vals.set(g.sel,L);g.wrong.delete(g.sel);beep(560,.04,'triangle',.04);xMove(1);xPaint();
+}
+function xBack(){const g=qg;if(!g||g.over||!g.sel)return;if(g.vals.get(g.sel)){g.vals.delete(g.sel);g.wrong.delete(g.sel);}else{xMove(-1);if(g.vals.get(g.sel)){g.vals.delete(g.sel);}}xPaint();}
+function xCheck(){
+  const g=qg;if(!g||g.over)return;g.checks++;g.wrong=new Set();let allOk=true;
+  g.X.grid.forEach((L,k)=>{const v=g.vals.get(k);if(v&&v!==L)g.wrong.add(k);if(v!==L)allOk=false;});
+  xPaint();
+  if(allOk){const stars=g.hints===0&&g.checks<=2?3:g.hints<=2?2:1;g.acc=1;beep(880,.1);setTimeout(()=>beep(1175,.1),110);
+    quizEnd(stars,'Em giải xong ô chữ rồi! 🎉','Em dùng '+g.hints+' lần gợi ý và kiểm tra '+g.checks+' lần.',stars);}
+  else $('#xw-msg').textContent=g.wrong.size?'Có '+g.wrong.size+' ô chưa đúng, đã tô đỏ. Em sửa lại nhé.':'Các chữ đã điền đều đúng. Em điền tiếp nhé!';
+}
+function xHint(){const g=qg;if(!g||g.over||!g.sel)return;g.hints++;g.vals.set(g.sel,g.X.grid.get(g.sel));g.wrong.delete(g.sel);xMove(1);xPaint();$('#xw-msg').textContent='Đã mở một chữ.';}
+$('#xw-in').addEventListener('input',e=>{const v=e.target.value;e.target.value='';if(v)for(const ch of v)xType(ch);});
+$('#xw-in').addEventListener('keydown',e=>{
+  const g=qg;if(!g||g.kind!=='cross')return;
+  if(e.key==='Backspace'){e.preventDefault();xBack();}
+  else if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();g.dir=e.key==='ArrowRight'?'across':'down';xMove(1);xPaint();}
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();g.dir=e.key==='ArrowLeft'?'across':'down';xMove(-1);xPaint();}
+  else if(e.key==='Enter'){e.preventDefault();xCheck();}
+});
+$('#xw-check').addEventListener('click',xCheck);
+$('#xw-hint').addEventListener('click',xHint);
+$('#xw-grid').addEventListener('click',()=>{if(qg&&qg.kind==='cross')$('#xw-in').focus({preventScroll:true});});
+document.addEventListener('keydown',e=>{if(screen==='quiz'&&qg&&qg.kind==='quiz'&&!e.ctrlKey&&!e.metaKey&&qg.onKey)qg.onKey(e);});
+$$('[data-qgame]').forEach(b=>b.addEventListener('click',()=>{qprefs.game=b.dataset.qgame;renderQuizLobby();}));
+$$('[data-qlang]').forEach(b=>b.addEventListener('click',()=>{qprefs.lang=b.dataset.qlang;renderQuizLobby();}));
+$$('[data-qlevel]').forEach(b=>b.addEventListener('click',()=>{qprefs.level=+b.dataset.qlevel;renderQuizLobby();}));
+$('#q-play').addEventListener('click',quizStart);
+$('#q-again').addEventListener('click',()=>{$('#q-over').hidden=true;quizStart();});
+$('#q-lobbybtn').addEventListener('click',()=>{qg=null;$('#q-hud').textContent='';renderQuizLobby();});
+$('#q-back').addEventListener('click',()=>showHub());
+$('#w-go-quiz').addEventListener('click',()=>showQuiz());
 
 /* ================= Nav & input ================= */
 function exitToHome(){const wasOnline=game&&game.online;stopAll();if(wasOnline){leaveRoomSilently();show('home');setTab('race');}else show('home');}

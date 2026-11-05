@@ -604,7 +604,7 @@ const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸', '🐱', '🐶',
 const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10']);
 const PHASES = new Set(['lobby', 'countdown', 'racing', 'done']);
 const KINDS = new Set(['sent', 'long', 'words', 'home', 'keys']);
-const ACTS = new Set(['race', 'learn', 'yard', 'parent', 'chess']);
+const ACTS = new Set(['race', 'learn', 'yard', 'parent', 'chess', 'quiz']);
 const WHERE = new Set(['home', 'hub', 'chess', 'play', 'game', 'results', 'parent', 'online', 'login', 'world', 'auth', 'cert']);
 const BAD_CHARS = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g;
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : undefined);
@@ -638,10 +638,10 @@ function cleanPatch(patch) {
   return out;
 }
 
-/* Trò chuyện nhanh trong Trường tiểu học: chỉ chọn câu có sẵn (CHAT_GROUPS), tuyệt đối không có ô gõ chữ.
+/* Trò chuyện nhanh trong Khu vui chơi: chỉ chọn câu có sẵn (CHAT_GROUPS), tuyệt đối không có ô gõ chữ.
  * Máy chủ chỉ nhận số thứ tự câu, tự ghép biệt danh (đã qua cleanNick) và con vật của người gửi rồi phát cho mọi bạn. */
 const CHAT_GROUPS = [
-  { name: 'Chào hỏi', items: ['Xin chào các bạn! 👋', 'Chào buổi sáng nhé! ☀️', 'Mình mới vào trường nè!', 'Tạm biệt nha! 👋'] },
+  { name: 'Chào hỏi', items: ['Xin chào các bạn! 👋', 'Chào buổi sáng nhé! ☀️', 'Mình mới vào khu vui chơi nè!', 'Tạm biệt nha! 👋'] },
   { name: 'Khen bạn', items: ['Giỏi quá! 👍', 'Hay quá! ✨', 'Chúc mừng bạn! 🎉', 'Bạn gõ nhanh ghê! ⚡', 'Cố lên nha! 💪'] },
   { name: 'Rủ chơi', items: ['Cùng chơi nha! 🎮', 'Bạn ơi, đua với mình nhé! 🏁', 'Ai chơi Chuột chũi không? 🐹', 'Mình đang học bài đây ✏️', 'Mình đang nghỉ giải lao 🌳'] },
   { name: 'Lịch sự', items: ['Cảm ơn bạn! 💖', 'Không có gì đâu! 😊', 'Xin lỗi nha! 🙏', 'Bạn dễ thương quá! 🥰'] }

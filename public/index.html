@@ -18,7 +18,7 @@
     <div class="hright">
       <button class="pill onpill" id="online-pill" type="button" hidden><span class="dotg" aria-hidden="true"></span><b id="online-n">0</b> đang online</button>
       <button class="pill whobtn" id="who" type="button" hidden title="Đổi người học"><span id="who-av"></span><span id="who-nm"></span></button>
-      <button class="pill" id="to-school" type="button" hidden>🏫 Về trường</button>
+      <button class="pill" id="to-school" type="button" hidden>🏫 Về khu vui chơi</button>
       <button class="pill" id="to-parent" type="button">Góc phụ huynh</button>
       <button class="pill" id="logout-top" type="button" hidden>Đăng xuất</button>
     </div>
@@ -26,9 +26,52 @@
   <p class="imewarn" id="ime-warn" role="alert" hidden>Nhớ tắt bộ gõ tiếng Việt (Unikey, EVKey) nhé!</p>
 
   <main>
+    <section id="s-quiz" hidden>
+      <div class="playbar">
+        <button class="pill" id="q-back" type="button">Về khu vui chơi <kbd>Esc</kbd></button>
+        <div class="hud" id="q-hud"></div>
+        <div class="toggles"><button class="tg tg-sound" type="button" aria-label="Âm thanh" aria-pressed="true">🔊</button></div>
+      </div>
+      <div id="q-lobby">
+        <h1 class="oneline">🧩 Đố vui</h1>
+        <div class="clobby">
+          <div class="crow"><span class="lbl">Trò chơi</span><button class="chip" type="button" data-qgame="quiz">❓ Đố vui (chọn đáp án)</button><button class="chip" type="button" data-qgame="cross">🔤 Ô chữ</button></div>
+          <div class="crow"><span class="lbl">Ngôn ngữ</span><button class="chip" type="button" data-qlang="en">🇬🇧 Tiếng Anh</button><button class="chip" type="button" data-qlang="vi">🇻🇳 Tiếng Việt</button></div>
+          <div class="crow"><span class="lbl">Mức</span><button class="chip" type="button" data-qlevel="1">🐢 Dễ</button><button class="chip" type="button" data-qlevel="2">🐇 Vừa</button><button class="chip" type="button" data-qlevel="3">🐆 Khó</button></div>
+          <button class="btn primary" id="q-play" type="button">▶ Chơi</button>
+          <p class="note" id="q-bank"></p>
+          <p class="note" id="q-best"></p>
+        </div>
+      </div>
+      <div id="q-game" hidden>
+        <div id="dv-quiz" class="dvcard" hidden>
+          <h2 id="dv-q" class="dvq"></h2>
+          <div id="dv-opts" class="dvopts"></div>
+          <p id="dv-fb" class="dvfb" aria-live="polite"></p>
+          <p class="note">Bấm vào đáp án hoặc nhấn phím 1, 2, 3, 4.</p>
+        </div>
+        <div id="dv-cross" class="dvcard" hidden>
+          <div class="xwrap">
+            <div class="xleft">
+              <div id="xw-grid" class="xgrid"></div>
+              <input id="xw-in" class="xin" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Gõ chữ vào ô đang chọn">
+              <div class="btns" style="justify-content:flex-start"><button class="chip go" id="xw-check" type="button">✅ Kiểm tra</button><button class="chip" id="xw-hint" type="button">💡 Mở một chữ</button></div>
+              <p class="note" id="xw-msg">Bấm vào một ô rồi gõ chữ. Không cần gõ dấu.</p>
+            </div>
+            <div class="xclues" id="xw-clues"></div>
+          </div>
+        </div>
+      </div>
+      <div id="q-over" class="cover" hidden>
+        <div class="stars" id="q-stars"></div>
+        <h2 id="q-over-title"></h2><p id="q-over-sub"></p>
+        <div class="btns" style="justify-content:flex-start"><button class="btn primary" id="q-again" type="button">Chơi tiếp</button><button class="btn" id="q-lobbybtn" type="button">Đổi trò chơi</button></div>
+      </div>
+    </section>
+
     <section id="s-chess" hidden>
       <div class="playbar">
-        <button class="pill" id="c-back" type="button">Về trường <kbd>Esc</kbd></button>
+        <button class="pill" id="c-back" type="button">Về khu vui chơi <kbd>Esc</kbd></button>
         <span></span>
         <div class="toggles"><button class="tg tg-sound" type="button" aria-label="Âm thanh" aria-pressed="true">🔊</button></div>
       </div>
@@ -44,7 +87,7 @@
           <div class="crow"><span class="lbl">Thời gian</span><button class="chip" type="button" data-ctc="0">Không tính giờ</button><button class="chip" type="button" data-ctc="5">5 phút</button><button class="chip" type="button" data-ctc="10">10 phút</button><button class="chip" type="button" data-ctc="15">15 phút</button></div>
           <button class="btn primary" id="c-play" type="button">▶ Chơi với máy</button>
           <div id="c-wait" hidden>
-            <p class="lede">Đang chờ bạn vào chơi… Lời mời đã hiện trong khung trò chuyện ở Trường tiểu học.</p>
+            <p class="lede">Đang chờ bạn vào chơi… Lời mời đã hiện trong khung trò chuyện ở Khu vui chơi.</p>
             <div class="btns" style="justify-content:flex-start"><button class="chip" id="c-wait-bot" type="button">Chơi với máy ngay</button><button class="chip" id="c-wait-cancel" type="button">Huỷ</button></div>
           </div>
           <p class="note" id="c-note"></p>
@@ -86,7 +129,7 @@
         <span class="dotg" aria-hidden="true"></span><b><span id="os-n"></span> bạn đang online</b>
         <span class="oszones" id="os-zones"></span>
         <span class="osavs" id="os-avs" aria-hidden="true"></span>
-        <button class="chip" id="os-world" type="button">Vào trường</button>
+        <button class="chip" id="os-world" type="button">Vào khu vui chơi</button>
       </div>
       <p class="tip" id="ime-tip" hidden></p>
     </section>
@@ -240,7 +283,7 @@
         <div class="avatars" id="np-av" style="margin-top:10px">Con vật:</div>
         <details class="lookbox" open>
           <summary>🎨 Trang phục và phụ kiện 3D</summary>
-          <p class="note" style="margin:4px 0 8px">Chọn màu da, tóc, áo, váy hay quần và phụ kiện cho nhân vật của em. Các bạn sẽ thấy em trong Trường tiểu học OplaKid.</p>
+          <p class="note" style="margin:4px 0 8px">Chọn màu da, tóc, áo, váy hay quần và phụ kiện cho nhân vật của em. Các bạn sẽ thấy em trong Khu vui chơi OplaKid.</p>
           <div class="lookrow"><canvas id="look-canvas" width="360" height="450" role="img" aria-label="Xem trước nhân vật 3D"></canvas><div class="lookopts" id="look-opts"></div></div>
           <div class="btns" style="justify-content:flex-start;margin:8px 0 0"><button class="chip" id="look-rand" type="button">🎲 Ngẫu nhiên</button><button class="chip" id="look-reset" type="button">↺ Mặc định</button></div>
         </details>
@@ -251,13 +294,14 @@
     </section>
 
     <section id="s-world" hidden>
-      <h1 class="oneline">Trường tiểu học OplaKid</h1>
+      <h1 class="oneline">Khu vui chơi OplaKid</h1>
       <p class="note"><b id="w-total"></b> <span id="w-note"></span></p>
       <div class="goclass">
         <button class="classbtn" id="w-go-typing" type="button"><span class="cico" aria-hidden="true">⌨️</span><b>Lớp Gõ phím</b><span class="crec" id="w-typing-rec"></span></button>
+        <button class="classbtn" id="w-go-quiz" type="button"><span class="cico" aria-hidden="true">🧩</span><b>Lớp Đố vui</b><span class="crec" id="w-quiz-rec">Đố vui và ô chữ</span></button>
         <button class="classbtn" id="w-go-chess" type="button"><span class="cico" aria-hidden="true">♞</span><b>Lớp Cờ vua</b><span class="crec" id="w-chess-rec"></span></button>
       </div>
-      <p class="note">Bấm vào lớp trong sân trường hoặc bấm nút ở trên để vào chơi.</p>
+      <p class="note">Bấm vào lớp trong khu vui chơi hoặc bấm nút ở trên để vào chơi.</p>
       <div class="worldwrap"><div id="world3d"></div><div class="zoomctl"><button type="button" id="w-zin" aria-label="Phóng to">＋</button><button type="button" id="w-zout" aria-label="Thu nhỏ">－</button></div></div>
       <div class="wzones" id="w-zones"></div>
     </section>
@@ -373,7 +417,7 @@
             </label>
             <label><input type="checkbox" id="set-sound"> Âm thanh</label>
             <label><input type="checkbox" id="set-music"> Nhạc nền khi gõ</label>
-            <label><input type="checkbox" id="set-chat"> Cho bé trò chuyện nhanh (câu có sẵn) trong trường</label>
+            <label><input type="checkbox" id="set-chat"> Cho bé trò chuyện nhanh (câu có sẵn) trong khu vui chơi</label>
             <label><input type="checkbox" id="set-speak"> Đọc to từ tiếng Anh</label>
             <label><input type="checkbox" id="set-unlock"> Mở khoá tất cả các cấp độ</label>
             <button class="btn danger" id="reset" type="button">Xoá tiến độ của bé này</button>
