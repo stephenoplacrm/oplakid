@@ -1,11 +1,13 @@
 # Oplakid (Bé Gõ Phím): ghi chú cho Claude Code
 
-Web app luyện gõ 10 ngón cho trẻ tiểu học. Chạy tại https://oplakid.com.
+Trang game cho trẻ em, hiện có hai game: Cờ vua và Gõ phím (luyện gõ 10 ngón cho trẻ tiểu học). Chạy tại https://oplakid.com.
 Render tự deploy mỗi khi có commit vào nhánh `main`.
 
 ## Cấu trúc
 - `server.js`: Express, tài khoản phụ huynh (scrypt, cookie phiên), API `/api/*`, WebSocket `/ws` (ai đang online).
 - `races.js`: quản lý cuộc đua trên máy chủ (đua tối đa 5 bạn cùng cấp độ, sau 1 phút máy vào chơi ngang trình nếu còn ít bạn; đua với máy; ghép theo Cấp độ 1 đến Cấp độ 10).
+- `chessgames.js`: cờ vua online giữa hai bạn (máy chủ giữ bàn cờ, tự kiểm tra từng nước đi, giữ đồng hồ, xử lý đầu hàng, xin hoà). Ván cờ chỉ lưu trong bộ nhớ, không ghi vào SQLite.
+- `public/chess.js`: luật cờ vua và máy chơi cờ (3 mức), dùng chung cho trình duyệt (`window.OplaChess`) và máy chủ (`require`). Kiểm tra bằng `node tests/chess.test.js` (perft trên các thế cờ chuẩn).
 - `public/index.html`, `public/app.css`, `public/app.js`: toàn bộ giao diện, JavaScript thuần, không có bước build.
 - Cấp độ 6 đến 10 gõ tiếng Việt: bé dùng bộ gõ tiếng Việt có sẵn của máy (ô `#vn-input`); ứng dụng chỉ so chữ, không tự ghép dấu. Kho chữ tiếng Việt nằm trong `app.js` (`VN`). Không thêm file JS riêng cho phần này.
 - `public/privacy.html`, `public/contact.html`: chính sách quyền riêng tư và trang liên hệ (thông tin người vận hành, email, nơi đặt máy chủ). Chính sách chưa được luật sư rà soát.
@@ -24,6 +26,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 ## Kiểm tra trước khi mở pull request
 ```bash
 npm ci
-node --check server.js && node --check races.js && node --check public/app.js
+node --check server.js && node --check races.js && node --check chessgames.js && node --check public/app.js && node --check public/chess.js
+node tests/chess.test.js
 APP_ORIGIN=http://localhost:3000 node server.js   # mở http://localhost:3000, đăng ký, học 1 bài, đua với máy
 ```
