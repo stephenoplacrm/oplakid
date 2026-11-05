@@ -606,3 +606,29 @@ a{color:var(--ink)}
 .wlvs{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}
 .wlv{font-size:13px;font-weight:800;border:2px solid var(--zc);border-radius:999px;padding:0 8px;color:var(--ink)}
 .wbadge{margin-left:6px;font-size:12px;font-weight:800;color:var(--muted)}
+
+/* Đố vui và ô chữ */
+.dvcard{background:var(--panel);border:2px solid var(--line);border-radius:20px;padding:16px clamp(12px,3vw,24px);margin-top:8px;max-width:860px}
+.dvq{margin:0 0 12px;font-size:clamp(22px,4.5vw,32px);line-height:1.25;color:var(--ink);overflow-wrap:anywhere}
+.dvopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.dvopt{padding:12px 16px;text-align:left;font-size:clamp(17px,3.4vw,22px);font-weight:700;color:var(--text);background:var(--paper);border:3px solid var(--line);border-radius:16px}
+.dvopt:hover:not(:disabled){border-color:var(--ink)}
+.dvopt.ok{border-color:var(--c-middle);background:color-mix(in srgb,var(--c-middle) 18%,var(--paper))}
+.dvopt.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,var(--paper))}
+.dvfb{min-height:1.6em;margin:10px 0 0;font-weight:800;color:var(--ink);font-size:18px}
+.xwrap{display:grid;grid-template-columns:minmax(0,auto) minmax(220px,1fr);gap:18px;align-items:start}
+@media (max-width:760px){.xwrap{grid-template-columns:minmax(0,1fr)}}
+.xleft{min-width:0;overflow-x:auto}
+.xgrid{--cs:max(26px,min(42px,calc((100vw - 56px)/var(--cols,10))));display:grid;gap:2px;width:max-content;max-width:100%;margin:0 0 10px}
+.xc,.xe{width:var(--cs);height:var(--cs)}
+.xc{position:relative;display:flex;align-items:center;justify-content:center;background:var(--paper);border:2px solid var(--ink);border-radius:6px;cursor:pointer}
+.xc i{position:absolute;left:2px;top:0;font-size:11px;font-style:normal;font-weight:800;color:var(--muted)}
+.xc b{font-size:calc(var(--cs)*.55);color:var(--text);line-height:1}
+.xc.inw{background:color-mix(in srgb,var(--gold) 28%,var(--paper))}
+.xc.sel{background:color-mix(in srgb,var(--gold) 65%,var(--paper));outline:3px solid var(--ink);z-index:1}
+.xc.wrong{background:color-mix(in srgb,var(--bad) 30%,var(--paper))}
+.xin{position:fixed;left:-200px;top:0;width:1px;height:1px;opacity:0}
+.xclues h3{margin:6px 0 4px;color:var(--ink)}
+.xclue{margin:0;padding-left:26px;display:flex;flex-direction:column;gap:3px;font-size:16px}
+.xclue li{cursor:pointer;padding:1px 6px;border-radius:8px}
+.xclue li.cur{background:color-mix(in srgb,var(--gold) 35%,transparent);font-weight:800}

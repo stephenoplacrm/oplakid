@@ -1,6 +1,6 @@
 # OplaKid
 
-Trang game cho trẻ em, hiện có hai game: **Cờ vua** (chơi với máy ở 3 mức hoặc với bạn online, có đồng hồ, điểm Elo và hạng từ Tân binh đến Đại kiện tướng, chọn câu nói nhanh trong ván, gợi ý và đi lại khi chơi với máy) và **Gõ phím** (luyện gõ 10 ngón cho trẻ tiểu học): 262 bài chia 10 cấp độ (50 bài thêm không bắt buộc để mở cấp độ sau; từ Cấp độ 6 bé gõ tiếng Việt bằng bộ gõ tiếng Việt có sẵn của máy); 6 trò chơi; nhạc nền thiếu nhi khi gõ; đua với bóng ma; đua trực tuyến với bạn; Trường tiểu học OplaKid 3D xem ai đang online.
+Trang game cho trẻ em, hiện có ba game: **Đố vui** (đố vui chọn đáp án và ô chữ, tiếng Anh và tiếng Việt, ba mức dễ, vừa, khó, kho hơn 150 câu viết sẵn cùng câu tự tạo và hơn 100 từ ô chữ), **Cờ vua** (chơi với máy ở 3 mức hoặc với bạn online, có đồng hồ, điểm Elo và hạng từ Tân binh đến Đại kiện tướng, chọn câu nói nhanh trong ván, gợi ý và đi lại khi chơi với máy) và **Gõ phím** (luyện gõ 10 ngón cho trẻ tiểu học): 262 bài chia 10 cấp độ (50 bài thêm không bắt buộc để mở cấp độ sau; từ Cấp độ 6 bé gõ tiếng Việt bằng bộ gõ tiếng Việt có sẵn của máy); 6 trò chơi; nhạc nền thiếu nhi khi gõ; đua với bóng ma; đua trực tuyến với bạn; Khu vui chơi OplaKid 3D xem ai đang online.
 
 ## Có gì trong bản này
 
@@ -10,7 +10,7 @@ Trang game cho trẻ em, hiện có hai game: **Cờ vua** (chơi với máy ở
   - Giới hạn số lần thử để chống dò mật khẩu.
 - **Hồ sơ bé:** mỗi tài khoản có nhiều bé. Bé đăng nhập bằng cách chọn hồ sơ của mình.
 - **Lưu tiến độ trên máy chủ:** học trên máy nào cũng giữ nguyên tiến độ.
-- **Thời gian thực qua WebSocket:** đếm số người online, phòng đua với bạn, ván cờ vua online và **Trường tiểu học OplaKid 3D, là trang chính**: hai lớp Gõ phím, một lớp Cờ vua (bạn nào đang chơi cờ thì ngồi vào bàn cờ), sân đua và Góc phụ huynh. Bấm vào lớp để vào game.
+- **Thời gian thực qua WebSocket:** đếm số người online, phòng đua với bạn, ván cờ vua online và **Khu vui chơi OplaKid 3D, là trang chính**: hai lớp Gõ phím, một lớp Cờ vua (bạn nào đang chơi cờ thì ngồi vào bàn cờ), sân đua và Góc phụ huynh. Bấm vào lớp để vào game.
   - Các bạn đang online thấy con vật đại diện, biệt danh và cấp độ học của nhau. Dữ liệu cuộc đua chỉ hiện với người cùng tài khoản hoặc cùng phòng đua.
 - **Đua trực tuyến do máy chủ điều khiển:**
   - Đua với bạn: tối đa 5 bé cùng cấp độ, lời mời hiện trong khung trò chuyện; sau 1 phút máy vào chơi ngang trình nếu còn ít bạn.
