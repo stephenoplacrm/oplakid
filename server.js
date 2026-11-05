@@ -78,6 +78,17 @@ CREATE TABLE IF NOT EXISTS docs(
   PRIMARY KEY(user_id, name)
 );
 `);
+/* Hồ sơ công khai của bé (biệt danh, con vật, cấp độ ở các game, lần online gần nhất) để các bạn bấm vào xem. Mỗi bé một dòng; xoá khi ba mẹ xoá tài khoản hoặc sau 60 ngày không online. */
+db.exec(`
+CREATE TABLE IF NOT EXISTS kid_profiles(
+  k TEXT PRIMARY KEY, hid TEXT NOT NULL, nick TEXT NOT NULL, av TEXT NOT NULL DEFAULT '',
+  elo INTEGER NOT NULL DEFAULT 500, lv INTEGER NOT NULL DEFAULT 1, done INTEGER NOT NULL DEFAULT 0,
+  cw INTEGER NOT NULL DEFAULT 0, cl INTEGER NOT NULL DEFAULT 0, cd INTEGER NOT NULL DEFAULT 0,
+  qb INTEGER NOT NULL DEFAULT 0, xb INTEGER NOT NULL DEFAULT 0, seen INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS kid_profiles_seen ON kid_profiles(seen);
+DELETE FROM kid_profiles WHERE seen < ${Date.now() - 60 * 864e5};
+`);
 
 /* Thêm cột mới cho bảng users (có giá trị mặc định, không đổi hay xoá cột cũ) */
 {
@@ -105,6 +116,7 @@ const q = {
   insertUser: db.prepare('INSERT INTO users(id, email, pw, created_at, consent_at) VALUES(?, ?, ?, ?, ?)'),
   updatePw: db.prepare('UPDATE users SET pw = ? WHERE id = ?'),
   deleteUser: db.prepare('DELETE FROM users WHERE id = ?'),
+  deleteKids: db.prepare("DELETE FROM kid_profiles WHERE k LIKE ? ESCAPE '\\'"),
   insertFeedback: db.prepare('INSERT INTO feedback(id, user_id, kind, rating, message, contact_ok, created_at) VALUES(?, ?, ?, ?, ?, ?, ?)'),
   listFeedback: db.prepare('SELECT f.id, f.kind, f.rating, f.message, f.contact_ok, f.created_at, u.email FROM feedback f JOIN users u ON u.id = f.user_id ORDER BY f.created_at DESC LIMIT 200'),
   deleteFeedback: db.prepare('DELETE FROM feedback WHERE id = ?'),
@@ -414,6 +426,7 @@ app.post('/api/account/delete', requireUser, wrap(async (req, res) => {
   if (rateLimited('del:' + req.user.id, 5, 900_000)) return res.status(429).json({ error: 'Bạn thử quá nhiều lần.' });
   const row = q.userPwById.get(req.user.id);
   if (!row || !(await verifyPassword(String(req.body.password || ''), row.pw))) return res.status(401).json({ error: 'Mật khẩu chưa đúng.' });
+  q.deleteKids.run(req.user.id + ':%');
   q.deleteUser.run(req.user.id);
   disconnectUser(req.user.id);
   clearCookie(res);
@@ -621,6 +634,12 @@ function cleanPatch(patch) {
       case 'where': if (WHERE.has(v)) out.where = v; break;
       case 'look': if (Array.isArray(v) && v.length === 10 && v.every(n => Number.isInteger(n) && n >= 0 && n <= 15)) out.look = v; break;
       case 'act': if (ACTS.has(v)) out.act = v; break;
+      case 'pid': if (typeof v === 'string' && /^[a-z0-9]{3,24}$/.test(v)) out.pid = v; break;
+      case 'stats': if (v && typeof v === 'object' && !Array.isArray(v)) {
+        const st = {};
+        for (const [kk, lim] of Object.entries({ lv: 10, done: 262, cw: 99999, cl: 99999, cd: 99999, qb: 10, xb: 3 })) { const n = num(v[kk], 0, lim); if (n !== undefined) st[kk] = Math.round(n); }
+        out.stats = st;
+      } break;
       case 'elo': { const n = num(v, 100, 3500); if (n !== undefined) out.elo = Math.round(n); break; }
       case 'race': if (typeof v === 'string' && /^[a-z0-9]{5}$/.test(v)) out.race = v; break;
       case 'host': if (typeof v === 'boolean') out.host = v; break;
@@ -715,6 +734,48 @@ const chess = new ChessManager(
   peerId => { const p = peers.get(peerId); return { nick: cleanNick((p && p.presence.nick) || ''), av: (p && AVATARS.has(p.presence.av)) ? p.presence.av : '🐯' }; },
   msg => { const s = JSON.stringify(msg); for (const p of peers.values()) if (p.ws.readyState === 1) p.ws.send(s); }
 );
+/* ---------- hồ sơ công khai của bé ---------- */
+const upsertKid = db.prepare(`INSERT INTO kid_profiles(k,hid,nick,av,elo,lv,done,cw,cl,cd,qb,xb,seen) VALUES(@k,@hid,@nick,@av,@elo,@lv,@done,@cw,@cl,@cd,@qb,@xb,@seen)
+  ON CONFLICT(k) DO UPDATE SET nick=@nick,av=@av,elo=@elo,lv=@lv,done=@done,cw=@cw,cl=@cl,cd=@cd,qb=@qb,xb=@xb,seen=@seen`);
+const kidByHid = db.prepare('SELECT * FROM kid_profiles WHERE hid = ?');
+const kidsRecent = db.prepare('SELECT hid, nick, av, seen FROM kid_profiles WHERE seen > ? ORDER BY seen DESC LIMIT 40');
+const kidKey = peer => (peer.presence.pid ? peer.userId + ':' + peer.presence.pid : null);
+const hidOf = pk => crypto.createHash('sha1').update(pk).digest('hex').slice(0, 12);
+function saveKid(peer, now) {
+  const pk = kidKey(peer), pr = peer.presence;
+  if (!pk || !pr.nick || !pr.stage) return null;
+  const st = pr.stats || {}, hid = hidOf(pk);
+  upsertKid.run({ k: pk, hid, nick: cleanNick(pr.nick), av: AVATARS.has(pr.av) ? pr.av : '🐯', elo: Number.isFinite(pr.elo) ? pr.elo : 500,
+    lv: st.lv || 1, done: st.done || 0, cw: st.cw || 0, cl: st.cl || 0, cd: st.cd || 0, qb: st.qb || 0, xb: st.xb || 0, seen: now });
+  peer.savedAt = now;
+  return hid;
+}
+function profileMsg(row, online, act) {
+  return { t: 'profile', hid: row.hid, nick: row.nick, av: row.av, elo: row.elo, lv: row.lv, done: row.done, cw: row.cw, cl: row.cl, cd: row.cd, qb: row.qb, xb: row.xb,
+    seen: row.seen, online: !!online, act: online ? act || null : null };
+}
+function handleProfile(peer, msg) {
+  const now = Date.now();
+  if (msg.t === 'profile.get') {
+    let row = null, online = false, act = null;
+    if (typeof msg.peer === 'string') {
+      const target = peers.get(msg.peer);
+      if (!target || !target.presence.stage) { peer.ws.send(JSON.stringify({ t: 'profile', missing: true })); return; }
+      const hid = saveKid(target, now);
+      row = hid ? kidByHid.get(hid) : null; online = true; act = target.presence.act;
+      if (!row) row = { hid: '', nick: cleanNick(target.presence.nick || ''), av: target.presence.av || '🐯', elo: Number.isFinite(target.presence.elo) ? target.presence.elo : 500, lv: 1, done: 0, cw: 0, cl: 0, cd: 0, qb: 0, xb: 0, seen: now };
+    } else if (typeof msg.hid === 'string' && /^[a-f0-9]{12}$/.test(msg.hid)) {
+      row = kidByHid.get(msg.hid);
+      for (const p of peers.values()) { const pk = kidKey(p); if (pk && hidOf(pk) === msg.hid) { online = true; act = p.presence.act; row = kidByHid.get(msg.hid) || row; } }
+    }
+    peer.ws.send(JSON.stringify(row ? profileMsg(row, online, act) : { t: 'profile', missing: true }));
+  } else if (msg.t === 'profile.recent') {
+    const onlineHids = new Set();
+    for (const p of peers.values()) { const pk = kidKey(p); if (pk) onlineHids.add(hidOf(pk)); }
+    const list = kidsRecent.all(now - 7 * 864e5).filter(r => !onlineHids.has(r.hid)).slice(0, 12);
+    peer.ws.send(JSON.stringify({ t: 'profile.recent', list }));
+  }
+}
 function disconnectUser(userId) {
   for (const p of peers.values()) if (p.userId === userId) p.ws.close(4001, 'account deleted');
 }
@@ -744,16 +805,19 @@ wss.on('connection', ws => {
       for (const [k, v] of Object.entries(patch)) { if (v === null) delete next[k]; else next[k] = v; }
       peer.presence = next;
       peer.updatedAt = now;
+      if (!peer.savedAt || now - peer.savedAt > 20_000) saveKid(peer, now);
       scheduleBroadcast();
     } else if (msg && msg.t === 'chat') {
       handleChat(peer, id, msg, now);
     } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('race.')) {
       races.handle(id, msg);
+    } else if (msg && (msg.t === 'profile.get' || msg.t === 'profile.recent')) {
+      handleProfile(peer, msg);
     } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('chess.')) {
       chess.handle(id, msg);
     }
   });
-  ws.on('close', () => { races.leave(id, true); chess.leave(id); peers.delete(id); scheduleBroadcast(); });
+  ws.on('close', () => { saveKid(peer, Date.now()); races.leave(id, true); chess.leave(id); peers.delete(id); scheduleBroadcast(); });
   ws.on('error', () => {});
 });
 setInterval(() => {

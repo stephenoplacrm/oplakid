@@ -632,3 +632,19 @@ a{color:var(--ink)}
 .xclue{margin:0;padding-left:26px;display:flex;flex-direction:column;gap:3px;font-size:16px}
 .xclue li{cursor:pointer;padding:1px 6px;border-radius:8px}
 .xclue li.cur{background:color-mix(in srgb,var(--gold) 35%,transparent);font-weight:800}
+
+/* Hồ sơ của bạn khác */
+#profile-modal{position:fixed;inset:0;background:color-mix(in srgb,var(--paper) 78%,transparent);display:grid;place-items:center;z-index:45;padding:16px}
+.pfcard{position:relative;background:var(--panel);border:3px solid var(--ink);border-radius:22px;padding:20px 22px;max-width:460px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.pfclose{position:absolute;right:10px;top:10px;width:36px;height:36px;border-radius:50%;border:2px solid var(--line);background:var(--panel);color:var(--ink);font-weight:800;padding:0}
+.pfhead{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.pfav{font-size:56px;line-height:1}
+.pfhead h2{margin:0;font-size:28px;color:var(--ink);overflow-wrap:anywhere}
+.pfstatus{margin:2px 0 0;font-weight:800;color:var(--muted);font-size:15px}
+.pfbody{display:flex;flex-direction:column;gap:8px}
+.pfrow{display:flex;gap:12px;align-items:center;border:2px solid var(--line);border-radius:14px;padding:8px 12px}
+.pfrow .pico{font-size:30px;line-height:1}
+.pfrow b{display:block;color:var(--ink)}
+.pfrow span{color:var(--text);font-size:15px}
+button.wkid{font:inherit;font-weight:700;color:var(--text);background:var(--panel);cursor:pointer}
+button.wkid:hover{border-color:var(--ink)}
