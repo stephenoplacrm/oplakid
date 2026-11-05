@@ -648,3 +648,13 @@ a{color:var(--ink)}
 .pfrow span{color:var(--text);font-size:15px}
 button.wkid{font:inherit;font-weight:700;color:var(--text);background:var(--panel);cursor:pointer}
 button.wkid:hover{border-color:var(--ink)}
+
+/* Kết bạn và lời mời */
+.pfactions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pfactions .chip{font-size:16px}
+#toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;display:flex;flex-wrap:wrap;align-items:center;gap:10px;max-width:calc(100vw - 24px);background:var(--panel);color:var(--text);border:3px solid var(--ink);border-radius:18px;padding:10px 16px;font-weight:800;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.toastbtns{display:flex;gap:8px}
+.frrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 6px}
+.frreq{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 8px;margin-bottom:6px;border-radius:12px;background:color-mix(in srgb,var(--gold) 22%,var(--panel));font-weight:700}
+.frdot{font-size:12px}
+.wkids .chip{padding:1px 10px;font-size:14px}

@@ -1845,11 +1845,11 @@ function createRoom(){
 function startRealtime(){
   if(room)return;room=createRoom();onlineAvailable();
   room.onPeers(()=>updateOnlineCount());
-  room.onMsg(onRaceMsg);room.onMsg(onChatMsg);room.onMsg(onChessMsg);room.onMsg(onProfileMsg);
+  room.onMsg(onRaceMsg);room.onMsg(onChatMsg);room.onMsg(onChessMsg);room.onMsg(onProfileMsg);room.onMsg(onFriendMsg);
   setInterval(()=>{if(screen==='world'&&room&&room.connected())room.send({t:'profile.recent'});},45000);
   updateOnlineCount();lastPresKey='';updateLobbyPresence();
   room.onConnection(c=>{onlineAvailable();
-    if(c){lastPresKey='';updateLobbyPresence();if(pendingJoin&&curPid){const pj=pendingJoin;pendingJoin=null;raceJoinCode(pj);}}
+    if(c){lastPresKey='';updateLobbyPresence();setTimeout(()=>frSend({t:'friend.list'}),600);if(pendingJoin&&curPid){const pj=pendingJoin;pendingJoin=null;raceJoinCode(pj);}}
     else if(online){online=null;if(screen==='online'||(game&&game.online)){stopAll();show('home');setTab('race');$('#o-avail').textContent='Mất kết nối nên em đã rời cuộc đua. Em thử lại nhé.';}}});
 }
 function stopRealtime(){if(room){room.close();room=null;}online=null;updateOnlineCount();onlineAvailable();}
@@ -2355,17 +2355,32 @@ function renderWorldList(){
   const kid=(p,badge)=>{const s=document.createElement('button');s.type='button';s.className='wkid'+(me(p)?' me':'');s.title='Xem hồ sơ';s.addEventListener('click',()=>openProfile({peer:p.peer}));
     s.textContent=ACT_ICON[actOf(p)]+' '+String(p.presence.av||'🙂').slice(0,8)+' '+String(p.presence.nick||'Một bạn').slice(0,12)+(me(p)?' (em)':'');
     if(badge){const b=document.createElement('span');b.className='wbadge';b.textContent=badge;s.appendChild(b);}return s;};
-  const card=(title,color,list,fmt,head)=>{
+  const card=(title,color,list,fmt,head,empty)=>{
     const d=document.createElement('section');d.className='wzone';d.style.setProperty('--zc',color);
     const h=document.createElement('h2');h.textContent=title+' ('+list.length+')';d.appendChild(h);
     if(head)d.appendChild(head);
     const ul=document.createElement('div');ul.className='wkids';
     list.slice(0,40).forEach(p=>ul.appendChild(fmt(p)));
     if(list.length>40){const s=document.createElement('span');s.className='wnone';s.textContent='và '+(list.length-40)+' bạn nữa';ul.appendChild(s);}
-    if(!list.length){const s=document.createElement('span');s.className='wnone';s.textContent='Chưa có ai';ul.appendChild(s);}
+    if(!list.length){const s=document.createElement('span');s.className='wnone';s.textContent=empty||'Chưa có ai';ul.appendChild(s);}
     d.appendChild(ul);box.appendChild(d);};
   const lv=document.createElement('div');lv.className='wlvs';
   ZONES.forEach(z=>{const n=typing.filter(p=>(p.presence.stage||'bo')===z.id).length;if(!n)return;const c=document.createElement('span');c.className='wlv';c.style.setProperty('--zc',hex(z.color));c.textContent=z.name+': '+n;lv.appendChild(c);});
+  {
+    const head=document.createElement('div');
+    fr.incoming.forEach(r=>{const d=document.createElement('div');d.className='frreq';d.append(document.createTextNode('🔔 '+String(r.av||'🙂').slice(0,8)+' '+String(r.nick||'Một bạn').slice(0,12)+' muốn kết bạn '));
+      const ok=document.createElement('button');ok.type='button';ok.className='chip go';ok.textContent='Đồng ý';ok.addEventListener('click',()=>frSend({t:'friend.ok',hid:r.hid}));
+      const no=document.createElement('button');no.type='button';no.className='chip';no.textContent='Không';no.addEventListener('click',()=>frSend({t:'friend.no',hid:r.hid}));
+      d.append(ok,no);head.appendChild(d);});
+    card('👫 Bạn bè','#e4508a',fr.friends,f=>{
+      const w=document.createElement('span');w.className='frrow';
+      const b=document.createElement('button');b.type='button';b.className='wkid';b.title='Xem hồ sơ';
+      b.textContent=(f.online?'🟢 ':'⚪ ')+String(f.av||'🙂').slice(0,8)+' '+String(f.nick||'Một bạn').slice(0,12);
+      const sp=document.createElement('span');sp.className='wbadge';sp.textContent=f.online?(ACT_TXT[f.act]||ACT_TXT.yard):'online '+ago((Date.now()-f.seen)/1000);b.appendChild(sp);b.addEventListener('click',()=>openProfile({hid:f.hid}));
+      w.appendChild(b);
+      if(f.online){const iv=document.createElement('button');iv.type='button';iv.className='chip go';iv.textContent='♞ Mời chơi cờ';iv.addEventListener('click',()=>inviteFriend(f.hid));w.appendChild(iv);}
+      return w;},head.children.length?head:null,'Chưa có bạn bè. Bấm vào một bạn, rồi bấm Kết bạn nhé.');
+  }
   card('⌨️ Đang gõ phím','#2b7fd0',typing,p=>{const z=ZONES.find(x=>x.id===p.presence.stage)||ZONES[0];return kid(p,z.name);},lv.children.length?lv:null);
   card('♞ Đang chơi cờ','#36a653',chess.slice().sort((a,b)=>(b.presence.elo||0)-(a.presence.elo||0)),p=>{const e=Number.isFinite(p.presence.elo)?p.presence.elo:OC.ELO.START;return kid(p,OC.ELO.tier(e).icon+' '+e);},null);
   card('🧩 Đang đố vui','#ee9124',quiz,p=>kid(p,''),null);
@@ -2542,6 +2557,7 @@ function renderChessLobby(){
   $$('#c-lobby [data-only]').forEach(el=>{el.hidden=el.dataset.only!==cprefs.vs;});
   const waiting=!!(cNet&&cNet.waiting);renderChessOpen();
   $('#c-play').hidden=waiting;$('#c-wait').hidden=!waiting;
+  {const w=$('#c-wait .lede');if(w)w.textContent=cNet&&cNet.friend?'Em đã mời bạn rồi. Đang chờ bạn ấy vào chơi…':'Đang chờ bạn vào chơi… Lời mời đã hiện trong khung trò chuyện ở Khu vui chơi.';}
   $('#c-play').textContent=cprefs.vs==='bot'?'▶ Chơi với máy':'🔎 Tìm bạn chơi cờ';
 }
 $$('[data-cvs]').forEach(b=>b.addEventListener('click',()=>{cprefs.vs=b.dataset.cvs;$('#c-note').textContent='';renderChessLobby();}));
@@ -3347,7 +3363,7 @@ function myStats(){
 }
 function openProfile(ref){
   if(!room||!room.connected())return;
-  $('#pf-av').textContent='⏳';$('#pf-name').textContent='Đang tải…';$('#pf-status').textContent='';$('#pf-body').innerHTML='';
+  pfHid='';$('#pf-actions').innerHTML='';$('#pf-av').textContent='⏳';$('#pf-name').textContent='Đang tải…';$('#pf-status').textContent='';$('#pf-body').innerHTML='';
   $('#profile-modal').hidden=false;
   room.send(Object.assign({t:'profile.get'},ref));
 }
@@ -3359,14 +3375,64 @@ function pfRow(ico,title,text){const d=document.createElement('div');d.className
 function onProfileMsg(m){
   if(m.t==='profile.recent'){recentKids=Array.isArray(m.list)?m.list.filter(x=>x&&typeof x.hid==='string'):[];if(screen==='world')renderWorldList();return;}
   if(m.t!=='profile'||$('#profile-modal').hidden)return;
+  pfHid=m.missing?'':(m.hid||'');
   if(m.missing){$('#pf-av').textContent='🤷';$('#pf-name').textContent='Chưa xem được hồ sơ';$('#pf-status').textContent='Bạn này vừa rời đi hoặc chưa có hồ sơ.';$('#pf-body').innerHTML='';return;}
   $('#pf-av').textContent=String(m.av||'🙂').slice(0,8);$('#pf-name').textContent=String(m.nick||'Một bạn').slice(0,12);
   $('#pf-status').textContent=m.online?'🟢 Đang online · '+(ACT_TXT[m.act]||ACT_TXT.yard):'⚪ Online lần cuối: '+ago((Date.now()-m.seen)/1000);
-  const S=STAGES[Math.max(0,Math.min(STAGES.length-1,(m.lv||1)-1))],t=OC.ELO.tier(Number.isFinite(m.elo)?m.elo:OC.ELO.START),n=(m.cw||0)+(m.cl||0)+(m.cd||0);
-  const body=$('#pf-body');body.innerHTML='';
-  body.appendChild(pfRow('⌨️','Gõ phím',S.icon+' Cấp độ '+(m.lv||1)+' · đã xong '+(m.done||0)+'/'+FLAT.length+' bài'));
-  body.appendChild(pfRow('♞','Cờ vua',t.icon+' '+t.name+' · '+m.elo+' điểm'+(n?' · thắng '+m.cw+', hoà '+m.cd+', thua '+m.cl:' · chưa chơi ván nào')));
-  body.appendChild(pfRow('🧩','Đố vui',(m.qb||m.xb)?'Đố vui cao nhất '+m.qb+'/10 câu · ô chữ '+(m.xb?'⭐'.repeat(m.xb):'chưa giải'):'Chưa chơi'));
+  const S=STAGES[Math.max(0,Math.min(STAGES.length-1,(m.lv||1)-1))],body=$('#pf-body');body.innerHTML='';
+  const known=m.done>=0,eloOk=Number.isFinite(m.elo)&&m.elo>=0,t=OC.ELO.tier(eloOk?m.elo:OC.ELO.START),n=(m.cw||0)+(m.cl||0)+(m.cd||0);
+  body.appendChild(pfRow('⌨️','Gõ phím',S.icon+' Cấp độ '+(m.lv||1)+(known?' · đã xong '+m.done+'/'+FLAT.length+' bài':' · chưa biết đã xong bao nhiêu bài')));
+  body.appendChild(pfRow('♞','Cờ vua',!eloOk||m.cw<0?'Chưa có thông tin':t.icon+' '+t.name+' · '+m.elo+' điểm'+(n?' · thắng '+m.cw+', hoà '+m.cd+', thua '+m.cl:' · chưa chơi ván nào')));
+  renderPfActions();
+  body.appendChild(pfRow('🧩','Đố vui',m.qb<0?'Chưa có thông tin':(m.qb||m.xb)?'Đố vui cao nhất '+m.qb+'/10 câu · ô chữ '+(m.xb?'⭐'.repeat(m.xb):'chưa giải'):'Chưa chơi'));
+}
+
+
+/* ================= Kết bạn và mời chơi ================= */
+let fr={me:'',friends:[],incoming:[],outgoing:[]},pfHid='',pfOnline=false,toastT=0;
+const frSend=m=>{if(room&&room.connected())room.send(m);};
+function toast(text,btns,ms){
+  clearTimeout(toastT);$('#toast-text').textContent=text;const box=$('#toast-btns');box.innerHTML='';
+  (btns||[]).forEach(([label,fn,go])=>{const b=document.createElement('button');b.type='button';b.className='chip'+(go?' go':'');b.textContent=label;b.addEventListener('click',()=>{$('#toast').hidden=true;clearTimeout(toastT);fn();});box.appendChild(b);});
+  $('#toast').hidden=false;toastT=setTimeout(()=>{$('#toast').hidden=true;},ms||15000);
+}
+function inviteFriend(hid){guardStart(()=>{
+  if(!room||!room.connected())return;
+  if(cg&&cg.mode==='net'&&!cg.over){toast('Em đang chơi một ván cờ rồi.',[],4000);return;}
+  cprefs.vs='net';cNet={waiting:true,friend:true};show('chess');renderChessLobby();$('#c-note').textContent='';
+  room.send({t:'friend.invite',hid,tc:cprefs.tc,elo:chessElo(),n:chessGamesN()});
+});}
+function onFriendMsg(m){
+  if(m.t==='friend.list'){
+    const had=new Set(fr.incoming.map(x=>x.hid));
+    fr={me:m.me||'',friends:Array.isArray(m.friends)?m.friends:[],incoming:Array.isArray(m.incoming)?m.incoming:[],outgoing:Array.isArray(m.outgoing)?m.outgoing:[]};
+    const fresh=fr.incoming.find(x=>!had.has(x.hid));
+    if(fresh&&had.size>=0&&screen!=='play'&&screen!=='game'&&!(cg&&!cg.over))toast(String(fresh.av||'🙂').slice(0,8)+' '+String(fresh.nick||'Một bạn').slice(0,12)+' muốn kết bạn với em',[['Đồng ý',()=>frSend({t:'friend.ok',hid:fresh.hid}),true],['Để sau',()=>{}]],20000);
+    if(screen==='world')renderWorldList();
+    if(!$('#profile-modal').hidden)renderPfActions();
+    return;
+  }
+  if(m.t==='friend.error'){toast(m.text||'Chưa làm được, em thử lại nhé.',[],5000);return;}
+  if(m.t==='friend.invite.fail'){if(cNet&&cNet.friend){cNet=null;if(screen==='chess')renderChessLobby();}toast('Bạn ấy vừa rời đi nên chưa mời được.',[],5000);return;}
+  if(m.t==='friend.invite'&&m.from&&typeof m.rid==='string'){
+    const nm=String(m.from.av||'🙂').slice(0,8)+' '+String(m.from.nick||'Một bạn').slice(0,12);
+    toast(nm+' mời em chơi cờ vua ('+(m.tc?m.tc+' phút':'không tính giờ')+')',[['Chơi',()=>chessJoinFromChat(m.rid),true],['Để sau',()=>{}]],60000);
+  }
+}
+function frState(hid){return fr.friends.some(f=>f.hid===hid)?'friend':fr.incoming.some(f=>f.hid===hid)?'incoming':fr.outgoing.includes(hid)?'outgoing':'none';}
+function renderPfActions(){
+  const box=$('#pf-actions');box.innerHTML='';if(!pfHid||pfHid===fr.me)return;
+  const add=(label,fn,go)=>{const b=document.createElement('button');b.type='button';b.className='chip'+(go?' go':'');b.textContent=label;b.addEventListener('click',fn);box.appendChild(b);};
+  const st=frState(pfHid);
+  if(st==='none')add('➕ Kết bạn',()=>frSend({t:'friend.req',hid:pfHid}),true);
+  else if(st==='outgoing'){add('⏳ Đã gửi lời mời',()=>{});box.lastChild.disabled=true;add('Huỷ lời mời',()=>frSend({t:'friend.no',hid:pfHid}));}
+  else if(st==='incoming'){add('Đồng ý kết bạn',()=>frSend({t:'friend.ok',hid:pfHid}),true);add('Không',()=>frSend({t:'friend.no',hid:pfHid}));}
+  else{
+    const f=fr.friends.find(x=>x.hid===pfHid);
+    add('✅ Bạn bè',()=>{});box.lastChild.disabled=true;
+    if(f&&f.online)add('♞ Mời chơi cờ',()=>{closeProfile();inviteFriend(pfHid);},true);
+    add('Huỷ kết bạn',()=>{if(confirm('Em muốn huỷ kết bạn không?'))frSend({t:'friend.no',hid:pfHid});});
+  }
 }
 
 /* ================= Nav & input ================= */

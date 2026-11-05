@@ -31,6 +31,17 @@ class ChessManager {
     this.timer.unref();
   }
   gameOf(peerId) { const id = this.byPeer.get(peerId); return id ? this.games.get(id) : null; }
+  /* ván mời riêng một bạn: không hiện trong danh sách chờ, không ghép ngẫu nhiên, không gửi vào khung chat; chỉ ai biết mã ván (do máy chủ gửi cho bạn được mời) mới vào được */
+  invite(peerId, msg) {
+    const mine = this.gameOf(peerId);
+    if (mine && mine.status === 'playing') return null;
+    if (mine && mine.status === 'waiting') this.leave(peerId);
+    const g = this.newGame(peerId, TCS.has(msg.tc) ? msg.tc : 10, infoOf(msg));
+    g.priv = true;
+    this.listDirty = false;
+    this.touch(g);
+    return g;
+  }
   isOpen(id) { const g = this.games.get(id); return !!g && g.status === 'waiting'; }
   newGame(peerId, tc, info) {
     const id = crypto.randomBytes(6).toString('hex');
@@ -106,7 +117,7 @@ class ChessManager {
         if (mine && mine.status === 'waiting') { this.touch(mine); return; }
         const info = infoOf(msg), now = Date.now();
         // ghép với bạn có điểm gần mình nhất; nếu chênh quá 400 điểm thì chờ 20 giây rồi mới ghép
-        const open = [...this.games.values()].filter(g => g.status === 'waiting' && g.tc === tc && g.host !== peerId)
+        const open = [...this.games.values()].filter(g => g.status === 'waiting' && !g.priv && g.tc === tc && g.host !== peerId)
           .sort((x, y) => Math.abs(x.hostInfo.elo - info.elo) - Math.abs(y.hostInfo.elo - info.elo))
           .find(g => Math.abs(g.hostInfo.elo - info.elo) <= 400 || now - g.createdAt > 20_000);
         if (open) { const e = this.join(open, peerId, info); if (e) err(e); return; }
@@ -189,7 +200,7 @@ class ChessManager {
     if (this.listDirty) { this.listDirty = false; this.broadcastAll({ t: 'chess.open', list: this.openList() }); }
   }
   openList() {
-    return [...this.games.values()].filter(g => g.status === 'waiting').slice(0, 20).map(g => ({ id: g.id, tc: g.tc, elo: g.hostInfo.elo, ...this.who(g.host) }));
+    return [...this.games.values()].filter(g => g.status === 'waiting' && !g.priv).slice(0, 20).map(g => ({ id: g.id, tc: g.tc, elo: g.hostInfo.elo, ...this.who(g.host) }));
   }
   push(g) {
     const now = Date.now();
