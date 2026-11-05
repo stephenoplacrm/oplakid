@@ -641,10 +641,11 @@ function cleanPatch(patch) {
 /* Trò chuyện nhanh trong Khu vui chơi: chỉ chọn câu có sẵn (CHAT_GROUPS), tuyệt đối không có ô gõ chữ.
  * Máy chủ chỉ nhận số thứ tự câu, tự ghép biệt danh (đã qua cleanNick) và con vật của người gửi rồi phát cho mọi bạn. */
 const CHAT_GROUPS = [
-  { name: 'Chào hỏi', items: ['Xin chào các bạn! 👋', 'Chào buổi sáng nhé! ☀️', 'Mình mới vào khu vui chơi nè!', 'Tạm biệt nha! 👋'] },
-  { name: 'Khen bạn', items: ['Giỏi quá! 👍', 'Hay quá! ✨', 'Chúc mừng bạn! 🎉', 'Bạn gõ nhanh ghê! ⚡', 'Cố lên nha! 💪'] },
-  { name: 'Rủ chơi', items: ['Cùng chơi nha! 🎮', 'Bạn ơi, đua với mình nhé! 🏁', 'Ai chơi Chuột chũi không? 🐹', 'Mình đang học bài đây ✏️', 'Mình đang nghỉ giải lao 🌳'] },
-  { name: 'Lịch sự', items: ['Cảm ơn bạn! 💖', 'Không có gì đâu! 😊', 'Xin lỗi nha! 🙏', 'Bạn dễ thương quá! 🥰'] }
+  { name: 'Mới vào', items: ['Chào các bạn, mình mới vào chơi nè! 👋', 'Mình mới vào, bạn nào chơi với mình không? 🙋', 'Mình mới tập thôi, các bạn chơi nhẹ nhẹ nha 😅', 'Bạn nào giỏi chỉ mình chơi với! 🙏'] },
+  { name: 'Rủ chơi', items: ['Ai chơi cờ vua với mình không? Mình đang chờ ở lớp Cờ vua ♞', 'Ai đua gõ phím với mình không? Mình đang chờ ở sân đua 🏁', 'Ai chơi ô chữ với mình không? Mình đố bạn nè! 🔤', 'Ai chơi đố vui không? Mình thi xem ai đúng nhiều hơn! 🧩', 'Mình mở phòng rồi, bạn vào chơi với mình đi! 🚪'] },
+  { name: 'Trả lời bạn', items: ['Ok bạn, mình vào chơi liền! 👍', 'Bạn chờ mình xíu, mình chơi xong ván này rồi vào nha ⏳', 'Mình chưa chơi giỏi đâu, bạn chơi nhẹ tay nha 😅', 'Tối nay mình bận rồi, hôm khác chơi nha 🙏', 'Bạn mở phòng đi, mình vào liền! 🚪'] },
+  { name: 'Chơi xong', items: ['Ván này vui quá, mình chơi thêm ván nữa nha? 🔁', 'Bạn chơi hay quá, mình thua rồi! 😅', 'Mình thắng rồi, hihi, bạn đừng buồn nha 😄', 'Lần sau mình sẽ chơi giỏi hơn, bạn chờ mình nha! 💪', 'Cảm ơn bạn đã chơi với mình! 💖'] },
+  { name: 'Tạm biệt', items: ['Mình đi ăn cơm đây, tối mình chơi lại nha 🍚', 'Mình phải học bài rồi, mai chơi tiếp nha 📚', 'Tạm biệt các bạn, mai gặp lại! 👋'] }
 ];
 const CHAT_LIST = CHAT_GROUPS.flatMap(g => g.items);
 const ROOM_STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10']);

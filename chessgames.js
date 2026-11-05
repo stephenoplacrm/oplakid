@@ -11,8 +11,9 @@ const WAIT_MAX_MS = 5 * 60_000;            // chờ bạn quá 5 phút thì hu�
 const KEEP_DONE_MS = 60_000;
 const MAX_MOVES = 600;
 /* Câu nói nhanh trong ván cờ: chỉ chọn câu có sẵn, không gõ chữ */
-const CHESS_SAYS = ['Chào bạn! 👋', 'Chúc bạn chơi vui nhé! 🎮', 'Bạn chơi giỏi quá! 👍', 'Hay quá! ✨', 'Mình sắp thua rồi 😅', 'Chờ mình nghĩ một chút nhé 🤔',
-  'Xin lỗi, mình đi nhầm! 🙏', 'Cố lên nào! 💪', 'Cảm ơn bạn! 💖', 'Ván sau chơi nữa nhé! 🎉'];
+const CHESS_SAYS = ['Chào bạn, mình chơi vui vẻ nha! ♞', 'Chờ mình nghĩ một chút nha ⏳', 'Nước đi hay quá, để mình nghĩ kỹ đã! 🤔', 'Xin lỗi, mình lỡ đi nhầm! 🙏',
+  'Bạn chơi giỏi quá, mình sắp thua rồi! 😅', 'Hoà nha, ván này cân tài cân sức! 🤝', 'Mình thắng rồi, hihi, bạn đừng buồn nha 😄', 'Ván hay quá, chơi thêm ván nữa nha? 🔁',
+  'Lần sau mình sẽ chơi giỏi hơn! 💪', 'Cảm ơn bạn đã chơi với mình! 💖'];
 const clampInt = (v, lo, hi, d) => (Number.isFinite(v) ? Math.min(hi, Math.max(lo, Math.round(v))) : d);
 const infoOf = msg => ({ elo: clampInt(msg.elo, ELO.MIN, 3000, ELO.START), n: clampInt(msg.n, 0, 9999, 0) });
 
