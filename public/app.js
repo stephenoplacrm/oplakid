@@ -1463,7 +1463,7 @@ function chatBubble(m){
     g.fillStyle='rgba(255,255,255,.97)';g.strokeStyle='#4a2a8a';g.lineWidth=8;g.beginPath();if(g.roundRect)g.roundRect(8,8,w-16,h-44,34);else g.rect(8,8,w-16,h-44);g.fill();g.stroke();
     g.beginPath();g.moveTo(w/2-18,h-36);g.lineTo(w/2,h-6);g.lineTo(w/2+18,h-36);g.closePath();g.fillStyle='rgba(255,255,255,.97)';g.fill();
     g.fillStyle='#2a2350';g.textAlign='center';g.textBaseline='middle';
-    let size=44;g.font='800 '+size+'px '+FONT;const words=text.split(' ');let l1=text,l2='';
+    let size=text.length>50?30:text.length>38?36:44;g.font='800 '+size+'px '+FONT;const words=text.split(' ');let l1=text,l2='';
     if(g.measureText(text).width>w-60){const half=Math.ceil(words.length/2);l1=words.slice(0,half).join(' ');l2=words.slice(half).join(' ');}
     if(l2){g.fillText(l1,w/2,52,w-50);g.fillText(l2,w/2,100,w-50);}else g.fillText(l1,w/2,(h-44)/2+8,w-50);
   });
