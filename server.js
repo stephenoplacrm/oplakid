@@ -629,7 +629,7 @@ const AVATARS = new Set(['🐯', '🐰', '🐼', '🦊', '🐸', '🐱', '🐶',
 const STAGES = new Set(['bo', 'di', 'chay', 'l4', 'l5', 'l6', 'l7', 'l8', 'l9', 'l10']);
 const PHASES = new Set(['lobby', 'countdown', 'racing', 'done']);
 const KINDS = new Set(['sent', 'long', 'words', 'home', 'keys']);
-const ACTS = new Set(['race', 'learn', 'yard', 'parent', 'chess', 'quiz']);
+const ACTS = new Set(['race', 'learn', 'yard', 'parent', 'chess', 'quiz', 'build']);
 const WHERE = new Set(['home', 'hub', 'chess', 'play', 'game', 'results', 'parent', 'online', 'login', 'world', 'auth', 'cert']);
 const BAD_CHARS = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g;
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : undefined);
