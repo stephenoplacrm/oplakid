@@ -677,3 +677,17 @@ button.wkid:hover{border-color:var(--ink)}
 .lopin input.bad{border-color:var(--bad);animation:drsh .25s}
 .lopin input:focus-visible{outline:3px solid var(--gold)}
 @media (prefers-reduced-motion:reduce){.lopin input.bad{animation:none}}
+
+/* Hẹn giờ: để bé xin thêm vài phút thì có đồng hồ bấm sẵn */
+.timercard{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;background:var(--panel);border:2px solid var(--line);border-radius:18px;padding:10px 16px;margin:10px 0}
+.timercard.run{border-color:var(--c-middle)}
+.timercard.done{border-color:var(--bad);animation:tcpulse 1s infinite}
+@keyframes tcpulse{50%{background:color-mix(in srgb,var(--bad) 14%,var(--panel))}}
+.tc-main{display:flex;align-items:center;gap:10px;min-width:0}
+.tc-ico{font-size:30px;line-height:1}
+#tc-time{font-size:clamp(34px,7vw,46px);font-variant-numeric:tabular-nums;color:var(--ink);line-height:1}
+.tc-state{color:var(--muted);font-size:15px;font-weight:700}
+.tc-btns{display:flex;flex-wrap:wrap;gap:6px}
+.timerpill b{font-variant-numeric:tabular-nums}
+.timerpill.run{border-color:var(--c-middle)}
+@media (prefers-reduced-motion:reduce){.timercard.done{animation:none}}
