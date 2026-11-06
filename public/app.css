@@ -721,3 +721,7 @@ button.wkid:hover{border-color:var(--ink)}
 .bdem{font-size:28px;line-height:34px;height:34px}
 .bdtoast{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);border-radius:12px;padding:8px 16px;font-weight:800;z-index:20;max-width:calc(100vw - 24px);text-align:center}
 .bdconfirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--panel);border:2px solid var(--bad);border-radius:12px;padding:6px 12px;font-weight:800;color:var(--text);margin:8px 0}
+
+/* Thăm nhà bạn bè: chỉ xem */
+.bdbanner{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0;padding:6px 12px;border:2px solid var(--gold);border-radius:12px;background:color-mix(in srgb,var(--gold) 18%,var(--panel));font-weight:800;color:var(--text)}
+.bdvisit #bd-b-build,.bdvisit #bd-b-break,.bdvisit #bd-b-undo,.bdvisit #bd-b-rot,.bdvisit #bd-b-save,.bdvisit #bd-b-sample,.bdvisit #bd-b-clear,.bdvisit #bd-saved,.bdvisit #bd-tabs,.bdvisit #bd-hot{display:none}

@@ -1848,7 +1848,7 @@ function createRoom(){
 function startRealtime(){
   if(room)return;room=createRoom();onlineAvailable();
   room.onPeers(()=>updateOnlineCount());
-  room.onMsg(onRaceMsg);room.onMsg(onChatMsg);room.onMsg(onChessMsg);room.onMsg(onProfileMsg);room.onMsg(onFriendMsg);
+  room.onMsg(onRaceMsg);room.onMsg(onChatMsg);room.onMsg(onChessMsg);room.onMsg(onProfileMsg);room.onMsg(onFriendMsg);room.onMsg(onHouseMsg);
   setInterval(()=>{if(screen==='world'&&room&&room.connected())room.send({t:'profile.recent'});},45000);
   updateOnlineCount();lastPresKey='';updateLobbyPresence();
   room.onConnection(c=>{onlineAvailable();
@@ -2381,6 +2381,7 @@ function renderWorldList(){
       b.textContent=(f.online?'🟢 ':'⚪ ')+String(f.av||'🙂').slice(0,8)+' '+String(f.nick||'Một bạn').slice(0,12);
       const sp=document.createElement('span');sp.className='wbadge';sp.textContent=f.online?(ACT_TXT[f.act]||ACT_TXT.yard):'online '+ago((Date.now()-f.seen)/1000);b.appendChild(sp);b.addEventListener('click',()=>openProfile({hid:f.hid}));
       w.appendChild(b);
+      {const hv=document.createElement('button');hv.type='button';hv.className='chip';hv.textContent='🏠 Thăm nhà';hv.addEventListener('click',()=>visitHouse(f.hid));w.appendChild(hv);}
       if(f.online){const iv=document.createElement('button');iv.type='button';iv.className='chip go';iv.textContent='♞ Mời chơi cờ';iv.addEventListener('click',()=>inviteFriend(f.hid));w.appendChild(iv);}
       return w;},head.children.length?head:null,'Chưa có bạn bè. Bấm vào một bạn, rồi bấm Kết bạn nhé.');
   }
@@ -3526,6 +3527,7 @@ function renderPfActions(){
   else{
     const f=fr.friends.find(x=>x.hid===pfHid);
     add('✅ Bạn bè',()=>{});box.lastChild.disabled=true;
+    add('🏠 Thăm nhà',()=>{closeProfile();visitHouse(pfHid);});
     if(f&&f.online)add('♞ Mời chơi cờ',()=>{closeProfile();inviteFriend(pfHid);},true);
     add('Huỷ kết bạn',()=>{if(confirm('Em muốn huỷ kết bạn không?'))frSend({t:'friend.no',hid:pfHid});});
   }
@@ -3575,6 +3577,7 @@ if(tm.running&&Date.now()>=tm.end){const late=Date.now()-tm.end;tm.running=false
 
 /* ================= Xây nhà (khối 3D, lưu theo hồ sơ bé) ================= */
 function createBuilder(host){
+  let readOnly=false;
 
     const W=32,D=32,H=16,N=W*D*H,idx=(x,y,z)=>x+W*(z+D*y);
   /* ---- các loại khối ---- */
@@ -3698,7 +3701,7 @@ function createBuilder(host){
   }
   let hover=null,tool='build',cur=1;
   function updateHover(px,py){
-    hover=ray(px,py);selB.visible=selX.visible=false;ghost.visible=false;if(!hover)return;
+    hover=ray(px,py);selB.visible=selX.visible=false;ghost.visible=false;if(!hover||readOnly)return;
     const [hx,hy,hz]=hover.hit,[bx,by,bz]=hover.prev;
     if(tool==='tpl'&&curTpl){const o=tplOrigin(hover.prev);ghost.position.set(o[0],o[1],o[2]);ghost.visible=true;return;}
     if(tool==='break'){selX.position.set(hx+.5,hy+.5,hz+.5);selX.visible=true;}
@@ -3708,7 +3711,7 @@ function createBuilder(host){
   /* ---- sửa thế giới, đi lại, lưu ---- */
   const undo=[];let saveT=0;
   function setBlock(x,y,z,t,rec=true){
-    if(x<0||y<0||z<0||x>=W||y>=H||z>=D)return false;const i=idx(x,y,z),old=world[i];if(old===t)return false;
+    if(readOnly||x<0||y<0||z<0||x>=W||y>=H||z>=D)return false;const i=idx(x,y,z),old=world[i];if(old===t)return false;
     if(y===0&&t===0)return false;                                // không đào mất mặt đất
     if(rec){undo.push([[i,old,t]]);if(undo.length>80)undo.shift();}
     world[i]=t;rebuild();queueSave();return true;
@@ -3718,6 +3721,7 @@ function createBuilder(host){
     return x+1>player.x-.3&&x<player.x+.3&&y+1>player.y&&y<player.y+1.8&&z+1>player.z-.3&&z<player.z+.3;
   }
   function act(px,py,alt){
+    if(readOnly){say('Em đang thăm nhà bạn nên chỉ được xem thôi nhé.');return;}
     updateHover(px,py);if(!hover)return;
     if(tool==='tpl'&&curTpl&&!alt){placeTpl(hover.prev);updateHover(px,py);return;}
     const t=alt?(tool==='break'?'build':'break'):(tool==='tpl'?'build':tool);
@@ -3726,12 +3730,12 @@ function createBuilder(host){
     updateHover(px,py);
   }
   $('#bd-b-undo').onclick=doUndo;
-  function doUndo(){const u=undo.pop();if(!u)return;for(let k=u.length-1;k>=0;k--)world[u[k][0]]=u[k][1];rebuild();queueSave();}
+  function doUndo(){if(readOnly)return;const u=undo.pop();if(!u)return;for(let k=u.length-1;k>=0;k--)world[u[k][0]]=u[k][1];rebuild();queueSave();}
   const ser=()=>{const out=[];let last=world[0],n=0;for(let i=0;i<N;i++){if(world[i]===last)n++;else{out.push(last+':'+n);last=world[i];n=1;}}out.push(last+':'+n);return out.join(',');};
   function deser(s){try{const a=new Uint8Array(N);let i=0;for(const p of s.split(',')){const [t,n]=p.split(':').map(Number);for(let k=0;k<n&&i<N;k++)a[i++]=t;}if(i!==N)return false;world.set(a);return true;}catch(e){return false;}}
     let dirty=false;
-  function save(manual){dirty=false;const rle=ser();if(rle.length>60000){say('Nhà phức tạp quá nên chưa lưu được. Em bớt khối nhé.');return;}try{host.save(JSON.stringify({v:1,w:W,h:H,d:D,rle,at:Date.now()}));$('#bd-saved').textContent='Đã lưu lúc '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});if(manual)say('Đã lưu nhà của em! 💾');}catch(e){$('#bd-saved').textContent='Chưa lưu được trên máy này.';}}
-  function queueSave(){dirty=true;clearTimeout(saveT);saveT=setTimeout(()=>save(false),700);}
+  function save(manual){dirty=false;const rle=ser();if(rle.length>60000){say('Nhà phức tạp quá nên chưa lưu được. Em bớt khối nhé.');return;}try{host.save(JSON.stringify({v:1,w:W,h:H,d:D,rle,at:Date.now()}));if(host.publish)host.publish(rle);$('#bd-saved').textContent='Đã lưu lúc '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});if(manual)say('Đã lưu nhà của em! 💾');}catch(e){$('#bd-saved').textContent='Chưa lưu được trên máy này.';}}
+  function queueSave(){if(readOnly)return;dirty=true;clearTimeout(saveT);saveT=setTimeout(()=>save(false),700);}
   function load(){try{const j=JSON.parse(host.load()||'null');if(j&&j.v===1&&j.w===W&&j.h===H&&j.d===D&&deser(j.rle)){$('#bd-saved').textContent='Đã mở nhà đã lưu.';return true;}}catch(e){}return false;}
   $('#bd-b-save').onclick=()=>save(true);
   $('#bd-b-sample').onclick=()=>{ask('Xây nhà mẫu? Nhà em đang xây sẽ bị thay thế.',()=>{sample();undo.length=0;rebuild();queueSave();});};
@@ -3991,19 +3995,20 @@ function createBuilder(host){
   let running=false,raf=0;
   function frame(t){if(!running)return;if(!host.active()){running=false;return;}const dt=Math.min(.05,(t-last)/1000);last=t;if(view==='walk')physics(dt);placeCamera();renderer.render(scene,camera);raf=requestAnimationFrame(frame);}
 
-  function reload(){if(!load())sample();undo.length=0;rebuild();setView('orbit');}
+  function reload(){readOnly=false;if(!load())sample();undo.length=0;rebuild();setView('orbit');}
+  function visit(rle){const keep=world.slice();if(!deser(rle)){world.set(keep);return false;}readOnly=true;undo.length=0;rebuild();setView('orbit');return true;}
   reload();
   return {
     start(){if(running)return;running=true;last=performance.now();resize();raf=requestAnimationFrame(frame);},
-    reload,
-    flush(){clearTimeout(saveT);if(dirty)save(false);},
+    reload,visit,
+    flush(){if(readOnly)return;clearTimeout(saveT);if(dirty)save(false);},
     resize
   };
 
 }
 
 let BD=null,bdT0=0;
-async function showBuild(){
+async function showBuild(visitMsg){
   stopAll();show('build');
   let T;try{T=await loadThree();}catch(e){$('#bd-saved').textContent='Chưa tải được hình 3D. Em kiểm tra mạng rồi thử lại nhé.';return;}
   if(screen!=='build')return;
@@ -4012,11 +4017,37 @@ async function showBuild(){
     save:str=>{try{state.build=JSON.parse(str);save();}catch(e){}},
     active:()=>screen==='build',
     dark:()=>matchMedia('(prefers-color-scheme: dark)').matches||document.documentElement.dataset.theme==='dark',
-    sound:()=>state.sound!==false
+    sound:()=>state.sound!==false,
+    publish:rle=>{if(room&&room.connected())room.send({t:'house.save',rle});}
   };
   if(!BD)BD=createBuilder(host);
   else BD.reload();
+  if(visitMsg&&visitMsg.rle&&BD.visit(visitMsg.rle)){bdView={hid:visitMsg.hid,nick:visitMsg.nick,av:visitMsg.av};bdBanner(visitMsg);}
+  else{bdView=null;bdBanner(null);if(room&&room.connected())room.send({t:'house.get'});}
   bdT0=bdT0||performance.now();BD.start();
+}
+let bdView=null;
+function bdBanner(m){
+  const sec=$('#s-build'),ban=$('#bd-banner');
+  sec.classList.toggle('bdvisit',!!bdView);
+  if(!m){ban.hidden=true;return;}
+  ban.hidden=false;
+  const own=!!m.own;
+  $('#bd-banner-t').textContent=own?(m.likes?'❤ '+m.likes+' bạn thích nhà của em':''):'🏠 Đang thăm nhà của '+String(m.av||'🙂').slice(0,8)+' '+String(m.nick||'bạn').slice(0,12)+' · chỉ được xem'+(m.likes?' · ❤ '+m.likes:'');
+  const like=$('#bd-like'),home=$('#bd-home');
+  like.hidden=own;home.hidden=own;like.disabled=!!m.liked;like.textContent=m.liked?'❤ Đã thích':'🤍 Thích nhà này';
+  ban.hidden=own&&!m.likes;
+}
+function visitHouse(hid){
+  if(!room||!room.connected()){toast('Chưa kết nối máy chủ nên chưa thăm nhà được.',[],4000);return;}
+  bdPendingVisit=true;room.send({t:'house.get',hid});
+}
+let bdPendingVisit=false;
+function onHouseMsg(m){
+  if(m.t!=='house')return;
+  if(m.error){bdPendingVisit=false;toast('Em chỉ thăm được nhà của bạn bè thôi nhé.',[],4000);return;}
+  if(bdPendingVisit&&!m.own){bdPendingVisit=false;if(m.empty||!m.rle){toast(String(m.nick||'Bạn')+' chưa xây nhà nào để thăm.',[],4000);return;}showBuild(m);return;}
+  if(screen==='build'){if(m.own&&!bdView)bdBanner(m);else if(bdView&&m.hid===bdView.hid)bdBanner(m);}
 }
 function bdLeave(){
   if(BD)BD.flush();
@@ -4024,6 +4055,8 @@ function bdLeave(){
 }
 $('#w-go-build').addEventListener('click',showBuild);
 $('#bd-back').addEventListener('click',()=>showHub());
+$('#bd-like').addEventListener('click',()=>{if(bdView)room&&room.send({t:'house.like',hid:bdView.hid});});
+$('#bd-home').addEventListener('click',()=>showBuild());
 
 /* ================= Nav & input ================= */
 function exitToHome(){const wasOnline=game&&game.online;stopAll();if(wasOnline){leaveRoomSilently();show('home');setTab('race');}else show('home');}

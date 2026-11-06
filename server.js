@@ -95,6 +95,13 @@ CREATE TABLE IF NOT EXISTS kid_friends(a TEXT NOT NULL, b TEXT NOT NULL, state I
 CREATE INDEX IF NOT EXISTS kid_friends_b ON kid_friends(b);
 DELETE FROM kid_friends WHERE a NOT IN (SELECT k FROM kid_profiles) OR b NOT IN (SELECT k FROM kid_profiles);
 `);
+/* Nhà bé xây trong game Xây nhà (dạng nén), để bạn bè vào thăm; và lượt thích của bạn bè. Xoá khi ba mẹ xoá tài khoản. */
+db.exec(`
+CREATE TABLE IF NOT EXISTS kid_houses(k TEXT PRIMARY KEY, rle TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS kid_house_likes(k TEXT NOT NULL, liker TEXT NOT NULL, PRIMARY KEY(k, liker));
+DELETE FROM kid_houses WHERE k NOT IN (SELECT k FROM kid_profiles);
+DELETE FROM kid_house_likes WHERE k NOT IN (SELECT k FROM kid_profiles) OR liker NOT IN (SELECT k FROM kid_profiles);
+`);
 
 /* Thêm cột mới cho bảng users (có giá trị mặc định, không đổi hay xoá cột cũ) */
 {
@@ -122,6 +129,8 @@ const q = {
   insertUser: db.prepare('INSERT INTO users(id, email, pw, created_at, consent_at) VALUES(?, ?, ?, ?, ?)'),
   updatePw: db.prepare('UPDATE users SET pw = ? WHERE id = ?'),
   deleteUser: db.prepare('DELETE FROM users WHERE id = ?'),
+  deleteHouses: db.prepare("DELETE FROM kid_houses WHERE k LIKE ? ESCAPE '\\'"),
+  deleteHouseLikes: db.prepare("DELETE FROM kid_house_likes WHERE k LIKE ? ESCAPE '\\' OR liker LIKE ? ESCAPE '\\'"),
   deleteFriends: db.prepare("DELETE FROM kid_friends WHERE a LIKE ? ESCAPE '\\' OR b LIKE ? ESCAPE '\\'"),
   deleteKids: db.prepare("DELETE FROM kid_profiles WHERE k LIKE ? ESCAPE '\\'"),
   insertFeedback: db.prepare('INSERT INTO feedback(id, user_id, kind, rating, message, contact_ok, created_at) VALUES(?, ?, ?, ?, ?, ?, ?)'),
@@ -433,6 +442,8 @@ app.post('/api/account/delete', requireUser, wrap(async (req, res) => {
   if (rateLimited('del:' + req.user.id, 5, 900_000)) return res.status(429).json({ error: 'Bạn thử quá nhiều lần.' });
   const row = q.userPwById.get(req.user.id);
   if (!row || !(await verifyPassword(String(req.body.password || ''), row.pw))) return res.status(401).json({ error: 'Mật khẩu chưa đúng.' });
+  q.deleteHouseLikes.run(req.user.id + ':%', req.user.id + ':%');
+  q.deleteHouses.run(req.user.id + ':%');
   q.deleteFriends.run(req.user.id + ':%', req.user.id + ':%');
   q.deleteKids.run(req.user.id + ':%');
   q.deleteUser.run(req.user.id);
@@ -851,6 +862,47 @@ function handleFriend(peer, id, msg) {
   }
   pushFriends(pk); pushFriends(target.k);
 }
+/* ---------- thăm nhà bạn bè (chỉ bạn bè mới xem được) ---------- */
+const HOUSE_N = 32 * 32 * 16, HOUSE_MAX_ID = 22;
+function validHouse(rle) {
+  if (typeof rle !== 'string' || rle.length < 3 || rle.length > 60000 || !/^\d{1,2}:\d{1,5}(,\d{1,2}:\d{1,5})*$/.test(rle)) return false;
+  let sum = 0;
+  for (const part of rle.split(',')) { const [t, n] = part.split(':').map(Number); if (t > HOUSE_MAX_ID) return false; sum += n; }
+  return sum === HOUSE_N;
+}
+const hSave = db.prepare('INSERT INTO kid_houses(k, rle, at) VALUES(?,?,?) ON CONFLICT(k) DO UPDATE SET rle = excluded.rle, at = excluded.at');
+const hGet = db.prepare('SELECT rle, at FROM kid_houses WHERE k = ?');
+const hLikes = db.prepare('SELECT COUNT(*) AS n FROM kid_house_likes WHERE k = ?');
+const hLiked = db.prepare('SELECT 1 FROM kid_house_likes WHERE k = ? AND liker = ?');
+const hLike = db.prepare('INSERT OR IGNORE INTO kid_house_likes(k, liker) VALUES(?, ?)');
+function houseMsg(ownerRow, viewerPk, own) {
+  const h = hGet.get(ownerRow.k);
+  return { t: 'house', own, hid: ownerRow.hid, nick: ownerRow.nick, av: ownerRow.av, rle: h ? h.rle : null, empty: !h, at: h ? h.at : 0,
+    likes: hLikes.get(ownerRow.k).n, liked: !!hLiked.get(ownerRow.k, viewerPk) };
+}
+function handleHouse(peer, msg) {
+  const pk = kidKey(peer), now = Date.now();
+  if (!pk || !peer.presence.nick || !peer.presence.stage) return;
+  if (!peer.savedAt) saveKid(peer, now);
+  if (msg.t === 'house.save') {
+    if (!validHouse(msg.rle) || now - (peer.houseAt || 0) < 3000) return;
+    peer.houseAt = now; hSave.run(pk, msg.rle, now);
+    return;
+  }
+  const mine = kidByHid.get(hidOf(pk));
+  const target = typeof msg.hid === 'string' && /^[a-f0-9]{12}$/.test(msg.hid) ? kidByHid.get(msg.hid) : mine;
+  if (!target || !mine) return;
+  const own = target.k === pk;
+  if (!own) {
+    const a = fGet.get(pk, target.k), b = fGet.get(target.k, pk);
+    if (!((a && a.state === 1) || (b && b.state === 1))) { peer.ws.send(JSON.stringify({ t: 'house', error: 'friends' })); return; }
+  }
+  if (msg.t === 'house.like') {
+    if (own || !hGet.get(target.k)) return;
+    hLike.run(target.k, pk);
+  }
+  peer.ws.send(JSON.stringify(houseMsg(target, pk, own)));
+}
 function disconnectUser(userId) {
   for (const p of peers.values()) if (p.userId === userId) p.ws.close(4001, 'account deleted');
 }
@@ -888,6 +940,8 @@ wss.on('connection', ws => {
       races.handle(id, msg);
     } else if (msg && typeof msg.t === 'string' && /^friend\.(list|req|ok|no|invite)$/.test(msg.t)) {
       handleFriend(peer, id, msg);
+    } else if (msg && typeof msg.t === 'string' && /^house\.(save|get|like)$/.test(msg.t)) {
+      handleHouse(peer, msg);
     } else if (msg && (msg.t === 'profile.get' || msg.t === 'profile.recent')) {
       handleProfile(peer, msg);
     } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('chess.')) {
