@@ -622,7 +622,7 @@ app.use((err, req, res, next) => {
 
 /* ---------------- WebSocket: ai đang online và phòng đua ---------------- */
 const server = http.createServer(app);
-const wss = new WebSocketServer({ noServer: true, maxPayload: 8 * 1024 });
+const wss = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024 });
 const peers = new Map(); // peerId -> { ws, userId, presence, updatedAt, tokens, last }
 
 server.on('upgrade', (req, socket, head) => {
@@ -903,6 +903,109 @@ function handleHouse(peer, msg) {
   }
   peer.ws.send(JSON.stringify(houseMsg(target, pk, own)));
 }
+/* ---------- xây chung: tối đa 4 bạn bè cùng xây nhà của một bạn (máy chủ giữ bản chính) ---------- */
+const coops = new Map();   // pk chủ nhà -> { world, snap, members:Set(pk), logs:Map(pk -> [lô]), saveT }
+const CO_MAX = 4;
+function coRle(w) { const out = []; let last = w[0], n = 0; for (let i = 0; i < HOUSE_N; i++) { if (w[i] === last) n++; else { out.push(last + ':' + n); last = w[i]; n = 1; } } out.push(last + ':' + n); return out.join(','); }
+function coFromRle(rle) { const a = new Uint8Array(HOUSE_N); let i = 0; for (const p of rle.split(',')) { const [t, n] = p.split(':').map(Number); a.fill(t, i, i + n); i += n; } return a; }
+function coOf(pk) { for (const [o, c] of coops) if (c.members.has(pk)) return [o, c]; return null; }
+function coInfo(k) { const r = kidByHid.get(hidOf(k)); return { hid: hidOf(k), nick: cleanNick(r ? r.nick : ''), av: r && AVATARS.has(r.av) ? r.av : '🐯' }; }
+function coSend(c, m, except) {
+  const s = JSON.stringify(m);
+  for (const k of c.members) for (const p of peersOfKid(k)) if (p !== except && p.ws.readyState === 1) p.ws.send(s);
+}
+function coMembers(o, c) { return { owner: hidOf(o), members: [...c.members].map(coInfo) }; }
+function coPersist(o, c) {
+  clearTimeout(c.saveT);
+  c.saveT = setTimeout(() => { const rle = coRle(c.world); if (rle.length <= 60000) hSave.run(o, rle, Date.now()); }, 1500);
+}
+function coRemove(o, c, k, why) {
+  if (k === o) {
+    clearTimeout(c.saveT); const rle = coRle(c.world); if (rle.length <= 60000) hSave.run(o, rle, Date.now());
+    coSend(c, { t: 'co.end', why: 'closed' }); coops.delete(o); return;
+  }
+  c.members.delete(k); c.logs.delete(k);
+  for (const p of peersOfKid(k)) if (p.ws.readyState === 1) p.ws.send(JSON.stringify({ t: 'co.end', why }));
+  coSend(c, { t: 'co.members', ...coMembers(o, c) });
+}
+function coLeaveKid(pk) { const f = coOf(pk); if (f) coRemove(f[0], f[1], pk, 'left'); }
+function handleCoop(peer, msg) {
+  const pk = kidKey(peer);
+  if (!pk || !peer.presence.nick || !peer.presence.stage) return;
+  if (msg.t === 'co.open') {
+    if (!validHouse(msg.rle)) return;
+    coLeaveKid(pk);
+    const w = coFromRle(msg.rle), c = { world: w, snap: w.slice(), members: new Set([pk]), logs: new Map(), saveT: 0 };
+    coops.set(pk, c);
+    peer.ws.send(JSON.stringify({ t: 'co.state', role: 'owner', rle: msg.rle, ...coMembers(pk, c) }));
+    return;
+  }
+  if (msg.t === 'co.invite') {
+    const c = coops.get(pk); if (!c || c.members.size >= CO_MAX) return;
+    const target = typeof msg.hid === 'string' && /^[a-f0-9]{12}$/.test(msg.hid) ? kidByHid.get(msg.hid) : null;
+    if (!target || target.k === pk) return;
+    const a = fGet.get(pk, target.k), b = fGet.get(target.k, pk);
+    if (!((a && a.state === 1) || (b && b.state === 1))) return;
+    const ts = peersOfKid(target.k).filter(p => p.ws.readyState === 1);
+    if (!ts.length) { peer.ws.send(JSON.stringify({ t: 'co.fail', why: 'offline' })); return; }
+    const m = JSON.stringify({ t: 'co.invite', from: coInfo(pk) });
+    for (const p of ts) p.ws.send(m);
+    return;
+  }
+  if (msg.t === 'co.join') {
+    const owner = typeof msg.hid === 'string' && /^[a-f0-9]{12}$/.test(msg.hid) ? kidByHid.get(msg.hid) : null;
+    const c = owner && coops.get(owner.k);
+    if (!c || owner.k === pk) { peer.ws.send(JSON.stringify({ t: 'co.fail', why: 'gone' })); return; }
+    const a = fGet.get(pk, owner.k), b = fGet.get(owner.k, pk);
+    if (!((a && a.state === 1) || (b && b.state === 1))) { peer.ws.send(JSON.stringify({ t: 'co.fail', why: 'friends' })); return; }
+    if (!c.members.has(pk)) {
+      if (c.members.size >= CO_MAX) { peer.ws.send(JSON.stringify({ t: 'co.fail', why: 'full' })); return; }
+      coLeaveKid(pk); c.members.add(pk);
+    }
+    peer.ws.send(JSON.stringify({ t: 'co.state', role: 'guest', rle: coRle(c.world), ...coMembers(owner.k, c) }));
+    coSend(c, { t: 'co.members', ...coMembers(owner.k, c) }, peer);
+    return;
+  }
+  const f = coOf(pk); if (!f) return;
+  const [o, c] = f;
+  if (msg.t === 'co.leave') { coRemove(o, c, pk, 'left'); return; }
+  if (msg.t === 'co.kick') {
+    if (pk !== o) return;
+    const t = typeof msg.hid === 'string' ? [...c.members].find(k => k !== o && hidOf(k) === msg.hid) : null;
+    if (t) coRemove(o, c, t, 'kick');
+    return;
+  }
+  if (msg.t === 'co.reset') {
+    if (pk !== o) return;
+    c.world.set(c.snap); c.logs.clear(); coPersist(o, c);
+    coSend(c, { t: 'co.sync', rle: coRle(c.world) });
+    return;
+  }
+  if (msg.t === 'co.undo') {
+    const log = c.logs.get(pk); const batch = log && log.pop(); if (!batch) return;
+    const ops = [];
+    for (let j = batch.length - 1; j >= 0; j--) { const [i, old, nw] = batch[j]; if (c.world[i] === nw) { c.world[i] = old; ops.push([i, old]); } }
+    if (ops.length) { coPersist(o, c); coSend(c, { t: 'co.op', ops, by: hidOf(pk) }); }
+    return;
+  }
+  if (msg.t === 'co.set') {
+    if (!Array.isArray(msg.ops) || !msg.ops.length || msg.ops.length > 800) return;
+    const applied = [], ops = [];
+    for (const op of msg.ops) {
+      if (!Array.isArray(op) || op.length !== 2) continue;
+      const [i, t] = op;
+      if (!Number.isInteger(i) || i < 0 || i >= HOUSE_N || !Number.isInteger(t) || t < 0 || t > HOUSE_MAX_ID) continue;
+      if (i < 32 * 32 && t === 0) continue;   // không đào mất mặt đất (tầng 0)
+      const old = c.world[i]; if (old === t) continue;
+      c.world[i] = t; applied.push([i, old, t]); ops.push([i, t]);
+    }
+    if (!ops.length) { peer.ws.send(JSON.stringify({ t: 'co.sync', rle: coRle(c.world) })); return; }
+    let log = c.logs.get(pk); if (!log) { log = []; c.logs.set(pk, log); }
+    log.push(applied); if (log.length > 30) log.shift();
+    coPersist(o, c);
+    coSend(c, { t: 'co.op', ops, by: hidOf(pk) }, peer);
+  }
+}
 function disconnectUser(userId) {
   for (const p of peers.values()) if (p.userId === userId) p.ws.close(4001, 'account deleted');
 }
@@ -942,13 +1045,15 @@ wss.on('connection', ws => {
       handleFriend(peer, id, msg);
     } else if (msg && typeof msg.t === 'string' && /^house\.(save|get|like)$/.test(msg.t)) {
       handleHouse(peer, msg);
+    } else if (msg && typeof msg.t === 'string' && /^co\.(open|invite|join|leave|kick|reset|undo|set)$/.test(msg.t)) {
+      handleCoop(peer, msg);
     } else if (msg && (msg.t === 'profile.get' || msg.t === 'profile.recent')) {
       handleProfile(peer, msg);
     } else if (msg && typeof msg.t === 'string' && msg.t.startsWith('chess.')) {
       chess.handle(id, msg);
     }
   });
-  ws.on('close', () => { saveKid(peer, Date.now()); races.leave(id, true); chess.leave(id); peers.delete(id); scheduleBroadcast(); const pk = kidKey(peer); if (pk) notifyFriendsOf(pk); });
+  ws.on('close', () => { saveKid(peer, Date.now()); races.leave(id, true); chess.leave(id); peers.delete(id); { const ck = kidKey(peer); if (ck && !peersOfKid(ck).length) coLeaveKid(ck); } scheduleBroadcast(); const pk = kidKey(peer); if (pk) notifyFriendsOf(pk); });
   ws.on('error', () => {});
 });
 setInterval(() => {
