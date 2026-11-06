@@ -658,3 +658,22 @@ button.wkid:hover{border-color:var(--ink)}
 .frreq{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:6px 8px;margin-bottom:6px;border-radius:12px;background:color-mix(in srgb,var(--gold) 22%,var(--panel));font-weight:700}
 .frdot{font-size:12px}
 .wkids .chip{padding:1px 10px;font-size:14px}
+
+/* Lớp học chữ */
+.lopbar{display:flex;justify-content:space-between;gap:10px;color:var(--ink);font-size:18px}
+.loptimebar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin:6px 0 10px}
+.loptimebar i{display:block;height:100%;width:100%;background:var(--c-middle);transition:width .2s linear}
+.loptimebar i.low{background:var(--bad)}
+.lopteacher{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.lt-av{font-size:48px;line-height:1}
+.lopteacher p{margin:0;background:var(--paper);border:2px solid var(--line);border-radius:16px;padding:8px 14px;font-weight:700;color:var(--text);font-size:clamp(16px,3.4vw,20px);flex:1}
+.blackboard{background:#1f5a43;border:6px solid #8b5a2b;border-radius:14px;padding:14px 10px;text-align:center}
+.ctiles{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.ctile{min-width:42px;height:48px;padding:0 6px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:clamp(24px,5vw,32px);color:#fff;border:2px dashed rgba(255,255,255,.7);border-radius:10px;background:rgba(255,255,255,.08)}
+.ctile.first{background:#f5b700;color:#2a1500;border-style:solid}
+.lop-sub{margin:10px 0 0;color:#d6f0e2;font-weight:700;font-size:15px}
+.lopin{display:flex;gap:8px;margin:12px 0 8px}
+.lopin input{flex:1;min-width:0;font:inherit;font-weight:800;font-size:24px;text-transform:uppercase;color:var(--text);background:var(--paper);border:3px solid var(--line);border-radius:14px;padding:8px 14px}
+.lopin input.bad{border-color:var(--bad);animation:drsh .25s}
+.lopin input:focus-visible{outline:3px solid var(--gold)}
+@media (prefers-reduced-motion:reduce){.lopin input.bad{animation:none}}
