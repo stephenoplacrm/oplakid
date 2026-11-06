@@ -1848,7 +1848,7 @@ function createRoom(){
 function startRealtime(){
   if(room)return;room=createRoom();onlineAvailable();
   room.onPeers(()=>updateOnlineCount());
-  room.onMsg(onRaceMsg);room.onMsg(onChatMsg);room.onMsg(onChessMsg);room.onMsg(onProfileMsg);room.onMsg(onFriendMsg);room.onMsg(onHouseMsg);
+  room.onMsg(onRaceMsg);room.onMsg(onChatMsg);room.onMsg(onChessMsg);room.onMsg(onProfileMsg);room.onMsg(onFriendMsg);room.onMsg(onHouseMsg);room.onMsg(onCoMsg);
   setInterval(()=>{if(screen==='world'&&room&&room.connected())room.send({t:'profile.recent'});},45000);
   updateOnlineCount();lastPresKey='';updateLobbyPresence();
   room.onConnection(c=>{onlineAvailable();
@@ -3577,7 +3577,7 @@ if(tm.running&&Date.now()>=tm.end){const late=Date.now()-tm.end;tm.running=false
 
 /* ================= Xây nhà (khối 3D, lưu theo hồ sơ bé) ================= */
 function createBuilder(host){
-  let readOnly=false;
+  let readOnly=false,coop=null,coPend=[],coT=0;
 
     const W=32,D=32,H=16,N=W*D*H,idx=(x,y,z)=>x+W*(z+D*y);
   /* ---- các loại khối ---- */
@@ -3710,11 +3710,12 @@ function createBuilder(host){
 
   /* ---- sửa thế giới, đi lại, lưu ---- */
   const undo=[];let saveT=0;
+  function coOut(ops){if(!coop)return;coPend.push(...ops);if(coT)return;coT=setTimeout(()=>{coT=0;while(coPend.length)coop.send({t:'co.set',ops:coPend.splice(0,800)});},40);}
   function setBlock(x,y,z,t,rec=true){
     if(readOnly||x<0||y<0||z<0||x>=W||y>=H||z>=D)return false;const i=idx(x,y,z),old=world[i];if(old===t)return false;
     if(y===0&&t===0)return false;                                // không đào mất mặt đất
-    if(rec){undo.push([[i,old,t]]);if(undo.length>80)undo.shift();}
-    world[i]=t;rebuild();queueSave();return true;
+    if(rec&&!coop){undo.push([[i,old,t]]);if(undo.length>80)undo.shift();}
+    world[i]=t;coOut([[i,t]]);rebuild();queueSave();return true;
   }
   function overlapsPlayer(x,y,z){
     if(view!=='walk')return false;
@@ -3730,12 +3731,12 @@ function createBuilder(host){
     updateHover(px,py);
   }
   $('#bd-b-undo').onclick=doUndo;
-  function doUndo(){if(readOnly)return;const u=undo.pop();if(!u)return;for(let k=u.length-1;k>=0;k--)world[u[k][0]]=u[k][1];rebuild();queueSave();}
+  function doUndo(){if(readOnly)return;if(coop){coop.send({t:'co.undo'});return;}const u=undo.pop();if(!u)return;for(let k=u.length-1;k>=0;k--)world[u[k][0]]=u[k][1];rebuild();queueSave();}
   const ser=()=>{const out=[];let last=world[0],n=0;for(let i=0;i<N;i++){if(world[i]===last)n++;else{out.push(last+':'+n);last=world[i];n=1;}}out.push(last+':'+n);return out.join(',');};
   function deser(s){try{const a=new Uint8Array(N);let i=0;for(const p of s.split(',')){const [t,n]=p.split(':').map(Number);for(let k=0;k<n&&i<N;k++)a[i++]=t;}if(i!==N)return false;world.set(a);return true;}catch(e){return false;}}
     let dirty=false;
   function save(manual){dirty=false;const rle=ser();if(rle.length>60000){say('Nhà phức tạp quá nên chưa lưu được. Em bớt khối nhé.');return;}try{host.save(JSON.stringify({v:1,w:W,h:H,d:D,rle,at:Date.now()}));if(host.publish)host.publish(rle);$('#bd-saved').textContent='Đã lưu lúc '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});if(manual)say('Đã lưu nhà của em! 💾');}catch(e){$('#bd-saved').textContent='Chưa lưu được trên máy này.';}}
-  function queueSave(){if(readOnly)return;dirty=true;clearTimeout(saveT);saveT=setTimeout(()=>save(false),700);}
+  function queueSave(){if(readOnly||(coop&&coop.role==='guest'))return;dirty=true;clearTimeout(saveT);saveT=setTimeout(()=>save(false),700);}
   function load(){try{const j=JSON.parse(host.load()||'null');if(j&&j.v===1&&j.w===W&&j.h===H&&j.d===D&&deser(j.rle)){$('#bd-saved').textContent='Đã mở nhà đã lưu.';return true;}}catch(e){}return false;}
   $('#bd-b-save').onclick=()=>save(true);
   $('#bd-b-sample').onclick=()=>{ask('Xây nhà mẫu? Nhà em đang xây sẽ bị thay thế.',()=>{sample();undo.length=0;rebuild();queueSave();});};
@@ -3893,7 +3894,7 @@ function createBuilder(host){
       const i=idx(X,Y,Z);if(world[i]!==0)continue;grp.push([i,0,id]);world[i]=id;
     }
     if(!grp.length){say('Chỗ này chưa đặt được. Em chọn chỗ trống khác nhé.');return false;}
-    undo.push(grp);if(undo.length>80)undo.shift();rebuild();queueSave();blip(440,.06);setTimeout(()=>blip(660,.08),70);return true;
+    if(coop)coOut(grp.map(g=>[g[0],g[2]]));else{undo.push(grp);if(undo.length>80)undo.shift();}rebuild();queueSave();blip(440,.06);setTimeout(()=>blip(660,.08),70);return true;
   }
   function buildTabs(){
     const t=$('#bd-tabs');t.innerHTML='';
@@ -4001,14 +4002,75 @@ function createBuilder(host){
   return {
     start(){if(running)return;running=true;last=performance.now();resize();raf=requestAnimationFrame(frame);},
     reload,visit,
-    flush(){if(readOnly)return;clearTimeout(saveT);if(dirty)save(false);},
+    rle:ser,
+    coStart(role,rle,send){if(!deser(rle))return false;readOnly=false;coop={role,send};coPend=[];undo.length=0;rebuild();setView('orbit');return true;},
+    coOp(ops){for(const [i,t] of ops)if(i>=0&&i<N)world[i]=t;rebuild();hover=null;queueSave();},
+    coSync(rle){if(deser(rle)){rebuild();queueSave();}},
+    coEnd(){coop=null;coPend=[];reload();},
+    coOn:()=>!!coop,
+    flush(){if(readOnly||(coop&&coop.role==='guest'))return;clearTimeout(saveT);if(dirty)save(false);},
     resize
   };
 
 }
 
-let BD=null,bdT0=0;
-async function showBuild(visitMsg){
+let BD=null,bdT0=0,bdCo=null;
+/* ---- xây chung ---- */
+const coSend=m=>{if(room&&room.connected())room.send(m);};
+function coBegin(m){
+  if(!m||!BD)return;
+  if(!BD.coStart(m.role,m.rle,coSend)){toast('Chưa mở được nhà chung, em thử lại nhé.',[],4000);return;}
+  bdCo={role:m.role,owner:m.owner,members:m.members||[]};coRender();
+}
+function coStop(){
+  const was=bdCo;bdCo=null;if(BD&&BD.coOn())BD.coEnd();
+  $('#s-build').classList.remove('bdco','bdowner','bdguest');$('#bd-co').hidden=true;$('#bd-co-pick').hidden=true;
+  return was;
+}
+function coRender(){
+  if(!bdCo)return;
+  const sec=$('#s-build'),own=bdCo.role==='owner';
+  sec.classList.add('bdco');sec.classList.toggle('bdowner',own);sec.classList.toggle('bdguest',!own);
+  $('#bd-co').hidden=false;
+  $('#bd-co-t').textContent=own?'🤝 Đang xây chung nhà của em với:':'🤝 Đang xây chung với:';
+  const box=$('#bd-co-m');box.innerHTML='';
+  bdCo.members.forEach(mm=>{const c=document.createElement('span');c.className='chip';c.textContent=String(mm.av||'🙂').slice(0,8)+' '+String(mm.nick||'Bạn').slice(0,12)+(mm.hid===bdCo.owner?' (chủ nhà)':'');
+    if(own&&mm.hid!==bdCo.owner){const x=document.createElement('button');x.type='button';x.className='chip';x.textContent='✖';x.title='Mời bạn này ra';x.setAttribute('aria-label','Mời '+mm.nick+' ra');x.addEventListener('click',()=>coSend({t:'co.kick',hid:mm.hid}));c.appendChild(x);}
+    box.appendChild(c);});
+  $('#bd-co-end').textContent=own?'Dừng xây chung':'Rời đi';
+}
+function onCoMsg(m){
+  if(typeof m.t!=='string'||!m.t.startsWith('co.'))return;
+  if(m.t==='co.state'){showBuild(null,{role:m.role,rle:m.rle,owner:m.owner,members:m.members});return;}
+  if(m.t==='co.members'){if(bdCo){bdCo.members=Array.isArray(m.members)?m.members:[];bdCo.owner=m.owner||bdCo.owner;coRender();}return;}
+  if(m.t==='co.op'){if(bdCo&&BD&&Array.isArray(m.ops))BD.coOp(m.ops);return;}
+  if(m.t==='co.sync'){if(bdCo&&BD&&typeof m.rle==='string')BD.coSync(m.rle);return;}
+  if(m.t==='co.end'){if(!bdCo)return;const msg=m.why==='kick'?'Chủ nhà mời em ra khỏi nhà chung.':m.why==='closed'?'Chủ nhà đã dừng xây chung.':'Em đã rời nhà chung.';coStop();bdBanner(null);toast(msg,[],5000);return;}
+  if(m.t==='co.fail'){toast(m.why==='full'?'Nhà chung đầy rồi (tối đa 4 bạn).':m.why==='offline'?'Bạn ấy vừa rời đi nên chưa mời được.':'Nhà chung này đã đóng rồi.',[],5000);return;}
+  if(m.t==='co.invite'&&m.from&&typeof m.from.hid==='string'){
+    const nm=String(m.from.av||'🙂').slice(0,8)+' '+String(m.from.nick||'Một bạn').slice(0,12);
+    toast(nm+' mời em cùng xây nhà',[['Vào xây',()=>coSend({t:'co.join',hid:m.from.hid}),true],['Để sau',()=>{}]],60000);
+  }
+}
+function coInvitePick(){
+  const box=$('#bd-co-pick');box.innerHTML='';
+  const on=fr.friends.filter(f=>f.online&&!(bdCo&&bdCo.members.some(x=>x.hid===f.hid)));
+  if(!on.length){const p=document.createElement('span');p.className='bdnote';p.textContent='Chưa có bạn bè nào đang online để mời.';box.appendChild(p);}
+  on.forEach(f=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=String(f.av||'🙂').slice(0,8)+' '+String(f.nick||'Bạn').slice(0,12);b.addEventListener('click',()=>{coSend({t:'co.invite',hid:f.hid});b.disabled=true;b.textContent+=' ✓ đã mời';});box.appendChild(b);});
+  box.hidden=false;
+}
+$('#bd-b-coop').addEventListener('click',()=>{
+  if(!room||!room.connected()){toast('Chưa kết nối máy chủ nên chưa xây chung được.',[],4000);return;}
+  if(!fr.friends.length){toast('Em cần có bạn bè (đã đồng ý kết bạn) mới xây chung được.',[],5000);return;}
+  if(!BD||bdView)return;
+  BD.flush();coSend({t:'co.open',rle:BD.rle()});
+  setTimeout(()=>{if(bdCo&&bdCo.role==='owner')coInvitePick();},400);
+});
+$('#bd-co-inv').addEventListener('click',()=>{const b=$('#bd-co-pick');if(b.hidden){coInvitePick();b.hidden=false;}else b.hidden=true;});
+$('#bd-co-reset').addEventListener('click',()=>{if(bdCo&&bdCo.role==='owner')coSend({t:'co.reset'});});
+$('#bd-co-end').addEventListener('click',()=>{coSend({t:'co.leave'});coStop();bdBanner(null);if(room&&room.connected())room.send({t:'house.get'});});
+
+async function showBuild(visitMsg,coMsg){
   stopAll();show('build');
   let T;try{T=await loadThree();}catch(e){$('#bd-saved').textContent='Chưa tải được hình 3D. Em kiểm tra mạng rồi thử lại nhé.';return;}
   if(screen!=='build')return;
@@ -4018,11 +4080,12 @@ async function showBuild(visitMsg){
     active:()=>screen==='build',
     dark:()=>matchMedia('(prefers-color-scheme: dark)').matches||document.documentElement.dataset.theme==='dark',
     sound:()=>state.sound!==false,
-    publish:rle=>{if(room&&room.connected())room.send({t:'house.save',rle});}
+    publish:rle=>{if(!bdCo&&room&&room.connected())room.send({t:'house.save',rle});}
   };
   if(!BD)BD=createBuilder(host);
   else BD.reload();
-  if(visitMsg&&visitMsg.rle&&BD.visit(visitMsg.rle)){bdView={hid:visitMsg.hid,nick:visitMsg.nick,av:visitMsg.av};bdBanner(visitMsg);}
+  if(coMsg){bdView=null;bdBanner(null);coBegin(coMsg);}
+  else if(visitMsg&&visitMsg.rle&&BD.visit(visitMsg.rle)){bdView={hid:visitMsg.hid,nick:visitMsg.nick,av:visitMsg.av};bdBanner(visitMsg);}
   else{bdView=null;bdBanner(null);if(room&&room.connected())room.send({t:'house.get'});}
   bdT0=bdT0||performance.now();BD.start();
 }
@@ -4050,6 +4113,7 @@ function onHouseMsg(m){
   if(screen==='build'){if(m.own&&!bdView)bdBanner(m);else if(bdView&&m.hid===bdView.hid)bdBanner(m);}
 }
 function bdLeave(){
+  if(bdCo){if(room&&room.connected())room.send({t:'co.leave'});coStop();}
   if(BD)BD.flush();
   if(bdT0){const secs=(performance.now()-bdT0)/1000;bdT0=0;if(secs>=15)record({unit:'build',step:'Xây nhà',acc:1,wpm:0,chars:0,errs:0,secs});}
 }

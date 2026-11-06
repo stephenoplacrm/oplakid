@@ -725,3 +725,9 @@ button.wkid:hover{border-color:var(--ink)}
 /* Thăm nhà bạn bè: chỉ xem */
 .bdbanner{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0;padding:6px 12px;border:2px solid var(--gold);border-radius:12px;background:color-mix(in srgb,var(--gold) 18%,var(--panel));font-weight:800;color:var(--text)}
 .bdvisit #bd-b-build,.bdvisit #bd-b-break,.bdvisit #bd-b-undo,.bdvisit #bd-b-rot,.bdvisit #bd-b-save,.bdvisit #bd-b-sample,.bdvisit #bd-b-clear,.bdvisit #bd-saved,.bdvisit #bd-tabs,.bdvisit #bd-hot{display:none}
+
+#bd-co-m{display:inline-flex;flex-wrap:wrap;gap:6px}#bd-co-pick{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}#bd-co-pick[hidden]{display:none}
+.bdvisit #bd-b-coop{display:none}
+.bdco #bd-b-sample,.bdco #bd-b-clear,.bdco #bd-b-coop,.bdco #bd-b-save{display:none}
+.bdco.bdguest #bd-saved{display:none}
+.bdco:not(.bdowner) #bd-co-inv,.bdco:not(.bdowner) #bd-co-reset{display:none}
