@@ -13,6 +13,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 - Kết bạn: bảng `kid_friends` (a gửi lời mời cho b, state 0 chờ, 1 là bạn bè; khoá theo `userId:pid` như `kid_profiles`). Phải được đồng ý mới thành bạn; bạn bè mời nhau chơi cờ qua `friend.invite` (ván riêng `priv` trong `chessgames.js`, không hiện ở danh sách chờ hay khung chat). Không có nhắn tin tự do.
 - `public/index.html`, `public/app.css`, `public/app.js`: toàn bộ giao diện, JavaScript thuần, không có bước build.
 - Cấp độ 6 đến 10 gõ tiếng Việt: bé dùng bộ gõ tiếng Việt có sẵn của máy (ô `#vn-input`); ứng dụng chỉ so chữ, không tự ghép dấu. Kho chữ tiếng Việt nằm trong `app.js` (`VN`). Không thêm file JS riêng cho phần này.
+- Lớp học chữ (trong lớp Đố vui, `lopPlay()` trong `app.js`): kho câu hỏi là file chữ `public/lop-hoc-chu.txt` (không phải JS), tải khi bé chơi; kiểm tra bằng `node tests/lopchu.test.js`. Lấy ý tưởng và một phần câu hỏi (Lịch sử, Tiếng Anh, Tiếng kêu, Từ trái nghĩa) từ github.com/workaipvlinh-byte/lop-hoc-chu theo giấy phép MIT, xem `THIRD-PARTY-LICENSES.md`; không dùng ảnh hay mã giao diện của họ (ảnh không thuộc MIT). Khi thêm câu hỏi: không có chuyện người lớn, không lộ đáp án trong gợi ý.
 - `public/privacy.html`, `public/contact.html`: chính sách quyền riêng tư và trang liên hệ (thông tin người vận hành, email, nơi đặt máy chủ). Chính sách chưa được luật sư rà soát.
 - Dữ liệu: một file SQLite tại `DATABASE_PATH` (đĩa cố định `/data` trên Render).
 
@@ -30,6 +31,6 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 ```bash
 npm ci
 node --check server.js && node --check races.js && node --check chessgames.js && node --check public/app.js && node --check public/chess.js
-node tests/chess.test.js
+node tests/chess.test.js && node tests/lopchu.test.js
 APP_ORIGIN=http://localhost:3000 node server.js   # mở http://localhost:3000, đăng ký, học 1 bài, đua với máy
 ```

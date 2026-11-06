@@ -1,0 +1,673 @@
+// Kho câu hỏi Lớp học chữ. Các chủ đề tự viết cho bé tiểu học, cộng các bộ Lịch sử, Tiếng Anh, Tiếng kêu, Từ trái nghĩa lấy từ
+// github.com/workaipvlinh-byte/lop-hoc-chu (giấy phép MIT, xem THIRD-PARTY-LICENSES.md), đã lọc lại cho trẻ em.
+// Mỗi câu: ĐÁP ÁN|gợi ý|độ khó (1 dễ, 2 vừa, 3 khó)|cách viết khác (cách nhau dấu phẩy, không bắt buộc)
+# Con vật
+> Đây là một con vật.
+CON GÀ|Gáy ò ó o mỗi sáng sớm, đẻ trứng.|1
+CON VỊT|Kêu cạp cạp, thích bơi dưới ao.|1
+CON HEO|Có cái mũi hồng, thích lăn trong bùn.|1
+CON BÒ|Cho chúng ta sữa, kêu ò ò.|1
+CON NGỰA|Chạy rất nhanh, có bờm dài, người ta cưỡi nó.|2
+CON THỎ|Tai dài, thích ăn cà rốt, nhảy tưng tưng.|1
+CON VOI|To nhất trên cạn, có vòi và đôi ngà.|1
+CON KHỈ|Leo cây giỏi, rất thích ăn chuối.|1
+CON RÙA|Có mai cứng trên lưng, bò rất chậm.|1
+CON ẾCH|Nhảy trên lá sen, kêu ộp oạp.|1
+CON CUA|Có hai càng to, đi ngang.|1
+CÁ VÀNG|Bơi trong bể kính, thân màu cam rực rỡ.|2
+CÁ VOI|Sống ở biển, là con vật to nhất thế giới.|2
+CÁ HEO|Thông minh, nhảy múa trên sóng biển.|2
+CHIM SẺ|Nhỏ xíu, nhảy lích chích trên mái nhà.|2
+CON VẸT|Biết nói theo tiếng người, lông nhiều màu.|2
+ĐẠI BÀNG|Chim lớn bay rất cao, mắt rất tinh.|2
+CON ONG|Bay đi hút mật hoa, làm ra mật ngọt.|1
+CON KIẾN|Nhỏ xíu, đi thành hàng dài mang thức ăn về tổ.|1
+CHUỒN CHUỒN|Có hai đôi cánh mỏng, bay lượn gần ao hồ.|3
+ĐOM ĐÓM|Con vật nhỏ, bụng phát sáng lập loè ban đêm.|2
+GẤU TRÚC|Màu đen trắng, thích ăn măng tre, sống ở Trung Quốc.|2
+CON SÓC|Đuôi xù, hay ôm hạt dẻ, leo trèo trên cây.|2
+CON CÁO|Lông màu đỏ cam, đuôi to, rất tinh khôn.|2
+CON NAI|Có cặp sừng như cành cây, sống trong rừng.|2
+CON SỨA|Trong suốt, mềm nhũn, trôi nổi dưới biển.|3
+CHIM CÁNH CỤT|Sống ở Nam Cực, đi lạch bạch, không biết bay.|3
+CON LẠC ĐÀ|Có cái bướu trên lưng, đi qua sa mạc.|3
+SAO BIỂN|Hình ngôi sao nằm dưới đáy biển.|3
+CON HẢI CẨU|Sống ở vùng lạnh, bơi giỏi, hay vỗ tay.|3
+SƯ TỬ|Vua của rừng xanh, con đực có bờm.|2
+CON RẮN|Không có chân, bò trườn trên mặt đất.|1
+BƯỚM|Có đôi cánh nhiều màu, bay từ hoa này sang hoa kia.|2
+# Cây cối, hoa quả
+> Đây là một loại cây hoặc quả.
+QUẢ CHUỐI|Quả dài, vỏ vàng, khỉ rất thích.|1
+QUẢ CAM|Quả tròn, vỏ màu cam, vắt lấy nước uống.|1
+QUẢ TÁO|Quả tròn, màu đỏ hoặc xanh, cắn giòn.|1
+DƯA HẤU|Vỏ xanh, ruột đỏ mọng nước, ăn mùa hè.|2
+SẦU RIÊNG|Quả có gai, mùi rất nồng, được gọi là vua trái cây.|2
+MĂNG CỤT|Vỏ tím, ruột trắng từng múi, ngọt thanh.|2
+CHÔM CHÔM|Vỏ đỏ có lông mềm, ruột trắng ngọt.|2
+XOÀI|Quả vàng thơm, ngọt, chín vào mùa hè.|1
+ĐU ĐỦ|Ruột màu cam, nhiều hạt đen nhỏ.|2
+QUẢ DỪA|Có nước ngọt mát ở bên trong, cùi trắng.|1
+DÂU TÂY|Quả nhỏ màu đỏ, trên vỏ có chấm li ti.|2
+CÀ CHUA|Quả tròn màu đỏ, dùng nấu canh và làm sốt.|1
+CÀ RỐT|Củ màu cam, thỏ rất thích ăn.|1
+KHOAI TÂY|Củ tròn, chiên lên thành món ăn giòn.|2
+BẮP CẢI|Rau lá cuộn tròn nhiều lớp.|2
+RAU MUỐNG|Rau xanh có thân rỗng, hay xào hoặc luộc.|2
+BÍ ĐỎ|Quả tròn to màu vàng cam, nấu canh hoặc nấu chè.|2
+CÂY TRE|Thân thẳng, rỗng, có nhiều đốt, là biểu tượng làng quê.|2
+CÂY THÔNG|Lá nhọn như kim, hay trang trí vào dịp Giáng sinh.|2
+XƯƠNG RỒNG|Thân mọng nước, có gai, sống ở sa mạc.|3
+CÂY LÚA|Cho chúng ta hạt gạo nấu cơm.|1
+CÂY NGÔ|Cho bắp vàng, có râu ở đầu.|2
+HOA SEN|Mọc dưới ao, là quốc hoa của Việt Nam.|2
+HOA HỒNG|Hoa có nhiều gai, thơm, hay tặng mẹ và cô.|1
+HOA MAI|Hoa vàng nở rộ ở miền Nam vào dịp Tết.|2
+HOA ĐÀO|Hoa hồng nhạt nở vào dịp Tết ở miền Bắc.|2
+HOA CÚC|Nhiều cánh nhỏ xếp tròn như mặt trời.|2
+HOA HƯỚNG DƯƠNG|Cánh vàng, luôn quay mặt về phía mặt trời.|3
+HOA PHƯỢNG|Hoa đỏ nở vào mùa hè, báo hiệu mùa chia tay.|3
+QUẢ ỔI|Quả xanh, giòn, ruột trắng hoặc hồng, hạt nhỏ.|2
+QUẢ NHO|Mọc thành chùm, ăn ngọt, ép làm nước uống.|1
+CỦ GỪNG|Củ có vị cay ấm, dùng làm gia vị.|2
+QUẢ BƯỞI|Quả to tròn, vỏ dày, ăn từng múi.|1
+# Món ăn Việt
+> Đây là một món ăn.
+PHỞ|Món nước nổi tiếng, bánh trắng mỏng, nước dùng thơm.|1
+BÁNH CHƯNG|Bánh vuông gói lá dong, ăn vào dịp Tết.|2
+BÁNH XÈO|Bánh vàng giòn, có nhân tôm thịt, cuốn rau sống.|2
+GỎI CUỐN|Cuốn bánh tráng với tôm, bún và rau, chấm nước mắm.|2
+CƠM TẤM|Làm từ gạo tấm, ăn cùng sườn nướng.|2
+BÚN CHẢ|Thịt nướng thơm ăn với bún và nước chấm.|2
+CANH CHUA|Món canh có vị chua thanh, nấu với cà chua và dọc mùng.|2
+THỊT KHO TRỨNG|Món kho ngọt mặn, có thịt và trứng, ăn Tết.|3
+BÁNH TRÔI|Viên tròn trắng, bên trong có nhân, chìm nổi trong nước đường.|3
+CHÈ ĐẬU XANH|Món ngọt ăn mát, nấu từ đậu xanh với đường.|3
+XÔI|Làm từ gạo nếp, ăn buổi sáng, dẻo thơm.|1
+SỮA CHUA|Món chua ngọt, màu trắng mịn, ăn bằng thìa.|2
+NƯỚC MẮM|Nước chấm màu nâu, mùi đặc trưng, làm từ cá.|1
+BÁNH MÌ|Ổ bánh giòn kẹp nhân, ăn sáng rất tiện.|1
+TRỨNG ỐP LA|Đập trứng vào chảo, chiên chín vàng.|3
+BÁNH TRUNG THU|Bánh tròn hoặc vuông, ăn vào đêm rằm tháng Tám.|3
+BÁNH DẺO|Bánh trung thu vỏ trắng mềm, dai.|2
+BÚN BÒ HUẾ|Bún cay thơm, món ăn nổi tiếng của cố đô.|3
+HỦ TIẾU|Món nước có sợi dai, phổ biến ở miền Nam.|2
+CHÈ|Món ngọt nấu từ đậu, đường, nước cốt dừa.|1
+# Đồ vật trong nhà
+> Đây là một đồ vật.
+TIVI|Có màn hình lớn, xem phim hoạt hình.|1
+QUẠT MÁY|Có cánh xoay, làm mát mùa hè.|2
+NỒI CƠM ĐIỆN|Dùng để nấu cơm, có nắp đậy và nút bấm.|3
+CÁI CHỔI|Dùng để quét nhà cho sạch.|1
+GIƯỜNG|Chỗ để nằm ngủ ban đêm.|1
+CÁI GỐI|Đặt dưới đầu cho êm khi ngủ.|1
+CÁI TỦ|Dùng để cất quần áo hoặc đồ đạc.|1
+GƯƠNG|Soi vào thấy hình mình.|1
+BÀN CHẢI|Dùng để đánh răng mỗi sáng và tối.|1
+XÀ PHÒNG|Rửa tay với nó thì sạch vi khuẩn.|2
+KHĂN TẮM|Dùng để lau người sau khi tắm.|2
+ĐỒNG HỒ|Cho biết bây giờ là mấy giờ.|2
+ĐIỆN THOẠI|Dùng để gọi cho ông bà và ba mẹ.|1
+BÓNG ĐÈN|Bật công tắc thì sáng lên.|1
+CHÌA KHÓA|Dùng để mở cửa, treo thành chùm.|2
+CÁI KÉO|Có hai lưỡi, dùng để cắt giấy.|1
+ĐÔI ĐŨA|Hai thanh dài dùng để gắp thức ăn.|1
+CÁI THÌA|Dùng để múc canh và xúc cơm.|1
+CÁI BÁT|Dùng để đựng cơm hoặc canh.|1
+CÁI NỒI|Dùng để nấu canh, luộc rau.|1
+CÁI Ô|Mở ra để che mưa, che nắng.|1
+ÁO MƯA|Mặc vào để khỏi bị ướt khi trời mưa.|2
+DÉP LÀO|Đi vào chân, có quai kẹp ở giữa hai ngón.|2
+MŨ BẢO HIỂM|Đội trên đầu khi ngồi xe máy cho an toàn.|3
+CỬA SỔ|Mở ra để nhìn ra ngoài và đón gió.|1
+BÀN PHÍM|Có nhiều phím chữ, em dùng để gõ.|2
+# Phương tiện, giao thông
+> Đây là một phương tiện hoặc từ về giao thông.
+XE MÁY|Có hai bánh, chạy bằng xăng, kêu bành bành.|1
+Ô TÔ|Có bốn bánh, chở cả nhà đi chơi xa.|1
+XE BUÝT|Xe lớn chở nhiều người đi học, đi làm.|2
+XE TẢI|Xe to dùng để chở hàng hoá.|2
+XE CỨU HỎA|Xe màu đỏ, kêu to chạy đi dập lửa.|3
+XE ĐẠP|Có hai bánh, đạp bằng chân.|1
+TÀU HỎA|Chạy trên đường ray, kéo dài nhiều toa.|2
+MÁY BAY|Bay trên bầu trời, chở người đi xa.|1
+TRỰC THĂNG|Có cánh quạt lớn trên đầu, bay lên thẳng.|2
+TÀU THỦY|Chở người và hàng đi trên biển.|2
+TÊN LỬA|Bay lên vũ trụ, phụt lửa ở phía sau.|2
+ĐÈN ĐỎ|Thấy đèn này thì phải dừng lại.|1
+ĐÈN XANH|Thấy đèn này thì được đi.|1
+VẠCH KẺ ĐƯỜNG|Những vạch trắng giúp em đi bộ qua đường.|3
+VỈA HÈ|Nơi dành cho người đi bộ, bên cạnh lòng đường.|2
+NGÃ TƯ|Nơi hai con đường cắt nhau.|2
+SÂN BAY|Nơi máy bay cất cánh và hạ cánh.|2
+BÁNH XE|Hình tròn, lăn trên đường.|1
+DÂY AN TOÀN|Cài vào khi ngồi trên ô tô để giữ an toàn.|3
+CÁP TREO|Đi lên núi bằng cabin treo trên dây.|2
+# Thiên nhiên, thời tiết
+> Đây là một hiện tượng hoặc cảnh vật thiên nhiên.
+MẶT TRĂNG|Sáng trên bầu trời ban đêm, có chị Hằng và chú Cuội.|1
+NGÔI SAO|Những chấm sáng lấp lánh trên trời đêm.|1
+CẦU VỒNG|Có bảy màu, xuất hiện sau cơn mưa.|1
+MÂY|Trắng bồng bềnh trên cao, đôi khi mang mưa.|1
+MƯA|Nước từ trên trời rơi xuống.|1
+SẤM SÉT|Trên trời loé sáng rồi vang tiếng ầm ầm.|2
+GIÓ|Không nhìn thấy nhưng làm lá lay động.|1
+TUYẾT|Những bông trắng lạnh rơi ở xứ lạnh.|1
+NÚI|Rất cao, đỉnh nhọn, có nhiều cây rừng.|1
+SÔNG|Dòng nước chảy dài từ núi ra biển.|1
+BIỂN|Rộng mênh mông, nước mặn, có sóng vỗ.|1
+THÁC NƯỚC|Nước đổ từ trên cao xuống thành dòng trắng xoá.|3
+RỪNG|Nơi có rất nhiều cây to và nhiều con vật sống.|1
+BẦU TRỜI|Màu xanh phía trên đầu, có mây bay.|1
+MÙA THU|Mùa lá vàng rơi, em đón Tết Trung thu.|1
+MÙA HÈ|Mùa nắng nóng, em được nghỉ học và đi biển.|1
+MÙA ĐÔNG|Mùa lạnh nhất trong năm, phải mặc áo ấm.|1
+TRÁI ĐẤT|Hành tinh nơi chúng ta đang sống.|2
+SAO HỎA|Hành tinh màu đỏ, gần Trái Đất.|2
+NGÂN HÀ|Dải sáng đầy sao trải dài trên bầu trời đêm.|3
+NHẬT THỰC|Mặt Trăng che khuất Mặt Trời.|3
+CÁNH ĐỒNG|Nơi bác nông dân trồng lúa, rộng và xanh.|2
+# Cơ thể
+> Đây là một bộ phận hoặc việc liên quan đến cơ thể.
+MẮT|Em dùng để nhìn mọi vật xung quanh.|1
+MŨI|Em dùng để ngửi hương thơm của hoa.|1
+MIỆNG|Em dùng để ăn, uống và nói chuyện.|1
+LƯỠI|Nằm trong miệng, giúp em nếm vị.|1
+TÓC|Mọc trên đầu, có thể buộc hoặc cắt.|1
+CẰM|Nằm ngay dưới miệng.|1
+VAI|Nằm giữa cổ và cánh tay, mang cặp sách.|1
+NGÓN TAY|Mỗi bàn tay có năm cái, em dùng để cầm bút.|1
+CHÂN|Em dùng để đi, chạy và nhảy.|1
+ĐẦU GỐI|Chỗ gập ở giữa chân, khi ngã dễ trầy.|2
+BỤNG|Chứa dạ dày, khi đói thì kêu ọc ọc.|1
+PHỔI|Giúp em thở, ở trong lồng ngực.|1
+NÃO|Nằm trong đầu, giúp em suy nghĩ.|1
+XƯƠNG|Cứng chắc, giữ cho cơ thể đứng thẳng.|1
+NỤ CƯỜI|Khi vui, miệng em cong lên như thế này.|1
+ĐÁNH RĂNG|Việc làm mỗi sáng và tối để răng sạch.|1
+RỬA TAY|Làm trước khi ăn cho sạch vi khuẩn.|1
+HẮT HƠI|Khi bị bụi vào mũi, em làm thế này: hắt xì.|2
+# Nghề nghiệp
+> Đây là một nghề nghiệp.
+NÔNG DÂN|Làm ra hạt gạo ngoài cánh đồng.|1
+NGƯ DÂN|Đi thuyền ra biển để đánh cá.|2
+THỢ MAY|Dùng kim chỉ làm ra quần áo.|2
+ĐẦU BẾP|Nấu ra những món ăn thơm ngon.|1
+CÔNG AN|Mặc quân phục, giữ gìn bình yên cho mọi người.|1
+THỢ XÂY|Xây nhà bằng gạch và xi măng.|2
+THỢ ĐIỆN|Sửa dây điện, bóng đèn khi bị hỏng.|2
+TÀI XẾ|Lái xe chở người đi khắp nơi.|2
+CA SĨ|Hát cho mọi người nghe.|1
+NHẠC SĨ|Sáng tác ra những bài hát hay.|2
+NHÀ THƠ|Viết ra những bài thơ.|2
+NHA SĨ|Chăm sóc và chữa răng cho em.|2
+THỢ GỐM|Nặn đất sét rồi nung thành bình, bát.|3
+NHÀ KHOA HỌC|Làm thí nghiệm để khám phá điều mới lạ.|3
+CÔ GIÁO|Dạy em học chữ và học toán ở trường.|1
+BÁC SĨ|Khám bệnh cho mọi người, mặc áo trắng.|1
+PHI CÔNG|Lái máy bay trên bầu trời.|2
+LÍNH CỨU HỎA|Dập lửa và cứu người khi có cháy.|3
+HỌA SĨ|Vẽ nên những bức tranh đẹp.|2
+# Trường lớp
+> Đây là một thứ hoặc việc ở trường học.
+PHẤN|Cô giáo dùng để viết lên bảng đen.|1
+THƯỚC KẺ|Dùng để kẻ đường thẳng.|1
+CẶP SÁCH|Em đeo sau lưng, đựng sách vở đến trường.|1
+BẢNG ĐEN|Cô giáo viết lên đó bằng phấn trắng.|1
+LỚP TRƯỞNG|Bạn được chọn để quản lý cả lớp.|2
+TRỐNG TRƯỜNG|Đánh tùng tùng báo giờ vào lớp.|2
+RA CHƠI|Giờ nghỉ giữa buổi học, em chạy ra sân.|1
+KHĂN QUÀNG ĐỎ|Em đeo ở cổ khi là đội viên.|3
+GIẤY KHEN|Được tặng khi em học giỏi, chăm ngoan.|2
+HIỆU TRƯỞNG|Thầy hoặc cô đứng đầu cả ngôi trường.|2
+THƯ VIỆN|Nơi có rất nhiều sách để mượn đọc.|2
+SÂN TRƯỜNG|Nơi em chào cờ và chơi đùa.|2
+CHÀO CỜ|Sáng thứ hai, cả trường đứng nghiêm hát Quốc ca.|2
+BÀI TẬP|Cô giao để em làm ở nhà.|1
+ĐIỂM MƯỜI|Điểm cao nhất, ai cũng mong có.|1
+HỘP BÚT|Đựng bút chì, thước, gọt bút.|1
+BÚT CHÌ|Viết được và tẩy được bằng cục tẩy.|1
+CỤC TẨY|Dùng để xoá nét bút chì viết sai.|1
+BÀN GHẾ|Nơi em ngồi học trong lớp.|1
+THỜI KHÓA BIỂU|Bảng cho biết hôm nay học môn gì.|3
+# Thể thao, trò chơi
+> Đây là một môn thể thao hoặc trò chơi.
+BÓNG ĐÁ|Hai đội chạy đá một quả bóng vào khung thành.|1
+BÓNG RỔ|Ném quả bóng vào chiếc rổ treo cao.|2
+BÓNG BÀN|Dùng vợt nhỏ đánh quả bóng trắng qua lại trên bàn.|2
+BƠI LỘI|Quẫy tay chân để di chuyển trong nước.|2
+CỜ VUA|Bàn ô vuông đen trắng, có hậu, xe, mã, tượng và tốt.|2
+CỜ CARO|Hai bạn thi nhau xếp được năm dấu liền hàng.|2
+NHẢY DÂY|Quay sợi dây rồi bật lên cho dây đi qua chân.|1
+ĐÁ CẦU|Dùng chân tâng quả cầu có lông vũ.|2
+NHẢY LÒ CÒ|Kẻ ô dưới sân, nhảy bằng một chân.|3
+TRỐN TÌM|Một bạn nhắm mắt đếm, các bạn khác đi giấu mình.|1
+Ô ĂN QUAN|Trò chơi dân gian bốc sỏi trên các ô trên đất.|3
+THẢ DIỀU|Cầm dây cho con diều bay lên trời cao.|2
+OẲN TÙ TÌ|Giơ búa, kéo hoặc bao để phân thắng thua.|2
+BẬP BÊNH|Hai bạn ngồi hai đầu, một bạn lên thì bạn kia xuống.|2
+CẦU TRƯỢT|Leo lên cao rồi trượt xuống ở sân chơi.|2
+KÉO CO|Hai đội cùng nắm sợi dây và kéo về phía mình.|2
+RỒNG RẮN LÊN MÂY|Trò chơi dân gian cả hàng người nối nhau, thầy thuốc đuổi bắt đuôi.|3
+# Màu sắc, hình học
+> Đây là một màu sắc, hình hoặc con số.
+MÀU ĐỎ|Màu của lá cờ Tổ quốc và quả cà chua chín.|1
+MÀU XANH|Màu của bầu trời và lá cây.|1
+MÀU VÀNG|Màu của ngôi sao trên cờ và quả chuối chín.|1
+MÀU TÍM|Màu của quả nho chín và hoa cà.|1
+MÀU HỒNG|Màu của hoa đào, các bạn gái hay thích.|1
+HÌNH TRÒN|Không có góc, giống như mặt trời.|1
+HÌNH VUÔNG|Bốn cạnh bằng nhau, bốn góc vuông.|1
+HÌNH TAM GIÁC|Có ba cạnh và ba góc.|2
+HÌNH CHỮ NHẬT|Có bốn góc vuông, hai cạnh dài hai cạnh ngắn.|3
+HÌNH THOI|Bốn cạnh bằng nhau nhưng hai góc nhọn hai góc tù.|2
+PHÉP CỘNG|Gộp hai số lại để được tổng.|2
+PHÉP TRỪ|Bớt đi một số để tìm hiệu.|2
+# Lễ Tết, phong tục
+> Đây là một ngày lễ hoặc phong tục.
+LÌ XÌ|Phong bao đỏ có tiền, người lớn tặng em dịp Tết.|1
+PHÁO HOA|Nổ sáng rực nhiều màu trên bầu trời đêm giao thừa.|1
+MÂM NGŨ QUẢ|Năm loại quả bày trên bàn thờ ngày Tết.|3
+CÁ CHÉP|Ngày 23 tháng Chạp, ông Táo cưỡi con này về trời.|2
+ĐÈN ÔNG SAO|Đèn hình ngôi sao, em cầm đi chơi đêm Trung thu.|3
+QUỐC KHÁNH|Ngày 2 tháng 9, cả nước mừng ngày độc lập.|2
+SINH NHẬT|Ngày em ra đời, có bánh kem và nến.|1
+BÁNH KẸO|Ngày Tết, nhà nào cũng bày để đón khách.|1
+ÁO MỚI|Ngày Tết em được mặc bộ này thật đẹp.|1
+VỀ QUÊ|Ngày Tết cả nhà thường cùng làm điều này để thăm ông bà.|1
+GIAO THỪA|Khoảnh khắc chuyển từ năm cũ sang năm mới.|2
+TẾT TRUNG THU|Đêm trăng rằm tháng Tám, em rước đèn và phá cỗ.|3
+# Lịch sử Việt Nam
+> Đây là một nhân vật hoặc sự kiện trong lịch sử Việt Nam.
+VUA HÙNG|Các vị vua nào dựng nước Văn Lang, có ngày giỗ tổ mùng mười tháng ba âm lịch?|1|HÙNG VƯƠNG
+AN DƯƠNG VƯƠNG|Vị vua nào xây thành Cổ Loa?|2|THỤC PHÁN
+LÝ BÍ|Vị vua nào lập ra nước Vạn Xuân năm 544?|3|LÝ NAM ĐẾ
+ĐINH BỘ LĨNH|Vị vua nào dẹp loạn mười hai sứ quân, lên ngôi hoàng đế năm 968?|2|ĐINH TIÊN HOÀNG
+LÝ CÔNG UẨN|Vị vua nào dời đô từ Hoa Lư ra thành Đại La năm 1010?|2|LÝ THÁI TỔ
+LÝ THÁNH TÔNG|Vị vua nhà Lý nào đặt quốc hiệu Đại Việt năm 1054?|3
+TRẦN NHÂN TÔNG|Vị vua nhà Trần nào chống Nguyên Mông, sau đi tu và lập ra Thiền phái Trúc Lâm?|3
+HỒ QUÝ LY|Ai là người lập ra nhà Hồ năm 1400, đổi tên nước là Đại Ngu?|3
+LÊ LỢI|Vị vua nào lãnh đạo khởi nghĩa Lam Sơn, đánh đuổi quân Minh, lập ra nhà Hậu Lê?|1|LÊ THÁI TỔ
+LÊ THÁNH TÔNG|Vị vua nhà Lê nào cho soạn bộ luật Hồng Đức?|3
+NGUYỄN HUỆ|Vị anh hùng áo vải nào đại phá quân Thanh vào mùa xuân năm 1789?|1|QUANG TRUNG, VUA QUANG TRUNG
+GIA LONG|Vị vua đầu tiên của nhà Nguyễn, lên ngôi năm 1802, có niên hiệu là gì?|2
+MINH MẠNG|Vị vua thứ hai nhà Nguyễn nào đổi quốc hiệu thành Đại Nam?|3|MINH MỆNH
+HÀM NGHI|Vị vua nhỏ tuổi nhà Nguyễn nào ra chiếu Cần Vương năm 1885, kêu gọi chống Pháp?|3|VUA HÀM NGHI
+HAI BÀ TRƯNG|Hai chị em nào khởi nghĩa đánh đuổi quân Đông Hán năm 40?|1|TRƯNG TRẮC, TRƯNG NHỊ
+BÀ TRIỆU|Người phụ nữ nào khởi nghĩa chống quân Ngô năm 248, nói muốn cưỡi cơn gió mạnh, đạp luồng sóng dữ?|2|TRIỆU THỊ TRINH
+BÙI THỊ XUÂN|Nữ tướng nào của nhà Tây Sơn nổi tiếng chỉ huy đội voi chiến?|3
+LÝ THƯỜNG KIỆT|Vị tướng nhà Lý nào chặn đánh quân Tống trên sông Như Nguyệt năm 1077?|2
+TRẦN HƯNG ĐẠO|Vị tướng nhà Trần nào chỉ huy đánh thắng quân Nguyên Mông năm 1285 và 1288?|1|TRẦN QUỐC TUẤN, HƯNG ĐẠO VƯƠNG
+TRẦN BÌNH TRỌNG|Vị tướng nhà Trần nào nói: ta thà làm quỷ nước Nam chứ không thèm làm vương đất Bắc?|2
+TRẦN QUỐC TOẢN|Thiếu niên nhà Trần nào bóp nát quả cam vì không được bàn việc nước?|2
+YẾT KIÊU|Vị tướng nhà Trần nào bơi lặn rất giỏi, lặn xuống đục thuyền giặc?|3
+PHẠM NGŨ LÃO|Theo sử kể, vị tướng nào ngồi đan sọt bên đường mải nghĩ việc nước, bị giáo đâm vào đùi vẫn không hay?|3
+LÊ LAI|Vị tướng nào mặc áo giả làm Lê Lợi, hi sinh để cứu chủ tướng?|2
+NGÔ QUYỀN|Ai là người đánh tan quân Nam Hán trên sông Bạch Đằng năm 938?|1
+TRIỆU QUANG PHỤC|Ai là người lãnh đạo đánh giặc từ đầm lầy, được gọi là Dạ Trạch Vương?|3
+MAI THÚC LOAN|Ai là thủ lĩnh khởi nghĩa ở Hoan Châu chống nhà Đường, được gọi là Hắc Đế?|3
+PHÙNG HƯNG|Ai là người khởi nghĩa chống nhà Đường, được dân tôn là Bố Cái Đại Vương?|3
+KHÚC THỪA DỤ|Ai là người giành quyền tự chủ cho nước ta năm 905?|3
+TRƯƠNG ĐỊNH|Ai là lãnh tụ nghĩa quân chống Pháp ở Gò Công, được dân tôn là Bình Tây đại nguyên soái?|3
+PHAN ĐÌNH PHÙNG|Ai là lãnh tụ khởi nghĩa Hương Khê, hưởng ứng phong trào Cần Vương?|3
+HOÀNG HOA THÁM|Ai là thủ lĩnh khởi nghĩa Yên Thế, được gọi là Hùm xám Yên Thế?|2|ĐỀ THÁM
+KIM ĐỒNG|Ai là đội trưởng đầu tiên của đội nhi đồng cứu quốc ở làng Nà Mạ, Cao Bằng, hi sinh năm 1943?|1|NÔNG VĂN DỀN
+TRẦN THỦ ĐỘ|Vị thái sư nhà Trần nào nói: đầu thần chưa rơi xuống đất, xin bệ hạ đừng lo?|3
+TÔN THẤT THUYẾT|Vị quan phụ chính nào đưa vua Hàm Nghi rời kinh thành Huế năm 1885 để chống Pháp?|3
+HOÀNG DIỆU|Vị tổng đốc Hà Nội nào tuẫn tiết khi thành Hà Nội rơi vào tay Pháp năm 1882?|3
+PHAN BỘI CHÂU|Ai là người khởi xướng phong trào Đông Du, đưa thanh niên Việt Nam sang Nhật Bản học tập?|3
+PHAN CHÂU TRINH|Nhà yêu nước nào chủ trương khai dân trí, chấn dân khí, hậu dân sinh?|3
+NGUYỄN TẤT THÀNH|Bác Hồ mang tên gì khi ra đi tìm đường cứu nước từ bến Nhà Rồng năm 1911?|2
+NGUYỄN TRÃI|Ai là người viết Bình Ngô đại cáo, mưu sĩ giúp Lê Lợi đánh quân Minh?|1
+CHU VĂN AN|Người thầy nổi tiếng nào thời Trần dâng sớ xin chém bảy tên nịnh thần?|2
+TUỆ TĨNH|Vị danh y nào thời Trần có câu: thuốc Nam chữa bệnh cho người Nam?|3
+MẠC ĐĨNH CHI|Vị trạng nguyên nào thời Trần người nhỏ bé mà tài giỏi, viết bài phú Ngọc tỉnh liên?|3
+LÊ QUÝ ĐÔN|Nhà bác học lớn nào thời Lê là tác giả sách Vân đài loại ngữ?|3
+LÊ HỮU TRÁC|Vị danh y nổi tiếng nào thời Lê có hiệu là Hải Thượng Lãn Ông?|3
+NGUYỄN DU|Đại thi hào nào là tác giả Truyện Kiều?|1
+HỒ XUÂN HƯƠNG|Nữ sĩ nào được mệnh danh là Bà chúa thơ Nôm?|2
+BẠCH ĐẰNG|Con sông nào có trận cắm cọc gỗ dưới lòng sông, nơi Ngô Quyền đánh thắng năm 938?|2|SÔNG BẠCH ĐẰNG
+SÔNG NHƯ NGUYỆT|Dòng sông nào là nơi Lý Thường Kiệt chặn quân Tống năm 1077, nay gọi là sông Cầu?|3|NHƯ NGUYỆT
+THĂNG LONG|Kinh đô nào được đặt tên năm 1010, nghĩa là rồng bay lên?|1
+HUẾ|Kinh đô của nhà Nguyễn ở đâu?|1|PHÚ XUÂN
+CỔ LOA|Tòa thành nào có các vòng thành xoắn ốc nổi tiếng ở Đông Anh, Hà Nội?|2|THÀNH CỔ LOA
+THÀNH NHÀ HỒ|Tòa thành nào xây bằng đá lớn ở Thanh Hóa, là di sản thế giới?|2
+YÊN TỬ|Ngọn núi nào là nơi vua Trần Nhân Tông tu hành?|2|NÚI YÊN TỬ
+CHI LĂNG|Ải nào là nơi nghĩa quân Lam Sơn chém tướng giặc Liễu Thăng năm 1427?|3|ẢI CHI LĂNG
+HỒ GƯƠM|Hồ nào ở Hà Nội gắn với truyền thuyết vua Lê Lợi trả gươm thần cho Rùa Vàng?|1|HỒ HOÀN KIẾM, HOÀN KIẾM
+ĐỐNG ĐA|Gò đất nào ở Hà Nội ghi dấu chiến thắng quân Thanh năm 1789?|2|GÒ ĐỐNG ĐA
+RẠCH GẦM|Trận đánh nào năm 1785 trên sông Tiền, Nguyễn Huệ đánh tan quân Xiêm, cùng với Xoài Mút?|3|RẠCH GẦM XOÀI MÚT
+VĂN MIẾU|Nơi nào ở Thăng Long thờ Khổng Tử, xây năm 1070 thời vua Lý Thánh Tông?|2
+QUỐC TỬ GIÁM|Nơi nào được xem là trường đại học đầu tiên của nước ta, lập năm 1076?|2
+HOÀNG THÀNH|Khu di tích nào của Thăng Long ở Hà Nội được công nhận là di sản văn hóa thế giới?|2|HOÀNG THÀNH THĂNG LONG
+CHÙA MỘT CỘT|Ngôi chùa nào ở Hà Nội dựng năm 1049 thời nhà Lý, hình bông sen nở trên một cột đá?|2|CHÙA DIÊN HỰU
+NGỌ MÔN|Cổng chính phía nam của Hoàng thành Huế tên là gì?|3|CỬA NGỌ MÔN
+HỘI AN|Phố cổ nào có Chùa Cầu, từng là thương cảng sầm uất có nhiều thương nhân Nhật Bản và người Hoa?|2|PHỐ CỔ HỘI AN
+BẾN NHÀ RỒNG|Bác Hồ ra đi tìm đường cứu nước năm 1911 từ bến nào?|2|NHÀ RỒNG
+PÁC BÓ|Nơi nào ở Cao Bằng Bác Hồ sống và làm việc khi về nước năm 1941?|2|HANG PÁC BÓ
+SUỐI LÊ NIN|Con suối nào ở Pác Bó được Bác Hồ đặt theo tên một lãnh tụ nước ngoài?|3
+BA ĐÌNH|Bác Hồ đọc Tuyên ngôn Độc lập ngày 2 tháng 9 năm 1945 ở quảng trường nào?|1|QUẢNG TRƯỜNG BA ĐÌNH
+VĂN LANG|Nhà nước đầu tiên của người Việt, do các vua Hùng đứng đầu, tên là gì?|1
+ÂU LẠC|Nhà nước nào do An Dương Vương lập ra sau nước Văn Lang?|2
+VẠN XUÂN|Lý Bí đặt tên nước là gì năm 544, mong đất nước muôn mùa xuân?|3
+ĐẠI CỒ VIỆT|Thời nhà Đinh, nước ta mang tên gì?|3
+ĐẠI VIỆT|Năm 1054 thời nhà Lý, nước ta đổi quốc hiệu thành gì?|2
+VIỆT NAM|Năm 1804, vua Gia Long đặt quốc hiệu nước ta là gì?|2
+CHIẾU DỜI ĐÔ|Lý Công Uẩn ban ra bài chiếu nào năm 1010 khi chuyển kinh đô?|3|THIÊN ĐÔ CHIẾU
+NAM QUỐC SƠN HÀ|Bài thơ nào thời Lý được xem là bản tuyên ngôn độc lập đầu tiên của nước ta?|3
+HỊCH TƯỚNG SĨ|Trần Hưng Đạo viết bài hịch nào để khích lệ tướng sĩ đánh giặc Nguyên Mông?|3
+BÌNH NGÔ ĐẠI CÁO|Áng văn nào được xem là bản tuyên ngôn độc lập thứ hai, viết sau khi thắng quân Minh?|2
+LUẬT HỒNG ĐỨC|Bộ luật nổi tiếng nào ra đời thời vua Lê Thánh Tông?|3|QUỐC TRIỀU HÌNH LUẬT
+NHÀ LÝ|Lý Công Uẩn lập ra triều đại nào năm 1009?|2|TRIỀU LÝ
+NHÀ TRẦN|Triều đại nào ba lần đánh thắng quân Nguyên Mông?|1|TRIỀU TRẦN
+NHÀ NGUYỄN|Triều đại phong kiến cuối cùng của nước ta là triều đại nào?|1|TRIỀU NGUYỄN
+TÂY SƠN|Phong trào nào do ba anh em Nguyễn Nhạc, Nguyễn Huệ, Nguyễn Lữ lãnh đạo?|2|NHÀ TÂY SƠN
+LAM SƠN|Cuộc khởi nghĩa do Lê Lợi lãnh đạo, bắt đầu năm 1418, tên là gì?|2|KHỞI NGHĨA LAM SƠN
+DIÊN HỒNG|Hội nghị các bô lão nào thời Trần, cả hội nghị đồng thanh hô "Đánh"?|2|HỘI NGHỊ DIÊN HỒNG
+SÁT THÁT|Quân sĩ nhà Trần thích hai chữ gì lên cánh tay, thề đánh giặc Nguyên Mông?|3
+CẦN VƯƠNG|Phong trào giúp vua chống Pháp, hưởng ứng chiếu của vua Hàm Nghi năm 1885, tên là gì?|3
+ĐÔNG DU|Phong trào nào đưa thanh niên Việt Nam sang Nhật Bản học đầu thế kỷ hai mươi?|3|PHONG TRÀO ĐÔNG DU
+TRỐNG ĐỒNG|Hiện vật nổi tiếng nào của văn hóa Đông Sơn, mặt có hình ngôi sao và chim lạc?|1
+ĐÔNG SƠN|Nền văn hóa thời đồ đồng nào nổi tiếng với trống đồng, đặt theo tên một làng ở Thanh Hóa?|3|VĂN HÓA ĐÔNG SƠN
+CỬU ĐỈNH|Chín cái vạc đồng lớn đặt trước Thế Miếu trong Hoàng thành Huế gọi là gì?|3
+TRẠNG NGUYÊN|Người đỗ đầu kỳ thi Đình thời phong kiến được gọi là gì?|2
+CHỮ NÔM|Người Việt xưa tạo ra chữ gì dựa trên chữ Hán để ghi tiếng Việt?|2
+CHỮ QUỐC NGỮ|Chữ viết bằng chữ cái La-tinh mà chúng ta dùng hằng ngày gọi là gì?|2|QUỐC NGỮ
+# Tiếng Anh
+> Đây là một từ tiếng Anh.
+CAT|Con mèo tiếng Anh là gì?|1|KITTY, KITTEN
+DOG|Con chó tiếng Anh là gì?|1|PUPPY
+FISH|Con cá tiếng Anh là gì?|1
+BIRD|Con chim tiếng Anh là gì?|1
+PIG|Con heo tiếng Anh là gì?|1
+COW|Con bò tiếng Anh là gì?|1
+DUCK|Con vịt tiếng Anh là gì?|1
+CHICKEN|Con gà tiếng Anh là gì?|1|HEN, ROOSTER
+HORSE|Con ngựa tiếng Anh là gì?|1
+RABBIT|Con thỏ tiếng Anh là gì?|1|BUNNY
+MOUSE|Con chuột tiếng Anh là gì?|1|RAT
+TIGER|Con hổ tiếng Anh là gì?|1
+LION|Con sư tử tiếng Anh là gì?|1
+MONKEY|Con khỉ tiếng Anh là gì?|1
+ELEPHANT|Con voi tiếng Anh là gì?|2
+BEAR|Con gấu tiếng Anh là gì?|1
+FROG|Con ếch tiếng Anh là gì?|1
+SNAKE|Con rắn tiếng Anh là gì?|2
+BEE|Con ong tiếng Anh là gì?|1
+ANT|Con kiến tiếng Anh là gì?|1
+BUTTERFLY|Con bươm bướm tiếng Anh là gì?|2
+TURTLE|Con rùa tiếng Anh là gì?|2|TORTOISE
+GIRAFFE|Con hươu cao cổ tiếng Anh là gì?|3
+PENGUIN|Con chim cánh cụt tiếng Anh là gì?|2
+DOLPHIN|Con cá heo tiếng Anh là gì?|3
+SHARK|Con cá mập tiếng Anh là gì?|2
+CRAB|Con cua tiếng Anh là gì?|2
+SHEEP|Con cừu tiếng Anh là gì?|2|LAMB
+GOAT|Con dê tiếng Anh là gì?|2
+ZEBRA|Con ngựa vằn tiếng Anh là gì?|2
+KANGAROO|Con chuột túi tiếng Anh là gì?|3
+OWL|Con cú mèo tiếng Anh là gì?|2
+SPIDER|Con nhện tiếng Anh là gì?|2
+RED|Màu đỏ tiếng Anh là gì?|1
+BLUE|Màu xanh dương tiếng Anh là gì?|1
+GREEN|Màu xanh lá cây tiếng Anh là gì?|1
+YELLOW|Màu vàng tiếng Anh là gì?|1
+BLACK|Màu đen tiếng Anh là gì?|1
+WHITE|Màu trắng tiếng Anh là gì?|1
+PINK|Màu hồng tiếng Anh là gì?|1
+ORANGE|Màu cam tiếng Anh là gì?|2
+PURPLE|Màu tím tiếng Anh là gì?|2|VIOLET
+BROWN|Màu nâu tiếng Anh là gì?|2
+GRAY|Màu xám tiếng Anh là gì?|2|GREY
+ONE|Số một tiếng Anh là gì?|1
+TWO|Số hai tiếng Anh là gì?|1
+THREE|Số ba tiếng Anh là gì?|1
+FOUR|Số bốn tiếng Anh là gì?|1
+FIVE|Số năm tiếng Anh là gì?|1
+SIX|Số sáu tiếng Anh là gì?|1
+SEVEN|Số bảy tiếng Anh là gì?|1
+EIGHT|Số tám tiếng Anh là gì?|1
+NINE|Số chín tiếng Anh là gì?|1
+TEN|Số mười tiếng Anh là gì?|1
+TWENTY|Số hai mươi tiếng Anh là gì?|2
+ONE HUNDRED|Số một trăm tiếng Anh là gì?|3|HUNDRED, A HUNDRED
+APPLE|Quả táo tiếng Anh là gì?|1
+BANANA|Quả chuối tiếng Anh là gì?|1
+MANGO|Quả xoài tiếng Anh là gì?|2
+GRAPE|Quả nho tiếng Anh là gì?|2|GRAPES
+WATERMELON|Quả dưa hấu tiếng Anh là gì?|3
+LEMON|Quả chanh tiếng Anh là gì?|2|LIME
+MILK|Sữa tiếng Anh là gì?|1
+WATER|Nước uống tiếng Anh là gì?|1
+RICE|Cơm, gạo tiếng Anh là gì?|1
+BREAD|Bánh mì tiếng Anh là gì?|1
+EGG|Quả trứng tiếng Anh là gì?|1
+CAKE|Bánh ngọt, bánh kem tiếng Anh là gì?|2
+CANDY|Viên kẹo tiếng Anh là gì?|1|SWEET, SWEETS
+ICE CREAM|Que kem tiếng Anh là gì?|2
+NOODLES|Món mì sợi tiếng Anh là gì?|2|NOODLE
+JUICE|Nước ép trái cây tiếng Anh là gì?|2
+TEA|Trà tiếng Anh là gì?|2
+MOTHER|Mẹ tiếng Anh là gì?|1|MOM, MUM, MOMMY, MUMMY
+FATHER|Bố tiếng Anh là gì?|1|DAD, DADDY
+SISTER|Chị gái, em gái tiếng Anh là gì?|1
+BROTHER|Anh trai, em trai tiếng Anh là gì?|1
+BABY|Em bé tiếng Anh là gì?|1
+GRANDMOTHER|Bà tiếng Anh là gì?|2|GRANDMA, GRANNY
+GRANDFATHER|Ông tiếng Anh là gì?|2|GRANDPA
+FAMILY|Gia đình tiếng Anh là gì?|2
+FRIEND|Người bạn tiếng Anh là gì?|2
+TEACHER|Cô giáo, thầy giáo tiếng Anh là gì?|1
+STUDENT|Học sinh tiếng Anh là gì?|2|PUPIL
+HEAD|Cái đầu tiếng Anh là gì?|1
+EYE|Con mắt tiếng Anh là gì?|1|EYES
+EAR|Cái tai tiếng Anh là gì?|1|EARS
+NOSE|Cái mũi tiếng Anh là gì?|1
+MOUTH|Cái miệng tiếng Anh là gì?|1
+HAND|Bàn tay tiếng Anh là gì?|1|HANDS
+FOOT|Bàn chân tiếng Anh là gì?|2|FEET
+HAIR|Mái tóc tiếng Anh là gì?|1
+TOOTH|Cái răng tiếng Anh là gì?|2|TEETH
+ARM|Cánh tay tiếng Anh là gì?|2
+FINGER|Ngón tay tiếng Anh là gì?|2
+FACE|Khuôn mặt tiếng Anh là gì?|2
+BOOK|Quyển sách tiếng Anh là gì?|1
+PEN|Cây bút bi tiếng Anh là gì?|1
+PENCIL|Bút chì tiếng Anh là gì?|1
+RULER|Cây thước kẻ tiếng Anh là gì?|2
+ERASER|Cục tẩy tiếng Anh là gì?|2|RUBBER
+SCHOOLBAG|Cặp sách tiếng Anh là gì?|2|BAG, BACKPACK
+DESK|Bàn học tiếng Anh là gì?|2
+CHAIR|Cái ghế tiếng Anh là gì?|1
+SCHOOL|Trường học tiếng Anh là gì?|1
+CLASSROOM|Lớp học tiếng Anh là gì?|2|CLASS
+BOARD|Cái bảng trên lớp tiếng Anh là gì?|2|BLACKBOARD
+NOTEBOOK|Quyển vở tiếng Anh là gì?|2
+HOUSE|Ngôi nhà tiếng Anh là gì?|1|HOME
+DOOR|Cửa ra vào tiếng Anh là gì?|1
+WINDOW|Cửa sổ tiếng Anh là gì?|1
+BED|Cái giường tiếng Anh là gì?|1
+TABLE|Cái bàn ăn tiếng Anh là gì?|1
+LAMP|Cái đèn bàn tiếng Anh là gì?|2|LIGHT
+CLOCK|Đồng hồ treo tường tiếng Anh là gì?|2
+PHONE|Điện thoại tiếng Anh là gì?|1|TELEPHONE, MOBILE
+TELEVISION|Cái ti vi tiếng Anh là gì?|2|TV
+BALL|Quả bóng tiếng Anh là gì?|1
+DOLL|Búp bê tiếng Anh là gì?|2
+KITE|Con diều tiếng Anh là gì?|2
+CAR|Xe ô tô tiếng Anh là gì?|1
+BUS|Xe buýt tiếng Anh là gì?|1
+BIKE|Xe đạp tiếng Anh là gì?|1|BICYCLE
+TRAIN|Tàu hỏa tiếng Anh là gì?|2
+PLANE|Máy bay tiếng Anh là gì?|1|AIRPLANE, AEROPLANE
+BOAT|Con thuyền tiếng Anh là gì?|1|SHIP
+SUN|Mặt trời tiếng Anh là gì?|1
+MOON|Mặt trăng tiếng Anh là gì?|1
+STAR|Ngôi sao tiếng Anh là gì?|1
+SKY|Bầu trời tiếng Anh là gì?|1
+RAIN|Cơn mưa tiếng Anh là gì?|1
+TREE|Cái cây tiếng Anh là gì?|1
+FLOWER|Bông hoa tiếng Anh là gì?|1
+SEA|Biển tiếng Anh là gì?|1|OCEAN
+RIVER|Dòng sông tiếng Anh là gì?|2
+MOUNTAIN|Ngọn núi tiếng Anh là gì?|2
+CLOUD|Đám mây tiếng Anh là gì?|2
+SNOW|Tuyết tiếng Anh là gì?|2
+WIND|Cơn gió tiếng Anh là gì?|2
+RAINBOW|Cầu vồng tiếng Anh là gì?|3
+HELLO|Xin chào tiếng Anh là gì?|1|HI
+THANK YOU|Cảm ơn tiếng Anh là gì?|1|THANKS
+SORRY|Xin lỗi tiếng Anh là gì?|1
+GOODBYE|Tạm biệt tiếng Anh là gì?|1|BYE, BYE BYE
+YES|Vâng, có tiếng Anh là gì?|1
+NO|Không tiếng Anh là gì?|1
+LOVE|Yêu thương tiếng Anh là gì?|1
+HAPPY|Vui vẻ tiếng Anh là gì?|2
+SAD|Buồn tiếng Anh là gì?|2
+BIG|To, lớn tiếng Anh là gì?|1|LARGE
+SMALL|Nhỏ, bé tiếng Anh là gì?|1|LITTLE
+HOT|Nóng tiếng Anh là gì?|1
+COLD|Lạnh tiếng Anh là gì?|1
+BEAUTIFUL|Xinh đẹp tiếng Anh là gì?|3|PRETTY
+RUN|Chạy tiếng Anh là gì?|1
+JUMP|Nhảy lên cao tiếng Anh là gì?|1
+SWIM|Bơi tiếng Anh là gì?|1
+EAT|Ăn tiếng Anh là gì?|1
+DRINK|Uống tiếng Anh là gì?|1
+SLEEP|Ngủ tiếng Anh là gì?|1
+READ|Đọc tiếng Anh là gì?|1
+WRITE|Viết tiếng Anh là gì?|1
+SING|Hát tiếng Anh là gì?|1
+DANCE|Nhảy múa tiếng Anh là gì?|2
+PLAY|Chơi tiếng Anh là gì?|1
+CRY|Khóc tiếng Anh là gì?|2
+SMILE|Mỉm cười tiếng Anh là gì?|2
+WALK|Đi bộ tiếng Anh là gì?|2
+FLY|Bay tiếng Anh là gì?|2
+COOK|Nấu ăn tiếng Anh là gì?|2
+MONDAY|Thứ hai tiếng Anh là gì?|3
+SUNDAY|Chủ nhật tiếng Anh là gì?|3
+MORNING|Buổi sáng tiếng Anh là gì?|2
+NIGHT|Ban đêm tiếng Anh là gì?|2
+TODAY|Hôm nay tiếng Anh là gì?|3
+BIRTHDAY|Sinh nhật tiếng Anh là gì?|2
+# Tiếng kêu
+> Đây là con vật có tiếng kêu như vậy.
+CON GÀ TRỐNG|Ò ó o, sáng nào cũng gáy.|1|GÀ TRỐNG, CON GÀ, GÀ
+CON MÈO|Meo meo meo, thích bắt chuột.|1|MÈO
+CON CHÓ|Gâu gâu gâu, giữ nhà cho chủ.|1|CHÓ, CON CÚN, CÚN
+CON VỊT|Cạp cạp cạp, bơi dưới ao.|1|VỊT
+CON HEO|Ụt ịt ụt ịt, ăn no lại ngủ.|1|HEO, CON LỢN, LỢN
+CON BÒ|Kêu ọ ọ, cho sữa tươi.|1|BÒ
+CON DÊ|Be be be, có chòm râu dưới cằm.|1|DÊ
+CON ẾCH|Ộp ộp ộp, ngồi bên bờ ao.|1|ẾCH, CON NHÁI, NHÁI
+CON CHUỘT|Chít chít chít, sợ mèo lắm.|1|CHUỘT
+CON GÀ CON|Chíp chíp chíp, lon ton theo mẹ.|1|GÀ CON
+CON CHIM|Líu lo líu lo trên cành cây.|1|CHIM
+CON ONG|Vo ve quanh bông hoa, làm ra mật.|1|ONG
+CON MUỖI|Vo ve bên tai lúc đi ngủ, hay chích người.|1|MUỖI
+CON NGỰA|Hí hí, phi nước đại.|2|NGỰA
+CON HỔ|Gầm gừ, là chúa sơn lâm.|2|HỔ, CON CỌP, CỌP
+CON SƯ TỬ|Gầm vang cả khu rừng, con đực có bờm.|2|SƯ TỬ
+CON VOI|Rống vang, có cái vòi dài.|2|VOI
+CON KHỈ|Khọt khẹt, chuyền cành thoăn thoắt.|2|KHỈ
+CON CHIM SẺ|Chích chích, nhỏ xíu hay đậu mái nhà.|2|CHIM SẺ, SẺ
+CON VE SẦU|Kêu ra rả suốt mùa hè.|2|VE SẦU, CON VE, VE
+CON SÓI|Hú thật dài dưới ánh trăng.|2|SÓI, CHÓ SÓI
+ĐỒNG HỒ|Tích tắc tích tắc, chạy cả ngày.|1|CÁI ĐỒNG HỒ
+CÁI TRỐNG|Tùng tùng tùng, báo giờ vào lớp.|1|TRỐNG, TRỐNG TRƯỜNG
+CÁI CHUÔNG|Reng reng reng, có khách tới nhà.|1|CHUÔNG, CHUÔNG CỬA
+TÀU HỎA|Xình xịch xình xịch trên đường ray.|1|TÀU LỬA, XE LỬA
+CÁI CÒI|Tuýt tuýt, chú cảnh sát giao thông thổi.|2|CÒI
+XE CỨU THƯƠNG|Tò te tò te chạy thật nhanh tới bệnh viện.|2|XE CẤP CỨU
+SẤM|Ầm ầm vang trên trời lúc sắp mưa to.|2|TIẾNG SẤM, SẤM SÉT
+MƯA|Lộp độp trên mái tôn.|1|CƠN MƯA, TIẾNG MƯA
+GIÓ|Vi vu thổi qua rặng tre.|2|CƠN GIÓ, TIẾNG GIÓ
+SÓNG BIỂN|Rì rào vỗ vào bờ cát.|2|SÓNG, TIẾNG SÓNG
+# Từ trái nghĩa
+> Đây là từ trái nghĩa.
+LẠNH|Ngược nghĩa với từ: nóng.|1
+NÓNG|Ngược nghĩa với từ: lạnh.|1
+NHỎ|Ngược nghĩa với từ: to.|1|BÉ
+TO|Ngược nghĩa với từ: nhỏ.|1|LỚN
+THẤP|Ngược nghĩa với từ: cao.|1
+CAO|Ngược nghĩa với từ: thấp.|1
+NGẮN|Ngược nghĩa với từ: dài.|1
+DÀI|Ngược nghĩa với từ: ngắn.|1
+GẦY|Ngược nghĩa với từ: béo.|1|ỐM
+BÉO|Ngược nghĩa với từ: gầy.|1|MẬP
+CHẬM|Ngược nghĩa với từ: nhanh.|1
+NHANH|Ngược nghĩa với từ: chậm.|1
+BUỒN|Ngược nghĩa với từ: vui.|1
+VUI|Ngược nghĩa với từ: buồn.|1
+ĐÊM|Ngược nghĩa với từ: ngày.|1
+NGÀY|Ngược nghĩa với từ: đêm.|1
+TỐI|Ngược nghĩa với từ: sáng.|1
+SÁNG|Ngược nghĩa với từ: tối.|1
+DƯỚI|Ngược nghĩa với từ: trên.|1
+TRÊN|Ngược nghĩa với từ: dưới.|1
+SAU|Ngược nghĩa với từ: trước.|1
+TRƯỚC|Ngược nghĩa với từ: sau.|1
+NGOÀI|Ngược nghĩa với từ: trong.|1
+TRONG|Ngược nghĩa với từ: ngoài.|1
+ĐÓNG|Ngược nghĩa với từ: mở.|1
+MỞ|Ngược nghĩa với từ: đóng.|1
+XUỐNG|Ngược nghĩa với từ: lên.|1
+LÊN|Ngược nghĩa với từ: xuống.|1
+RA|Ngược nghĩa với từ: vào.|1
+VÀO|Ngược nghĩa với từ: ra.|1
+CƯỜI|Ngược nghĩa với từ: khóc.|1
+KHÓC|Ngược nghĩa với từ: cười.|1
+THỨC|Ngược nghĩa với từ: ngủ.|1
+CŨ|Ngược nghĩa với từ: mới.|1
+MỚI|Ngược nghĩa với từ: cũ.|1
+BẨN|Ngược nghĩa với từ: sạch.|1|DƠ
+SẠCH|Ngược nghĩa với từ: bẩn.|1
+NHẸ|Ngược nghĩa với từ: nặng.|1
+NẶNG|Ngược nghĩa với từ: nhẹ.|1
+MỀM|Ngược nghĩa với từ: cứng.|1
+CỨNG|Ngược nghĩa với từ: mềm.|1
+YẾU|Ngược nghĩa với từ: khỏe.|1
+NGHÈO|Ngược nghĩa với từ: giàu.|2
+SAI|Ngược nghĩa với từ: đúng.|1
+ĐÚNG|Ngược nghĩa với từ: sai.|1
+THUA|Ngược nghĩa với từ: thắng.|1
+THẮNG|Ngược nghĩa với từ: thua.|1
+GIÀ|Ngược nghĩa với từ: trẻ.|1
+TRẺ|Ngược nghĩa với từ: già.|1
+GẦN|Ngược nghĩa với từ: xa.|1
+XA|Ngược nghĩa với từ: gần.|1
+HẸP|Ngược nghĩa với từ: rộng.|2
+RỘNG|Ngược nghĩa với từ: hẹp.|2
+MỎNG|Ngược nghĩa với từ: dày.|2
+DÀY|Ngược nghĩa với từ: mỏng.|2
+MUỘN|Ngược nghĩa với từ: sớm.|2|TRỄ
+SỚM|Ngược nghĩa với từ: muộn.|2
+NHIỀU|Ngược nghĩa với từ: ít.|1
+XẤU|Ngược nghĩa với từ: đẹp.|1
+ĐẸP|Ngược nghĩa với từ: xấu.|1
+ƯỚT|Ngược nghĩa với từ: khô.|1
+KHÔ|Ngược nghĩa với từ: ướt.|1
+NÔNG|Ngược nghĩa với từ: sâu.|2|CẠN
+SÂU|Ngược nghĩa với từ: nông.|2
+YÊN TĨNH|Ngược nghĩa với từ: ồn ào.|3|IM LẶNG, YÊN LẶNG
+LƯỜI BIẾNG|Ngược nghĩa với từ: chăm chỉ.|3|LƯỜI, LƯỜI NHÁC
+CHĂM CHỈ|Ngược nghĩa với từ: lười biếng.|3|SIÊNG NĂNG, CHĂM
+DỮ|Ngược nghĩa với từ: hiền.|2|HUNG DỮ, DỮ TỢN
+HIỀN|Ngược nghĩa với từ: dữ.|2|HIỀN LÀNH
+ĐEN|Ngược nghĩa với từ: trắng.|1
+TRẮNG|Ngược nghĩa với từ: đen.|1
+BÁN|Ngược nghĩa với từ: mua.|1
+MUA|Ngược nghĩa với từ: bán.|1
+NHẬN|Ngược nghĩa với từ: cho.|2
+NGỒI|Ngược nghĩa với từ: đứng.|1
+ĐỨNG|Ngược nghĩa với từ: ngồi.|1
+ĐẨY|Ngược nghĩa với từ: kéo.|1
+KÉO|Ngược nghĩa với từ: đẩy.|1
+GIẢ|Ngược nghĩa với từ: thật.|2
+KẾT THÚC|Ngược nghĩa với từ: bắt đầu.|2
+BẮT ĐẦU|Ngược nghĩa với từ: kết thúc.|2
+TRÁI|Ngược nghĩa với từ: phải (bên phải).|1
+PHẢI|Ngược nghĩa với bên tay trái.|1
+CON GÁI|Ngược nghĩa với từ: con trai.|1|GÁI
+TRẢ LỜI|Ngược nghĩa với từ: hỏi.|2|ĐÁP

@@ -2541,7 +2541,7 @@ function renderWorldButtons(){
   $('#w-chess-rec').textContent=eloTxt(chessElo())+((r.w+r.l+r.d)?' · Thắng '+r.w+' · Thua '+r.l:'');
   $('#w-typing-rec').textContent='Đã xong '+done+'/'+FLAT.length+' bài';
 }
-function showHub(){stopAll();if(online)leaveRoomSilently();chessLeaveGame(true);qg=null;openWorld();}
+function showHub(){stopAll();if(online)leaveRoomSilently();chessLeaveGame(true);if(qg&&qg.tick)clearInterval(qg.tick);qg=null;openWorld();}
 function showChess(){stopAll();show('chess');if(!cg)renderChessLobby();else{$('#c-lobby').hidden=true;$('#c-game').hidden=false;chessRender();}}
 function renderChessLobby(){
   $('#c-lobby').hidden=false;$('#c-game').hidden=true;syncChatWrap();
@@ -3160,7 +3160,7 @@ KHUNGLONG|Loài vật khổng lồ đã tuyệt chủng
 SUTU|Vua rừng xanh, có bờm`);
 const xLevel=(w,lang)=>lang==='vi'?(w.length<=3?1:w.length<=5?2:3):(w.length<=4?1:w.length<=6?2:3);
 const Q_LANG={en:'Tiếng Anh',vi:'Tiếng Việt'},Q_LEVEL={1:'Dễ',2:'Vừa',3:'Khó'};
-let qprefs={game:'quiz',lang:'en',level:1},qg=null;
+let qprefs={game:'quiz',lang:'en',level:1,dau:false},qg=null;
 
 function qMath(l){
   const r=n=>1+Math.floor(Math.random()*n);let a,b,op,ans;
@@ -3188,17 +3188,20 @@ function renderQuizLobby(){
   $$('[data-qlang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.qlang===qprefs.lang)));
   $$('[data-qlevel]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.qlevel===qprefs.level)));
   const k=qKey(),best=(state.qbest||{})[k];
-  $('#q-best').textContent=best!=null?'Kỷ lục của em ở mục này: '+(qprefs.game==='quiz'?best+'/10 câu đúng':best+' sao')+'.':'Em chưa chơi mục này.';
+  $('#q-best').textContent=best!=null?'Kỷ lục của em ở mục này: '+(qprefs.game==='quiz'?best+'/10 câu đúng':qprefs.game==='lop'?best+' điểm':best+' sao')+'.':'Em chưa chơi mục này.';
+  $('#q-credit').hidden=qprefs.game!=='lop';$('#q-dau-row').hidden=!(qprefs.game==='lop'&&qprefs.lang==='vi');
+  $$('[data-qdau]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.qdau==='1')===qprefs.dau)));
   const nB=(qprefs.lang==='en'?QE:QV).filter(x=>x.l===qprefs.level).length,nX=(qprefs.lang==='en'?XE:XV).filter(x=>xLevel(x.w,qprefs.lang)===qprefs.level).length;
-  $('#q-bank').textContent=qprefs.game==='quiz'?'Mỗi lần chơi có 10 câu mới, lấy từ kho '+nB+' câu viết sẵn và nhiều câu tự tạo.':'Mỗi lần có một ô chữ mới ghép từ kho '+nX+' từ ở mức này.';
+  if(qprefs.game==='lop'){$('#q-bank').textContent='Mỗi lần có 10 câu: chữ cái bị xáo trộn trên bảng đen, em gõ đáp án trước khi hết giờ. Kho hơn 600 câu.';}
+  else $('#q-bank').textContent=qprefs.game==='quiz'?'Mỗi lần chơi có 10 câu mới, lấy từ kho '+nB+' câu viết sẵn và nhiều câu tự tạo.':'Mỗi lần có một ô chữ mới ghép từ kho '+nX+' từ ở mức này.';
 }
 const qKey=()=>qprefs.game+':'+qprefs.lang+':'+qprefs.level;
 function showQuiz(){stopAll();show('quiz');if(!qg)renderQuizLobby();}
 function quizEnd(stars,title,sub,score){
-  const g=qg;if(!g)return;g.over=true;
+  const g=qg;if(!g)return;g.over=true;clearInterval(g.tick);
   const k=qKey();state.qbest=Object.assign({},state.qbest);
   if(state.qbest[k]==null||score>state.qbest[k])state.qbest[k]=score;
-  record({unit:'quiz',step:(qprefs.game==='quiz'?'Đố vui ':'Ô chữ ')+Q_LANG[qprefs.lang]+' '+Q_LEVEL[qprefs.level].toLowerCase(),acc:g.acc!=null?g.acc:1,wpm:0,chars:0,errs:0,secs:Math.max(5,(performance.now()-g.t0)/1000)});
+  record({unit:'quiz',step:(qprefs.game==='quiz'?'Đố vui ':qprefs.game==='lop'?'Lớp học chữ ':'Ô chữ ')+Q_LANG[qprefs.lang]+' '+Q_LEVEL[qprefs.level].toLowerCase(),acc:g.acc!=null?g.acc:1,wpm:0,chars:0,errs:0,secs:Math.max(5,(performance.now()-g.t0)/1000)});
   if(stars>=2)cheer(stars);
   $('#q-game').hidden=true;$('#q-over').hidden=false;
   $('#q-stars').innerHTML=[1,2,3].map(n=>'<span class="'+(n<=stars?'':'off')+'">⭐</span>').join('');
@@ -3206,7 +3209,8 @@ function quizEnd(stars,title,sub,score){
 }
 function quizStart(){guardStart(()=>{
   stopAll();$('#q-lobby').hidden=true;$('#q-over').hidden=true;$('#q-game').hidden=false;
-  if(qprefs.game==='quiz')quizPlay();else crossPlay();
+  $('#dv-lop').hidden=true;
+  if(qprefs.game==='quiz')quizPlay();else if(qprefs.game==='cross')crossPlay();else lopPlay();
 });}
 /* ---- đố vui trắc nghiệm ---- */
 function quizPlay(){
@@ -3230,6 +3234,90 @@ function quizPlay(){
   g.onKey=e=>{const n=+e.key;if(n>=1&&n<=4){const b=$$('#dv-opts .dvopt')[n-1];if(b)pick(b);}};
   render();
 }
+
+/* ---- Lớp học chữ: chữ cái bị xáo trộn trên bảng đen, bé gõ đáp án (ý tưởng từ game Lớp Học Chữ, giấy phép MIT) ---- */
+let LOP=null;
+async function lopLoad(){
+  if(LOP)return LOP;
+  const txt=await (await fetch('/lop-hoc-chu.txt',{cache:'no-cache'})).text();
+  const topics=[];let cur=null;
+  for(const ln of txt.split('\n')){
+    if(ln.startsWith('//'))continue;
+    if(ln.startsWith('# ')){cur={name:ln.slice(2).trim(),noun:'',items:[]};cur.en=cur.name.startsWith('Tiếng Anh');topics.push(cur);}
+    else if(ln.startsWith('>')&&cur)cur.noun=ln.slice(1).trim();
+    else if(cur&&ln.includes('|')){const p=ln.split('|').map(x=>x.trim());if(p.length>=3&&p[0])cur.items.push({a:p[0],h:p[1],l:+p[2]||2,alt:(p[3]||'').split(',').map(x=>x.trim()).filter(Boolean),topic:cur.name,noun:cur.noun});}
+  }
+  LOP={topics};return LOP;
+}
+const LOP_TIME={1:60,2:45,3:30},LOP_SHOWHINT=['Lịch sử Việt Nam','Tiếng Anh','Tiếng kêu','Từ trái nghĩa'];
+async function lopPlay(){
+  let data;
+  try{data=await lopLoad();}catch(e){$('#q-game').hidden=true;$('#q-lobby').hidden=false;$('#q-bank').textContent='Chưa tải được câu hỏi. Em kiểm tra mạng rồi thử lại nhé.';return;}
+  const en=qprefs.lang==='en',dau=!en&&qprefs.dau,all=data.topics.filter(t=>t.en===en).flatMap(t=>t.items);
+  let pool=shuffle(all.filter(i=>i.l===qprefs.level));
+  if(pool.length<10)pool=pool.concat(shuffle(all.filter(i=>Math.abs(i.l-qprefs.level)===1)));
+  const g=qg={kind:'lop',qs:pool.slice(0,10),i:0,score:0,ok:0,streak:0,t0:performance.now(),over:false,locked:true,dau};
+  $('#dv-quiz').hidden=true;$('#dv-cross').hidden=true;$('#dv-lop').hidden=false;
+  const inp=$('#lop-in'),dur=LOP_TIME[qprefs.level]*1000;
+  inp.placeholder=dau?'Gõ có dấu (bật bộ gõ tiếng Việt)':'Gõ đáp án, không cần dấu';
+  const letters=s=>[...s.normalize('NFC').toUpperCase().replace(/\s+/g,'')].map(ch=>dau?ch:foldVn(ch).toUpperCase());
+  const norm=s=>{const u=s.normalize('NFC').toUpperCase().replace(/\s+/g,'');return dau?u:foldVn(u).toUpperCase();};
+  function hud(){$('#lop-q').textContent='Câu '+Math.min(g.i+1,g.qs.length)+'/'+g.qs.length;$('#lop-score').textContent=g.score+' điểm';$('#q-hud').textContent=g.ok+' câu đúng';}
+  function show(){
+    const q=g.qs[g.i];g.q=q;g.tries=0;g.hints=0;g.locked=false;g.tStart=performance.now();
+    g.accept=new Set([norm(q.a)].concat(q.alt.map(norm)));
+    const L=letters(q.a);let sh=shuffle(L),t=0;while(t++<12&&sh.join('')===L.join('')&&L.length>1)sh=shuffle(L);
+    g.first=L[0];g.tiles=sh;
+    const words=q.a.split(/\s+/).filter(Boolean);
+    $('#lop-tiles').innerHTML='';sh.forEach(ch=>{const d=document.createElement('span');d.className='ctile';d.textContent=ch;$('#lop-tiles').appendChild(d);});
+    const auto=LOP_SHOWHINT.includes(q.topic);
+    $('#lop-say').textContent='Câu '+(g.i+1)+'. '+q.noun+' '+(words.length>1?'Gồm '+words.length+' từ, '+L.length+' chữ cái.':'Gồm '+L.length+' chữ cái.')+(auto?' '+q.h:'');
+    $('#lop-sub').textContent=(auto?'':'Bấm 💡 Gợi ý nếu em cần cô giúp.')+(words.length>1?' Đáp án có '+words.length+' từ: '+words.map(w=>w.length).join(' + ')+' chữ cái.':'');
+    inp.value='';inp.classList.remove('bad');inp.disabled=false;$('#lop-fb').textContent='';inp.focus();hud();
+  }
+  function finish(good,reason){
+    if(g.locked||g.over)return;g.locked=true;inp.disabled=true;
+    const left=Math.max(0,dur-(performance.now()-g.tStart));let pts=0;
+    if(good){g.ok++;g.streak++;pts=Math.max(3,10+Math.round(10*left/dur)-3*g.hints)+(g.streak>=3?5:0);g.score+=pts;
+      beep(780,.08);setTimeout(()=>beep(1040,.1),90);$('#lop-fb').textContent='Đúng rồi! +'+pts+' điểm'+(g.streak>=3?' (đúng liên tiếp '+g.streak+' câu 🔥)':'');}
+    else{g.streak=0;beep(200,.15,'triangle',.06);$('#lop-fb').textContent=(reason==='time'?'Hết giờ! ':'')+'Đáp án là: '+g.q.a;}
+    $('#lop-tiles').querySelectorAll('.ctile').forEach((x,k)=>{x.classList.toggle('first',good);});
+    hud();
+    setTimeout(()=>{if(g.over||qg!==g)return;g.i++;if(g.i>=g.qs.length)end();else show();},good?1100:2200);
+  }
+  function end(){
+    clearInterval(g.tick);g.acc=g.ok/g.qs.length;
+    const stars=g.score>=150?3:g.score>=90?2:1;
+    quizEnd(stars,'Em được '+g.score+' điểm!','Em trả lời đúng '+g.ok+'/'+g.qs.length+' câu.'+(g.ok===g.qs.length?' Tuyệt vời!':' Thử mức khác hoặc chơi lại để nhiều điểm hơn nhé.'),g.score);
+  }
+  function check(v){const n=norm(v);if(!n)return null;if(g.accept.has(n))return 'ok';return 'no';}
+  function submit(){
+    if(g.locked||g.over)return;const v=inp.value,r=check(v);if(r===null)return;
+    if(r==='ok'){finish(true);return;}
+    g.tries++;inp.classList.remove('bad');void inp.offsetWidth;inp.classList.add('bad');beep(200,.1,'triangle',.05);
+    const hintDau=dau&&g.accept.has(foldVn(v.normalize('NFC').toUpperCase().replace(/\s+/g,'')).toUpperCase())===false&&[...g.accept].some(a=>foldVn(a).toUpperCase()===foldVn(v.normalize('NFC').toUpperCase().replace(/\s+/g,'')).toUpperCase());
+    if(g.tries>=3){finish(false);return;}
+    $('#lop-fb').textContent=hintDau?'Gần đúng rồi, em kiểm tra lại dấu nhé. (còn '+(3-g.tries)+' lần)':'Chưa đúng, em thử lại nhé. (còn '+(3-g.tries)+' lần)';
+  }
+  inp.oninput=e=>{if(!e.isComposing&&check(inp.value)==='ok')finish(true);};
+  inp.addEventListener('compositionend',()=>{if(check(inp.value)==='ok')finish(true);});
+  inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();submit();}};
+  $('#lop-ok').onclick=submit;
+  $('#lop-skip').onclick=()=>{if(!g.locked)finish(false);};
+  $('#lop-hint').onclick=()=>{
+    if(g.locked||g.over)return;g.hints++;const q=g.q;
+    if(g.hints===1&&!LOP_SHOWHINT.includes(q.topic)){$('#lop-say').textContent+=' Gợi ý: '+q.h;}
+    else{[...$('#lop-tiles').children].forEach(x=>{if(x.textContent===g.first&&!$('#lop-tiles .first'))x.classList.add('first');});$('#lop-fb').textContent='Chữ cái đầu tiên là: '+g.first;}
+    inp.focus();
+  };
+  g.tick=setInterval(()=>{
+    if(g.locked||g.over)return;const left=Math.max(0,dur-(performance.now()-g.tStart));
+    $('#lop-time').textContent=Math.ceil(left/1000)+' giây';const bar=$('#lop-timebar');bar.style.width=(left/dur*100)+'%';bar.classList.toggle('low',left<10000);
+    if(left<=0)finish(false,'time');
+  },200);
+  show();
+}
+
 /* ---- ô chữ ---- */
 function crossGen(lang,level){
   const bank=(lang==='en'?XE:XV).filter(x=>xLevel(x.w,lang)===level);
@@ -3344,9 +3432,10 @@ document.addEventListener('keydown',e=>{if(screen==='quiz'&&qg&&qg.kind==='quiz'
 $$('[data-qgame]').forEach(b=>b.addEventListener('click',()=>{qprefs.game=b.dataset.qgame;renderQuizLobby();}));
 $$('[data-qlang]').forEach(b=>b.addEventListener('click',()=>{qprefs.lang=b.dataset.qlang;renderQuizLobby();}));
 $$('[data-qlevel]').forEach(b=>b.addEventListener('click',()=>{qprefs.level=+b.dataset.qlevel;renderQuizLobby();}));
+$$('[data-qdau]').forEach(b=>b.addEventListener('click',()=>{qprefs.dau=b.dataset.qdau==='1';renderQuizLobby();}));
 $('#q-play').addEventListener('click',quizStart);
 $('#q-again').addEventListener('click',()=>{$('#q-over').hidden=true;quizStart();});
-$('#q-lobbybtn').addEventListener('click',()=>{qg=null;$('#q-hud').textContent='';renderQuizLobby();});
+$('#q-lobbybtn').addEventListener('click',()=>{if(qg&&qg.tick)clearInterval(qg.tick);qg=null;$('#q-hud').textContent='';renderQuizLobby();});
 $('#q-back').addEventListener('click',()=>showHub());
 $('#w-go-quiz').addEventListener('click',()=>showQuiz());
 

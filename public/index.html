@@ -35,12 +35,14 @@
       <div id="q-lobby">
         <h1 class="oneline">🧩 Đố vui</h1>
         <div class="clobby">
-          <div class="crow"><span class="lbl">Trò chơi</span><button class="chip" type="button" data-qgame="quiz">❓ Đố vui (chọn đáp án)</button><button class="chip" type="button" data-qgame="cross">🔤 Ô chữ</button></div>
+          <div class="crow"><span class="lbl">Trò chơi</span><button class="chip" type="button" data-qgame="quiz">❓ Đố vui (chọn đáp án)</button><button class="chip" type="button" data-qgame="cross">🔤 Ô chữ</button><button class="chip" type="button" data-qgame="lop">🏫 Lớp học chữ</button></div>
           <div class="crow"><span class="lbl">Ngôn ngữ</span><button class="chip" type="button" data-qlang="en">🇬🇧 Tiếng Anh</button><button class="chip" type="button" data-qlang="vi">🇻🇳 Tiếng Việt</button></div>
           <div class="crow"><span class="lbl">Mức</span><button class="chip" type="button" data-qlevel="1">🐢 Dễ</button><button class="chip" type="button" data-qlevel="2">🐇 Vừa</button><button class="chip" type="button" data-qlevel="3">🐆 Khó</button></div>
+          <div class="crow" id="q-dau-row" hidden><span class="lbl">Cách gõ</span><button class="chip" type="button" data-qdau="0">Không cần dấu</button><button class="chip" type="button" data-qdau="1">Có dấu (bật bộ gõ tiếng Việt)</button></div>
           <button class="btn primary" id="q-play" type="button">▶ Chơi</button>
           <p class="note" id="q-bank"></p>
           <p class="note" id="q-best"></p>
+          <p class="note" id="q-credit" hidden>Ý tưởng và một phần kho câu hỏi lấy từ game Lớp Học Chữ của workaipvlinh-byte (giấy phép MIT), đã chọn và viết lại cho bé tiểu học.</p>
         </div>
       </div>
       <div id="q-game" hidden>
@@ -49,6 +51,15 @@
           <div id="dv-opts" class="dvopts"></div>
           <p id="dv-fb" class="dvfb" aria-live="polite"></p>
           <p class="note">Bấm vào đáp án hoặc nhấn phím 1, 2, 3, 4.</p>
+        </div>
+        <div id="dv-lop" class="dvcard" hidden>
+          <div class="lopbar"><b id="lop-q">Câu 1/10</b><b id="lop-score">0 điểm</b><b id="lop-time">45</b></div>
+          <div class="loptimebar" aria-hidden="true"><i id="lop-timebar"></i></div>
+          <div class="lopteacher"><span class="lt-av" aria-hidden="true">👩‍🏫</span><p id="lop-say"></p></div>
+          <div class="blackboard"><div class="ctiles" id="lop-tiles" aria-label="Các chữ cái bị xáo trộn"></div><p class="lop-sub" id="lop-sub"></p></div>
+          <div class="lopin"><input id="lop-in" type="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" lang="vi" aria-label="Gõ đáp án vào đây" placeholder="Sắp xếp lại các chữ rồi gõ đáp án"><button class="chip go" id="lop-ok" type="button">Trả lời</button></div>
+          <div class="btns" style="justify-content:flex-start"><button class="chip" id="lop-hint" type="button">💡 Gợi ý</button><button class="chip" id="lop-skip" type="button">⏭ Bỏ qua</button></div>
+          <p id="lop-fb" class="dvfb" aria-live="polite"></p>
         </div>
         <div id="dv-cross" class="dvcard" hidden>
           <div class="xwrap">
