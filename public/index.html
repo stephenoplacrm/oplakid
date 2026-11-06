@@ -16,7 +16,6 @@
   <header class="top">
     <button class="brand" id="brand" type="button" aria-label="Về trang chính"><img class="logo" src="/logo.png" alt="" width="26" height="44">OplaKid</button>
     <div class="hright">
-      <button class="pill timerpill" id="timer-pill" type="button" hidden title="Đồng hồ hẹn giờ">⏱ <b id="timer-pill-t">00:00</b></button>
       <button class="pill onpill" id="online-pill" type="button" hidden><span class="dotg" aria-hidden="true"></span><b id="online-n">0</b> đang online</button>
       <button class="pill whobtn" id="who" type="button" hidden title="Đổi người học"><span id="who-av"></span><span id="who-nm"></span></button>
       <button class="pill" id="to-school" type="button" hidden>🏫 Về khu vui chơi</button>
@@ -349,14 +348,6 @@
     <section id="s-world" hidden>
       <h1 class="oneline">Khu vui chơi OplaKid</h1>
       <p class="note"><b id="w-total"></b> <span id="w-note"></span></p>
-      <section class="timercard" id="timer-card" aria-label="Hẹn giờ">
-        <div class="tc-main"><span class="tc-ico" aria-hidden="true">⏱</span><b id="tc-time">00:00</b><span class="tc-state" id="tc-state">Xin ba mẹ thêm giờ? Hẹn giờ ở đây nhé.</span></div>
-        <div class="tc-btns">
-          <button class="chip" type="button" data-tm="5">5 phút</button><button class="chip" type="button" data-tm="10">10 phút</button><button class="chip" type="button" data-tm="15">15 phút</button><button class="chip" type="button" data-tm="30">30 phút</button><button class="chip" type="button" data-tm="60">60 phút</button>
-          <button class="chip" type="button" data-tadd="1">+1 phút</button><button class="chip" type="button" data-tadd="5">+5 phút</button>
-          <button class="chip go" id="tc-go" type="button">▶ Bắt đầu</button><button class="chip" id="tc-stop" type="button">⏹ Dừng</button>
-        </div>
-      </section>
       <div class="goclass">
         <button class="classbtn" id="w-go-typing" type="button"><span class="cico" aria-hidden="true">⌨️</span><b>Lớp Gõ phím</b><span class="crec" id="w-typing-rec"></span></button>
         <button class="classbtn" id="w-go-quiz" type="button"><span class="cico" aria-hidden="true">🧩</span><b>Lớp Đố vui</b><span class="crec" id="w-quiz-rec">Đố vui và ô chữ</span></button>

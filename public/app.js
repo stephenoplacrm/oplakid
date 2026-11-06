@@ -631,7 +631,6 @@ function show(name){
   if(name==='home')renderHome();
   if(name!=='build'&&bdT0)bdLeave();
   if(name==='world')renderWorldButtons();
-  tmRender();
   syncChatWrap();
   $('#to-school').hidden=!(uid&&curPid)||['login','auth','world'].includes(name);
   if(name==='parent')renderParent();
@@ -3533,46 +3532,6 @@ function renderPfActions(){
   }
 }
 
-
-/* ================= Hẹn giờ (đếm ngược) ================= */
-const TM_KEY='oplakid:timer';
-let tm={running:false,end:0,left:0,total:0,done:false};
-try{const o=JSON.parse(localStorage.getItem(TM_KEY)||'null');if(o&&typeof o==='object'){tm.running=!!o.running;tm.end=+o.end||0;tm.left=+o.left||0;tm.total=+o.total||0;}}catch(e){}
-const tmSave=()=>{try{localStorage.setItem(TM_KEY,JSON.stringify({running:tm.running,end:tm.end,left:tm.left,total:tm.total}));}catch(e){}};
-const tmLeft=()=>tm.running?Math.max(0,tm.end-Date.now()):tm.left;
-const tmFmt=ms=>{const s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),r=s%60;return (h?h+':'+String(m).padStart(2,'0'):String(m).padStart(2,'0'))+':'+String(r).padStart(2,'0');};
-function tmRender(){
-  const left=tmLeft(),active=tm.running||left>0,card=$('#timer-card');
-  if(card){
-    $('#tc-time').textContent=tmFmt(left);
-    card.classList.toggle('run',tm.running);card.classList.toggle('done',!!tm.done);
-    $('#tc-state').textContent=tm.done?'⏰ Hết giờ rồi! Em nghỉ nhé.':tm.running?'Đồng hồ đang chạy…':left>0?'Đã dừng. Bấm Bắt đầu để chạy tiếp.':'Xin ba mẹ thêm giờ? Hẹn giờ ở đây nhé.';
-    $('#tc-go').textContent=tm.running?'⏸ Tạm dừng':left>0?'▶ Tiếp tục':'▶ Bắt đầu';
-    $('#tc-go').disabled=!tm.running&&left<=0;$('#tc-stop').disabled=!active&&!tm.done;
-  }
-  const pill=$('#timer-pill');
-  if(pill){pill.hidden=!active||!(uid&&curPid)||['login','auth'].includes(screen);$('#timer-pill-t').textContent=tmFmt(left);pill.classList.toggle('run',tm.running);}
-  document.title=tm.running?'⏱ '+tmFmt(left)+' · OplaKid':'OplaKid';
-}
-function tmAlarm(){
-  tm.running=false;tm.left=0;tm.end=0;tm.done=true;tmSave();tmRender();
-  const ring=()=>{[0,260,520].forEach(t=>setTimeout(()=>{beep(988,.18,'square',.07);setTimeout(()=>beep(1319,.2,'square',.07),130);},t));};
-  ring();setTimeout(ring,1500);
-  try{if(navigator.vibrate)navigator.vibrate([300,150,300,150,300]);}catch(e){}
-  toast('⏰ Hết giờ rồi! Em nghỉ ngơi nhé.',[['Đã biết',()=>{tm.done=false;tmRender();},true]],120000);
-}
-function tmSet(min){tm.left=min*60000;tm.total=tm.left;tm.running=false;tm.done=false;tm.end=0;tmSave();tmRender();}
-function tmStart(){const l=tmLeft();if(l<=0)return;tm.running=true;tm.end=Date.now()+l;tm.left=l;tm.done=false;tmSave();tmRender();}
-function tmPause(){const l=tmLeft();tm.running=false;tm.left=l;tm.end=0;tmSave();tmRender();}
-function tmAdd(min){tm.done=false;if(tm.running)tm.end+=min*60000;else tm.left+=min*60000;tm.total=Math.max(tm.total,tmLeft());tmSave();tmRender();}
-function tmStop(){tm={running:false,end:0,left:0,total:0,done:false};tmSave();tmRender();}
-$$('[data-tm]').forEach(b=>b.addEventListener('click',()=>tmSet(+b.dataset.tm)));
-$$('[data-tadd]').forEach(b=>b.addEventListener('click',()=>tmAdd(+b.dataset.tadd)));
-$('#tc-go').addEventListener('click',()=>{if(tm.running)tmPause();else tmStart();});
-$('#tc-stop').addEventListener('click',tmStop);
-$('#timer-pill').addEventListener('click',()=>{if(uid&&curPid)showHub();});
-setInterval(()=>{if(tm.running&&Date.now()>=tm.end)tmAlarm();else if(tm.running||tm.done)tmRender();},500);
-if(tm.running&&Date.now()>=tm.end){const late=Date.now()-tm.end;tm.running=false;tm.left=0;tm.end=0;tmSave();if(late<120000)setTimeout(tmAlarm,1500);}   // hẹn giờ đã hết lúc đóng trang: chỉ nhắc nếu vừa hết trong 2 phút
 
 
 /* ================= Xây nhà (khối 3D, lưu theo hồ sơ bé) ================= */
