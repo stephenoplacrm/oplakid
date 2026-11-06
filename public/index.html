@@ -27,6 +27,44 @@
   <p class="imewarn" id="ime-warn" role="alert" hidden>Nhớ tắt bộ gõ tiếng Việt (Unikey, EVKey) nhé!</p>
 
   <main>
+    <section id="s-build" hidden>
+      <div class="playbar"><button class="pill" id="bd-back" type="button">Về khu vui chơi <kbd>Esc</kbd></button><span></span><span></span></div>
+      <h1 class="oneline">🏗 Xây nhà</h1>
+      <p class="note">Em có một khu đất nhỏ để xây nhà, vườn, tháp. Bấm vào khối để xây hoặc phá. Nhà của em được lưu lại.</p>
+      <div class="bdbar">
+        <button class="bdbtn" id="bd-b-build" type="button" aria-pressed="true">🧱 Xây (B)</button>
+        <button class="bdbtn" id="bd-b-break" type="button" aria-pressed="false">🔨 Phá (X)</button>
+        <button class="bdbtn" id="bd-b-undo" type="button">↩ Đi lại (Z)</button>
+        <button class="bdbtn" id="bd-b-rot" type="button" hidden>⟳ Xoay (R)</button>
+        <span class="bdsp"></span>
+        <button class="bdbtn" id="bd-b-view" type="button">🚶 Đi bộ</button>
+        <button class="bdbtn" id="bd-b-fly" type="button" aria-pressed="false" hidden>🕊 Bay (F)</button>
+        <label class="bdnote" for="bd-b-cut" title="Kéo xuống để bỏ mái nhà, nhìn và trang trí bên trong">✂ Nhìn tới tầng <input id="bd-b-cut" type="range" min="1" max="16" value="16" aria-label="Nhìn tới tầng"></label>
+        <button class="bdbtn" id="bd-b-sound" type="button" aria-pressed="true">🔊</button>
+      </div>
+      <div class="bdstage" id="bd-stage">
+        <canvas id="bd-cv" aria-label="Khu đất xây nhà 3D"></canvas>
+        <div class="bdhint" id="bd-hint">Kéo để xoay. Lăn chuột để phóng to. Bấm vào khối để xây.</div>
+        <div class="bdcount" id="bd-count">0 khối</div>
+        <div class="bdpad" id="bd-pad" hidden>
+          <button class="u" type="button" data-k="w" aria-label="Đi tới">▲</button><button class="l" type="button" data-k="a" aria-label="Đi sang trái">◀</button>
+          <button class="d" type="button" data-k="s" aria-label="Đi lùi">▼</button><button class="r" type="button" data-k="d" aria-label="Đi sang phải">▶</button>
+        </div>
+        <button class="bdjump" id="bd-jump" type="button" hidden>Nhảy</button>
+      </div>
+      <div class="bdtabs" id="bd-tabs" role="tablist" aria-label="Chọn nhóm"></div>
+      <div class="bdhot" id="bd-hot" role="group" aria-label="Chọn loại khối"></div>
+      <div class="bdbar">
+        <button class="bdbtn go" id="bd-b-save" type="button">💾 Lưu nhà</button>
+        <button class="bdbtn" id="bd-b-sample" type="button">🏠 Nhà mẫu</button>
+        <button class="bdbtn" id="bd-b-clear" type="button">🗑 Xoá hết</button>
+        <span class="bdnote" id="bd-saved"></span>
+      </div>
+      <div class="bdconfirm" id="bd-confirm" hidden><span id="bd-confirm-t"></span><button class="bdbtn go" id="bd-c-yes" type="button">Có</button><button class="bdbtn" id="bd-c-no" type="button">Không</button></div>
+      <p class="note">Máy tính: kéo chuột để xoay, bánh xe để phóng to, chuột phải đổi Xây và Phá, phím 1 đến 9 chọn khối hoặc mẫu, phím R xoay mẫu. Khi đi bộ dùng phím W A S D, Space để nhảy, F để bay. Kéo thanh "Nhìn tới tầng" xuống để bỏ mái nhà rồi đặt đồ vật bên trong. Điện thoại: kéo ngón tay để xoay, bấm để xây.</p>
+      <div class="bdtoast" id="bd-toast" hidden></div>
+    </section>
+
     <section id="s-quiz" hidden>
       <div class="playbar">
         <button class="pill" id="q-back" type="button">Về khu vui chơi <kbd>Esc</kbd></button>
@@ -319,6 +357,7 @@
       <div class="goclass">
         <button class="classbtn" id="w-go-typing" type="button"><span class="cico" aria-hidden="true">⌨️</span><b>Lớp Gõ phím</b><span class="crec" id="w-typing-rec"></span></button>
         <button class="classbtn" id="w-go-quiz" type="button"><span class="cico" aria-hidden="true">🧩</span><b>Lớp Đố vui</b><span class="crec" id="w-quiz-rec">Đố vui và ô chữ</span></button>
+        <button class="classbtn" id="w-go-build" type="button"><span class="cico" aria-hidden="true">🏗</span><b>Xây nhà</b><span class="crec">Xây nhà, xe, con vật bằng khối</span></button>
         <button class="classbtn" id="w-go-chess" type="button"><span class="cico" aria-hidden="true">♞</span><b>Lớp Cờ vua</b><span class="crec" id="w-chess-rec"></span></button>
       </div>
       <p class="note">Bấm vào lớp trong khu vui chơi hoặc bấm nút ở trên để vào chơi.</p>
