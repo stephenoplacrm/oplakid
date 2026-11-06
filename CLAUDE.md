@@ -14,6 +14,7 @@ Render tự deploy mỗi khi có commit vào nhánh `main`.
 - `public/index.html`, `public/app.css`, `public/app.js`: toàn bộ giao diện, JavaScript thuần, không có bước build.
 - Cấp độ 6 đến 10 gõ tiếng Việt: bé dùng bộ gõ tiếng Việt có sẵn của máy (ô `#vn-input`); ứng dụng chỉ so chữ, không tự ghép dấu. Kho chữ tiếng Việt nằm trong `app.js` (`VN`). Không thêm file JS riêng cho phần này.
 - Lớp học chữ (trong lớp Đố vui, `lopPlay()` trong `app.js`): kho câu hỏi là file chữ `public/lop-hoc-chu.txt` (không phải JS), tải khi bé chơi; kiểm tra bằng `node tests/lopchu.test.js`. Lấy ý tưởng và một phần câu hỏi (Lịch sử, Tiếng Anh, Tiếng kêu, Từ trái nghĩa) từ github.com/workaipvlinh-byte/lop-hoc-chu theo giấy phép MIT, xem `THIRD-PARTY-LICENSES.md`; không dùng ảnh hay mã giao diện của họ (ảnh không thuộc MIT). Khi thêm câu hỏi: không có chuyện người lớn, không lộ đáp án trong gợi ý.
+- Hẹn giờ (đếm ngược) ở trang chính và hiện trên thanh trên cùng ở mọi màn: lưu trong trình duyệt (`localStorage` khoá `oplakid:timer`), không gửi lên máy chủ, không liên quan giới hạn thời gian mỗi ngày của ba mẹ.
 - `public/privacy.html`, `public/contact.html`: chính sách quyền riêng tư và trang liên hệ (thông tin người vận hành, email, nơi đặt máy chủ). Chính sách chưa được luật sư rà soát.
 - Dữ liệu: một file SQLite tại `DATABASE_PATH` (đĩa cố định `/data` trên Render).
 
